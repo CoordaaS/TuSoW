@@ -1,9 +1,6 @@
 package it.unibo.coordination.tuples.logic;
 
-import alice.tuprolog.NoMoreSolutionException;
-import alice.tuprolog.NoSolutionException;
-import alice.tuprolog.Prolog;
-import alice.tuprolog.Var;
+import alice.tuprolog.*;
 import it.unibo.coordination.tuples.core.impl.AbstractTupleSpace;
 import it.unibo.tuprolog.utils.PrologUtils;
 import org.apache.commons.collections4.MultiSet;
@@ -60,10 +57,13 @@ class LogicSpaceImpl extends AbstractTupleSpace<LogicTuple, LogicTemplate> imple
         if (limit <= 0) return result;
 
         try {
-            var si = engine.solve(PrologUtils.assertTerm(template.getTupleTemplate()));
+            var si = engine.solve(PrologUtils.retractTerm(template.getTupleTemplate()));
 
             for (int i = 1; si.isSuccess(); i++) {
-                result.add(LogicTuple.of(si.getSolution()));
+                final Struct retract = (Struct) si.getSolution();
+
+                result.add(LogicTuple.of(retract.getArg(0)));
+
                 if (i < limit && si.hasOpenAlternatives()) {
                     si = engine.solveNext();
                 } else {

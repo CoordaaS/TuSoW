@@ -22,6 +22,10 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
         return new LogicSpaceImpl(name, Engine.getDefaultEngine());
     }
 
+    static LogicSpace create(ExecutorService executorService) {
+        return new LogicSpaceImpl(null, Engine.getDefaultEngine());
+    }
+
     default CompletableFuture<LogicTuple> write(String template) {
         return write(LogicTuple.of(template));
     }
@@ -83,8 +87,8 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
                 Stream.concat(
                         Stream.of(template),
                         Stream.of(templates)
-                ).map(LogicTuple::of)
-                        .collect(Collectors.toList())
+                    ).map(LogicTuple::of)
+                    .collect(Collectors.toList())
         );
     }
 
@@ -93,8 +97,8 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
                 Stream.concat(
                         Stream.of(template),
                         Stream.of(templates)
-                ).map(LogicTuple::of)
-                        .collect(Collectors.toList())
+                    ).map(LogicTuple::of)
+                    .collect(Collectors.toList())
         );
     }
 }

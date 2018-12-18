@@ -33,7 +33,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
 
     public AbstractTupleSpace(final String name, final ExecutorService executor) {
         this.executor = Objects.requireNonNull(executor);
-        this.name = Objects.requireNonNull(name) + "#" + System.identityHashCode(this);
+        this.name = Optional.ofNullable(name).orElseGet(() -> this.getClass().getName() + "_" + System.identityHashCode(this));
 
         this.operationInvoked = EventEmitter.ordered(executor);
         this.operationCompleted = EventEmitter.ordered(executor);
