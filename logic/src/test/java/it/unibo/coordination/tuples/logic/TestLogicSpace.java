@@ -638,4 +638,232 @@ public class TestLogicSpace {
         test.await();
         alice.await();
     }
+
+    @Test
+    public void testAbsentReturns() throws Exception {
+        test.setThreadCount(1);
+
+        final ActiveObject alice = new ActiveObject("Alice") {
+
+            @Override
+            protected void loop() throws Exception {
+                test.assertEventuallyReturns(tupleSpace.absent("f(X)"));
+                stop();
+            }
+
+            @Override
+            protected void onEnd() {
+                test.done();
+            }
+
+        }.start();
+
+        test.await();
+        alice.await();
+    }
+
+    @Test
+    public void testAbsentSuspends() throws Exception {
+        test.setThreadCount(1);
+
+        final ActiveObject alice = new ActiveObject("Alice") {
+
+            @Override
+            protected void loop() throws Exception {
+                test.assertEventuallyReturns(tupleSpace.write("f(1)"));
+                test.assertBlocksIndefinitely(tupleSpace.absent("f(X)"));
+                stop();
+            }
+
+            @Override
+            protected void onEnd() {
+                test.done();
+            }
+
+        }.start();
+
+        test.await();
+        alice.await();
+    }
+
+    @Test
+    public void testTryAbsentSucceeds() throws Exception {
+        test.setThreadCount(1);
+
+        final ActiveObject alice = new ActiveObject("Alice") {
+
+            @Override
+            protected void loop() throws Exception {
+                test.assertTrue(tupleSpace.tryAbsent("f(X)"), opt -> !opt.isPresent());
+                stop();
+            }
+
+            @Override
+            protected void onEnd() {
+                test.done();
+            }
+
+        }.start();
+
+        test.await();
+        alice.await();
+    }
+
+    @Test
+    public void testTryAbsentFails() throws Exception {
+        test.setThreadCount(1);
+
+        final ActiveObject alice = new ActiveObject("Alice") {
+
+            @Override
+            protected void loop() throws Exception {
+                test.assertEventuallyReturns(tupleSpace.write("f(1)"));
+                test.assertEquals(tupleSpace.tryAbsent("f(X)"), Optional.of(LogicTuple.of("f(1)")));
+
+                stop();
+            }
+
+            @Override
+            protected void onEnd() {
+                test.done();
+            }
+
+        }.start();
+
+        test.await();
+        alice.await();
+    }
+
+    @Test
+    public void testTakeResumesAbsent() throws Exception {
+        test.setThreadCount(2);
+
+        final LogicTuple tuple = LogicTuple.of("foo(bar)");
+
+        final ActiveObject bob = new ActiveObject("Bob") {
+
+            @Override
+            protected void loop() throws Exception {
+                test.assertEquals(tupleSpace.take("foo(B)"), tuple);
+                stop();
+            }
+
+            @Override
+            protected void onEnd() {
+                test.done();
+            }
+
+        };
+
+        final ActiveObject alice = new ActiveObject("Alice") {
+
+            @Override
+            protected void loop() throws Exception {
+                test.assertEventuallyReturns(tupleSpace.write(tuple));
+                final Future<LogicTemplate> toBeAbsent = tupleSpace.absent("foo(X)");
+                bob.start();
+                test.assertEventuallyReturns(toBeAbsent);
+                stop();
+            }
+
+            @Override
+            protected void onEnd() {
+                test.done();
+            }
+
+        }.start();
+
+        test.await();
+        alice.await();
+        bob.await();
+    }
+
+    @Test
+    public void testTryTakeResumesAbsent() throws Exception {
+        test.setThreadCount(2);
+
+        final LogicTuple tuple = LogicTuple.of("foo(bar)");
+
+        final ActiveObject bob = new ActiveObject("Bob") {
+
+            @Override
+            protected void loop() throws Exception {
+                test.assertEquals(tupleSpace.tryTake("foo(B)"), Optional.of(tuple));
+                stop();
+            }
+
+            @Override
+            protected void onEnd() {
+                test.done();
+            }
+
+        };
+
+        final ActiveObject alice = new ActiveObject("Alice") {
+
+            @Override
+            protected void loop() throws Exception {
+                test.assertEventuallyReturns(tupleSpace.write(tuple));
+                final Future<LogicTemplate> toBeAbsent = tupleSpace.absent("foo(X)");
+                bob.start();
+                test.assertEventuallyReturns(toBeAbsent);
+                stop();
+            }
+
+            @Override
+            protected void onEnd() {
+                test.done();
+            }
+
+        }.start();
+
+        test.await();
+        alice.await();
+        bob.await();
+    }
+
+    @Test
+    public void testTakeAllResumesAbsent() throws Exception {
+        test.setThreadCount(2);
+
+        final MultiSet<LogicTuple> tuples = new HashMultiSet<>(
+                Arrays.asList(LogicTuple.of("foo(bar)"), LogicTuple.of("foo(baz)")));
+
+        final ActiveObject bob = new ActiveObject("Bob") {
+
+            @Override
+            protected void loop() throws Exception {
+                test.assertEquals(tupleSpace.takeAll("foo(B)"), tuples);
+                stop();
+            }
+
+            @Override
+            protected void onEnd() {
+                test.done();
+            }
+
+        };
+
+        final ActiveObject alice = new ActiveObject("Alice") {
+
+            @Override
+            protected void loop() throws Exception {
+                test.assertEquals(tupleSpace.writeAll(tuples), tuples);
+                final Future<LogicTemplate> toBeAbsent = tupleSpace.absent("foo(X)");
+                bob.start();
+                test.assertEventuallyReturns(toBeAbsent);
+                stop();
+            }
+
+            @Override
+            protected void onEnd() {
+                test.done();
+            }
+
+        }.start();
+
+        test.await();
+        alice.await();
+        bob.await();
+    }
 }

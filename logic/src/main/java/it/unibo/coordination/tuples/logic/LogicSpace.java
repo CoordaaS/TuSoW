@@ -9,6 +9,7 @@ import org.apache.commons.collections4.MultiSet;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -90,6 +91,22 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
                     ).map(LogicTuple::of)
                     .collect(Collectors.toList())
         );
+    }
+
+    default CompletableFuture<LogicTemplate> absent(final String template) {
+        return absent(LogicTemplate.of(template));
+    }
+
+    default CompletableFuture<LogicTemplate> absent(final Term template) {
+        return absent(LogicTemplate.of(template));
+    }
+
+    default CompletableFuture<Optional<LogicTuple>> tryAbsent(String template) {
+        return tryAbsent(LogicTemplate.of(template));
+    }
+
+    default CompletableFuture<Optional<LogicTuple>> tryAbsent(Term template) {
+        return tryAbsent(LogicTemplate.of(template));
     }
 
     default CompletableFuture<MultiSet<? extends LogicTuple>> writeAll(Term template, Term... templates) {
