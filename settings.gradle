@@ -1,0 +1,5 @@
+rootProject.name = 'parent'
+include 'core'
+include 'logic'
+include 'object'
+
