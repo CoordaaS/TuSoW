@@ -28,6 +28,19 @@ public class TupleSpaceEvent<T extends Tuple, TT extends Template> {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TupleSpaceEvent<?, ?> that = (TupleSpaceEvent<?, ?>) o;
+        return Objects.equals(tupleSpace, that.tupleSpace);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tupleSpace);
+    }
+
+    @Override
     public String toString() {
         return "TupleSpaceEvent{" +
                 "tupleSpace=" + getTupleSpaceName() +

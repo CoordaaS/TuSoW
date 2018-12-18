@@ -122,6 +122,25 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
         return resultTuples.size() > 0 || resultTemplates.size() > 0;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        OperationEvent<?, ?> that = (OperationEvent<?, ?>) o;
+        return operationType == that.operationType &&
+                operationPhase == that.operationPhase &&
+                Objects.equals(argumentTuples, that.argumentTuples) &&
+                Objects.equals(argumentTemplates, that.argumentTemplates) &&
+                Objects.equals(resultTuples, that.resultTuples) &&
+                Objects.equals(resultTemplates, that.resultTemplates);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), operationType, operationPhase, argumentTuples, argumentTemplates, resultTuples, resultTemplates);
+    }
+
     public static final class Invocation<T extends Tuple, TT extends Template> extends OperationEvent<T, TT> {
 
         private Invocation(TupleSpace<T, TT> tupleSpace, OperationType operationType, Stream<? extends T> argumentTuples, Stream<? extends TT> argumentTemplates) {

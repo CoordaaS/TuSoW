@@ -59,11 +59,18 @@ public class TupleEvent<T extends Tuple, TT extends Template> extends TupleSpace
     }
 
     @Override
-    public String toString() {
-        return "TupleEvent{" +
-                "effect='" + effect + '\'' +
-                ", before=" + before +
-                ", tuple=" + tuple +
-                '}';
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        TupleEvent<?, ?> that = (TupleEvent<?, ?>) o;
+        return before == that.before &&
+                Objects.equals(effect, that.effect) &&
+                Objects.equals(tuple, that.tuple);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(effect, before, tuple);
     }
 }

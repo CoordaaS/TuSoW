@@ -3,7 +3,6 @@ package it.unibo.coordination.tuples.core.impl;
 import it.unibo.coordination.tuples.core.*;
 import it.unibo.coordination.tuples.core.events.OperationEvent;
 import it.unibo.coordination.tuples.core.events.TupleEvent;
-import it.unibo.coordination.tuples.core.events.TupleSpaceEvent;
 import it.unibo.coordination.utils.events.EventEmitter;
 import it.unibo.coordination.utils.events.EventSource;
 import org.apache.commons.collections4.MultiSet;
@@ -27,8 +26,8 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     private final ReentrantLock lock = new ReentrantLock(true);
     private final MultiSet<PendingRequest> pendingRequests = new HashMultiSet<>();
 
-    private final EventEmitter<TupleSpaceEvent<T, TT>> operationInvoked;
-    private final EventEmitter<TupleSpaceEvent<T, TT>> operationCompleted;
+    private final EventEmitter<OperationEvent<T, TT>> operationInvoked;
+    private final EventEmitter<OperationEvent<T, TT>> operationCompleted;
     private final EventEmitter<TupleEvent<T, TT>> tupleSpaceChanged;
 
     public AbstractTupleSpace(final String name, final ExecutorService executor) {
@@ -450,12 +449,12 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     }
 
     @Override
-    public EventSource<TupleSpaceEvent<T, TT>> operationInvoked() {
+    public EventSource<OperationEvent<T, TT>> operationInvoked() {
         return operationInvoked.getEventSource();
     }
 
     @Override
-    public EventSource<TupleSpaceEvent<T, TT>> operationCompleted() {
+    public EventSource<OperationEvent<T, TT>> operationCompleted() {
         return operationCompleted.getEventSource();
     }
 
