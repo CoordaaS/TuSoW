@@ -2,10 +2,7 @@ package it.unibo.coordination.tuples.core.events;
 
 import it.unibo.coordination.tuples.core.*;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -165,6 +162,10 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
                 throw new IllegalStateException();
 
             return new Completion<>(this, Stream.of(tuple), Stream.empty());
+        }
+
+        public Completion<T, TT> toTuplesReturningCompletion(T... tuples) {
+            return toTuplesReturningCompletion(Arrays.asList(tuples));
         }
 
         public Completion<T, TT> toTuplesReturningCompletion(Collection<? extends T> tuples) {

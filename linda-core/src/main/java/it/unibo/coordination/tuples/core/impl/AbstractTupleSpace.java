@@ -155,6 +155,14 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         tupleSpaceChanged.syncEmit(TupleEvent.afterWriting(this, tuple));
     }
 
+    private void onAbsent(TT template, T counterExample) {
+        tupleSpaceChanged.syncEmit(TupleEvent.afterAbsent(this, template, counterExample));
+    }
+
+    private void onAbsent(TT template) {
+        tupleSpaceChanged.syncEmit(TupleEvent.afterAbsent(this, template));
+    }
+
     private MultiSet<T> retrieveTuples(TT template) {
         return retrieveTuples(template, Integer.MAX_VALUE);
     }
@@ -198,11 +206,16 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
             if (pendingRequest.getRequestType() != RequestTypes.ABSENT
                     && pendingRequest.getTemplate().matches(insertedTuple)) {
                 i.remove();
-                pendingRequest.getPromiseTuple().complete(insertedTuple);
                 if (pendingRequest.getRequestType() == RequestTypes.TAKE) {
                     result = Optional.empty();
                     onTaken(insertedTuple);
+                    pendingRequest.getPromiseTuple().complete(insertedTuple);
                     break;
+                } else if (pendingRequest.getRequestType() == RequestTypes.READ) {
+                    onRead(insertedTuple);
+                    pendingRequest.getPromiseTuple().complete(insertedTuple);
+                } else {
+                    throw new IllegalStateException();
                 }
             }
         }
@@ -297,8 +310,8 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         getLock().lock();
         try {
             final MultiSet<T> result = retrieveTuples(template);
-            promise.complete(result);
             result.forEach(this::onTaken);
+            promise.complete(result);
         } finally {
             getLock().unlock();
         }
@@ -326,8 +339,8 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
                 result.add(tuple);
                 resumePendingAccessRequests(tuple).ifPresent(this::insertTuple);
             }
-            promise.complete(result);
             result.forEach(this::onWritten);
+            promise.complete(result);
         } finally {
             getLock().unlock();
         }
@@ -351,8 +364,8 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         getLock().lock();
         try {
             final Optional<T> take = retrieveTuple(template);
-            promise.complete(take);
             take.ifPresent(this::onTaken);
+            promise.complete(take);
         } finally {
             getLock().unlock();
         }
@@ -376,8 +389,8 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         getLock().lock();
         try {
             final Optional<T> take = lookForTuple(template);
-            promise.complete(take);
             take.ifPresent(this::onRead);
+            promise.complete(take);
         } finally {
             getLock().unlock();
         }
@@ -411,6 +424,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
             if (read.isPresent()) {
                 getPendingRequests().add(newPendingAbsentRequest(template, promise));
             } else {
+                onAbsent(template);
                 promise.complete(template);
             }
         } finally {
@@ -425,7 +439,9 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
             if (pendingRequest.getRequestType() == RequestTypes.ABSENT
                     && pendingRequest.getTemplate().matches(removedTuple)
                     && !lookForTuple(pendingRequest.getTemplate()).isPresent()) {
+
                 i.remove();
+                onAbsent(pendingRequest.getTemplate());
                 pendingRequest.getPromiseTemplate().complete(pendingRequest.getTemplate());
             }
         }
@@ -446,7 +462,14 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     }
 
     private void handleTryAbsent(final TT template, final CompletableFuture<Optional<T>> promise) {
-        handleTryRead(template, promise);
+        getLock().lock();
+        try {
+            final Optional<T> counterexample = lookForTuple(template);
+            counterexample.ifPresent(c -> onAbsent(template, c));
+            promise.complete(counterexample);
+        } finally {
+            getLock().unlock();
+        }
     }
 
     @Override

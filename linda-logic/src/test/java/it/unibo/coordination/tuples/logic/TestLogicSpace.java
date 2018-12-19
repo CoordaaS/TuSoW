@@ -445,10 +445,10 @@ public class TestLogicSpace {
 
             @Override
             protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.getSize(), 0);
-                test.assertEquals(tupleSpace.writeAll(tuples), tuples);
-                test.assertEquals(tupleSpace.getSize(), tuples.size());
-                test.assertEquals(tupleSpace.get(), tuples);
+                test.assertEquals(tupleSpace.getSize(), 0, "a");
+                test.assertEquals(tupleSpace.writeAll(tuples), tuples, "b");
+                test.assertEquals(tupleSpace.getSize(), tuples.size(), "c");
+                test.assertEquals(tupleSpace.get(), tuples, "d");
 
                 stop();
             }

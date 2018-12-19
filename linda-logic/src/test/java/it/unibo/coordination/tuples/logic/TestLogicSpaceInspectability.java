@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.*;
 
 public class TestLogicSpaceInspectability {
@@ -116,7 +117,7 @@ public class TestLogicSpaceInspectability {
 
 
     @Test
-    public void testReadCompletion() throws Exception {
+    public void testReadCompletion1() throws Exception {
         final List<TupleSpaceEvent<LogicTuple, LogicTemplate>> observableBehaviour = new LinkedList<>();
 
         final var expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, LogicTuple.of("f(1)"));
@@ -141,55 +142,162 @@ public class TestLogicSpaceInspectability {
 
     }
 
-    /*
+
     @Test
-    public void testReadIsIdempotent2() throws Exception {
-        test.setThreadCount(2);
+    public void testReadCompletion2() throws Exception {
+        final List<TupleSpaceEvent<LogicTuple, LogicTemplate>> observableBehaviour = new LinkedList<>();
 
-        final LogicTuple tuple = LogicTuple.of("s(z)");
+        final var expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.READ, LogicTemplate.of("f(X)"));
+        final var expectedEvent2 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, LogicTuple.of("f(1)"));
+        final var expectedEvent3 = TupleEvent.afterWriting(tupleSpace, LogicTuple.of("f(1)"));
+        final var expectedEvent4 = TupleEvent.afterReading(tupleSpace, LogicTuple.of("f(1)"));
+        final var expectedEvent5 = expectedEvent2.toTupleReturningCompletion(LogicTuple.of("f(1)"));
+        final var expectedEvent6 = expectedEvent1.toTupleReturningCompletion(LogicTuple.of("f(1)"));
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        tupleSpace.operationInvoked().bind(observableBehaviour::add);
+        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.operationCompleted().bind(observableBehaviour::add);
 
-            @Override
-            protected void loop() throws Exception {
-                test.assertEventuallyReturns(tupleSpace.write(tuple));
-                stop();
-            }
+        var read = tupleSpace.read("f(X)");
+        await(tupleSpace.write("f(1)"));
+        await(read);
 
-            @Override
-            protected void onEnd() {
-                test.done();
-            }
+        Assert.assertEquals(6, observableBehaviour.size());
+        Assert.assertEquals(
+                Set.of(expectedEvent1, expectedEvent2, expectedEvent3, expectedEvent4, expectedEvent5, expectedEvent6),
+                Set.copyOf(observableBehaviour)
+        );
 
-        };
-
-        final ActiveObject bob = new ActiveObject("Bob") {
-
-            @Override
-            protected void loop() throws Exception {
-                final Future<LogicTuple> toBeRead1 = tupleSpace.read("s(X)");
-                final Future<LogicTuple> toBeRead2 = tupleSpace.read("s(Y)");
-
-                alice.start();
-
-                test.assertEquals(toBeRead1, tuple);
-                test.assertEquals(toBeRead2, tuple);
-
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
-            }
-
-        }.start();
-
-        test.await();
-        alice.await();
-        bob.await();
+        Assert.assertTrue(
+                observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent2)
+        );
     }
 
+    @Test
+    public void testTryReadFail() throws Exception {
+        final List<TupleSpaceEvent<LogicTuple, LogicTemplate>> observableBehaviour = new LinkedList<>();
+
+        final var expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TRY_READ, LogicTemplate.of("f(X)"));
+        final var expectedEvent2 = expectedEvent1.toTuplesReturningCompletion();
+
+        tupleSpace.operationInvoked().bind(observableBehaviour::add);
+        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+
+        await(tupleSpace.tryRead("f(X)"));
+
+        Assert.assertEquals(2, observableBehaviour.size());
+        Assert.assertEquals(
+                List.of(expectedEvent1, expectedEvent2),
+                observableBehaviour
+        );
+
+    }
+
+
+    @Test
+    public void testTakeCompletion1() throws Exception {
+        final List<TupleSpaceEvent<LogicTuple, LogicTemplate>> observableBehaviour = new LinkedList<>();
+
+        final var expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, LogicTuple.of("f(1)"));
+        final var expectedEvent2 = TupleEvent.afterWriting(tupleSpace, LogicTuple.of("f(1)"));
+        final var expectedEvent3 = expectedEvent1.toTupleReturningCompletion(LogicTuple.of("f(1)"));
+        final var expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TAKE, LogicTemplate.of("f(X)"));
+        final var expectedEvent5 = TupleEvent.afterTaking(tupleSpace, LogicTuple.of("f(1)"));
+        final var expectedEvent6 = expectedEvent4.toTupleReturningCompletion(LogicTuple.of("f(1)"));
+
+        tupleSpace.operationInvoked().bind(observableBehaviour::add);
+        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+
+        await(tupleSpace.write("f(1)"));
+        await(tupleSpace.take("f(X)"));
+
+        Assert.assertEquals(6, observableBehaviour.size());
+        Assert.assertEquals(
+                List.of(expectedEvent1, expectedEvent2, expectedEvent3, expectedEvent4, expectedEvent5, expectedEvent6),
+                observableBehaviour
+        );
+    }
+
+    @Test
+    public void testTakeCompletion2() throws Exception {
+        final List<TupleSpaceEvent<LogicTuple, LogicTemplate>> observableBehaviour = new LinkedList<>();
+
+        final var expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TAKE, LogicTemplate.of("f(X)"));
+        final var expectedEvent2 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, LogicTuple.of("f(1)"));
+        final var expectedEvent3 = TupleEvent.afterWriting(tupleSpace, LogicTuple.of("f(1)"));
+        final var expectedEvent4 = TupleEvent.afterTaking(tupleSpace, LogicTuple.of("f(1)"));
+        final var expectedEvent5 = expectedEvent2.toTupleReturningCompletion(LogicTuple.of("f(1)"));
+        final var expectedEvent6 = expectedEvent1.toTupleReturningCompletion(LogicTuple.of("f(1)"));
+
+        tupleSpace.operationInvoked().bind(observableBehaviour::add);
+        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+
+        var take = tupleSpace.take("f(X)");
+        await(tupleSpace.write("f(1)"));
+        await(take);
+
+        Assert.assertEquals(6, observableBehaviour.size());
+        Assert.assertEquals(
+            Set.of(expectedEvent1, expectedEvent2, expectedEvent3, expectedEvent4, expectedEvent5, expectedEvent6),
+            Set.copyOf(observableBehaviour)
+        );
+
+        Assert.assertTrue(
+            observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent2)
+        );
+    }
+
+    @Test
+    public void testTryTakeSuccess() throws Exception {
+        final List<TupleSpaceEvent<LogicTuple, LogicTemplate>> observableBehaviour = new LinkedList<>();
+
+        final var expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, LogicTuple.of("f(1)"));
+        final var expectedEvent2 = TupleEvent.afterWriting(tupleSpace, LogicTuple.of("f(1)"));
+        final var expectedEvent3 = expectedEvent1.toTupleReturningCompletion(LogicTuple.of("f(1)"));
+        final var expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TRY_TAKE, LogicTemplate.of("f(X)"));
+        final var expectedEvent5 = TupleEvent.afterTaking(tupleSpace, LogicTuple.of("f(1)"));
+        final var expectedEvent6 = expectedEvent4.toTupleReturningCompletion(LogicTuple.of("f(1)"));
+
+        tupleSpace.operationInvoked().bind(observableBehaviour::add);
+        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+
+        await(tupleSpace.write("f(1)"));
+        await(tupleSpace.tryTake("f(X)"));
+
+        Assert.assertEquals(6, observableBehaviour.size());
+        Assert.assertEquals(
+                List.of(expectedEvent1, expectedEvent2, expectedEvent3, expectedEvent4, expectedEvent5, expectedEvent6),
+                observableBehaviour
+        );
+
+    }
+
+    @Test
+    public void testTryTakeFail() throws Exception {
+        final List<TupleSpaceEvent<LogicTuple, LogicTemplate>> observableBehaviour = new LinkedList<>();
+
+        final var expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TRY_READ, LogicTemplate.of("f(X)"));
+        final var expectedEvent2 = expectedEvent1.toTuplesReturningCompletion();
+
+        tupleSpace.operationInvoked().bind(observableBehaviour::add);
+        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+
+        await(tupleSpace.tryRead("f(X)"));
+
+        Assert.assertEquals(2, observableBehaviour.size());
+        Assert.assertEquals(
+                List.of(expectedEvent1, expectedEvent2),
+                observableBehaviour
+        );
+
+    }
+
+    /*
     @Test
     public void testTakeIsNotIdempotent1() throws Exception {
         test.setThreadCount(2);

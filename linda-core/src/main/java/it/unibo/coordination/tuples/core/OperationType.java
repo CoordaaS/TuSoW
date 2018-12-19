@@ -24,8 +24,8 @@ public enum OperationType {
     private static final EnumSet<OperationType> TUPLE_ACCEPTING = EnumSet.of(WRITE);
     private static final EnumSet<OperationType> TUPLES_ACCEPTING = EnumSet.of(WRITE_ALL);
 
-    private static final EnumSet<OperationType> TUPLE_RETURNING = EnumSet.of(WRITE, READ, TAKE, TRY_READ, TRY_TAKE);
-    private static final EnumSet<OperationType> TUPLES_RETURNING = EnumSet.of(WRITE_ALL, READ_ALL, TAKE_ALL, TRY_READ, TRY_TAKE);
+    private static final EnumSet<OperationType> TUPLE_RETURNING = EnumSet.of(WRITE, READ, TAKE, TRY_READ, TRY_TAKE, TRY_ABSENT);
+    private static final EnumSet<OperationType> TUPLES_RETURNING = EnumSet.of(GET, WRITE_ALL, READ_ALL, TAKE_ALL, TRY_READ, TRY_TAKE, TRY_ABSENT);
     private static final EnumSet<OperationType> TEMPLATE_RETURNING = EnumSet.of(ABSENT, TRY_ABSENT);
     private static final EnumSet<OperationType> TEMPLATES_RETURNING = EnumSet.of(TRY_ABSENT);
 

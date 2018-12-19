@@ -100,7 +100,7 @@ public class ConcurrentTestHelper {
             final T actual = actualFuture.get(GET_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
             assertEquals(actual, expected, message);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            fail(e);
+            fail(message, e);
         }
     }
 
