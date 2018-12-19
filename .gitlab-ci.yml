@@ -1,4 +1,4 @@
-image: java:openjdk-8-alpine
+image: java:11-jdk-slim
 
 variables:
   GOPTS: "--no-daemon --console=plain"
