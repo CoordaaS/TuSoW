@@ -1,16 +1,56 @@
 package it.unibo.tuprolog.utils;
 
-import alice.tuprolog.InvalidTermException;
-import alice.tuprolog.Struct;
-import alice.tuprolog.Term;
-import alice.tuprolog.Var;
+import alice.tuprolog.*;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PrologUtils {
+
+    public static Stream<SolveInfo> solveStream(Prolog engine, Term goal) {
+        return Stream.generate(new Supplier<SolveInfo>() {
+
+            private boolean first = true;
+
+            private SolveInfo last = null;
+
+            @Override
+            public SolveInfo get() {
+                if (first) {
+                    last = engine.solve(goal);
+                    if (!last.isSuccess()) {
+                        engine.solveEnd();
+                    }
+                    first = false;
+                } else {
+                    try {
+                        if (last.isSuccess() && last.hasOpenAlternatives()) {
+                            last = engine.solveNext();
+                        } else {
+                            last = null;
+                            engine.solveEnd();
+                        }
+                    } catch (NoMoreSolutionException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }
+                return last;
+            }
+        }).takeWhile(solveInfo -> solveInfo != null && solveInfo.isSuccess());
+    }
+
+    public static Stream<Term> solutionsStream(Prolog engine, Term goal) {
+        return solveStream(engine, goal).map(si -> {
+            try {
+                return si.getSolution();
+            } catch (NoSolutionException e) {
+                throw new IllegalStateException(e);
+            }
+        });
+    }
 
     public static Stream<Term> parseList(String string) {
         try {

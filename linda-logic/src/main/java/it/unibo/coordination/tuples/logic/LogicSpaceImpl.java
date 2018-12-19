@@ -1,18 +1,24 @@
 package it.unibo.coordination.tuples.logic;
 
-import alice.tuprolog.*;
+import alice.tuprolog.Prolog;
+import alice.tuprolog.Struct;
+import alice.tuprolog.Var;
 import it.unibo.coordination.tuples.core.impl.AbstractTupleSpace;
-import it.unibo.tuprolog.utils.CollectionUtils;
 import it.unibo.tuprolog.utils.PrologUtils;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 class LogicSpaceImpl extends AbstractTupleSpace<LogicTuple, LogicTemplate> implements InspectableLogicSpace {
 
     private final Prolog engine = new Prolog();
+
     private final List<PendingRequest> pendingQueue = new LinkedList<>();
 
     public LogicSpaceImpl(String name, ExecutorService executor) {
@@ -25,36 +31,11 @@ class LogicSpaceImpl extends AbstractTupleSpace<LogicTuple, LogicTemplate> imple
     }
 
     @Override
-    protected Iterator<PendingRequest> getPendingRequestsIterator() {
-        return CollectionUtils.randomIterator(pendingQueue);
-    }
-
-    @Override
     protected MultiSet<LogicTuple> lookForTuples(LogicTemplate template, int limit) {
-        var result = new HashMultiSet<LogicTuple>();
-
-        if (limit <= 0) return result;
-
-        try {
-            var si = engine.solve(template.getTupleTemplate());
-
-            for (int i = 1; si.isSuccess(); i++) {
-                result.add(LogicTuple.of(si.getSolution()));
-                if (i < limit && si.hasOpenAlternatives()) {
-                    si = engine.solveNext();
-                } else {
-                    break;
-                }
-            }
-        } catch (NoSolutionException e) {
-            throw new IllegalStateException(e);
-        } catch (NoMoreSolutionException e) {
-            // it's ok
-        } finally {
-            engine.solveEnd();
-        }
-
-        return result;
+        return PrologUtils.solutionsStream(engine, template.getTupleTemplate())
+                .limit(limit)
+                .map(LogicTuple::of)
+                .collect(Collectors.toCollection(HashMultiSet::new));
     }
 
     @Override
@@ -64,33 +45,12 @@ class LogicSpaceImpl extends AbstractTupleSpace<LogicTuple, LogicTemplate> imple
 
     @Override
     protected MultiSet<LogicTuple> retrieveTuples(LogicTemplate template, int limit) {
-        var result = new HashMultiSet<LogicTuple>();
-
-        if (limit <= 0) return result;
-
-        try {
-            var si = engine.solve(PrologUtils.retractTerm(template.getTupleTemplate()));
-
-            for (int i = 1; si.isSuccess(); i++) {
-                final Struct retract = (Struct) si.getSolution();
-
-                result.add(LogicTuple.of(retract.getArg(0)));
-
-                if (i < limit && si.hasOpenAlternatives()) {
-                    si = engine.solveNext();
-                } else {
-                    break;
-                }
-            }
-        } catch (NoSolutionException e) {
-            throw new IllegalStateException(e);
-        } catch (NoMoreSolutionException e) {
-            // it's ok
-        } finally {
-            engine.solveEnd();
-        }
-
-        return result;
+        return PrologUtils.solutionsStream(engine, PrologUtils.retractTerm(template.getTupleTemplate()))
+                .limit(limit)
+                .map(term -> (Struct)term)
+                .map(struct -> struct.getArg(0))
+                .map(LogicTuple::of)
+                .collect(Collectors.toCollection(HashMultiSet::new));
     }
 
     @Override
