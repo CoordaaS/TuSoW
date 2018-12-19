@@ -19,7 +19,7 @@ public class TupleEvent<T extends Tuple, TT extends Template> extends TupleSpace
         super(tupleSpace);
         this.before = before;
         this.effect = Objects.requireNonNull(effect);
-        this.tuple = Objects.requireNonNull(tuple);
+        this.tuple = tuple;
         this.template = template;
     }
 

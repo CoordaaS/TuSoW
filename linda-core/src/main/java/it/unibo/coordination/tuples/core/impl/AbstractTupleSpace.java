@@ -24,7 +24,6 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     private final ExecutorService executor;
     private final String name;
     private final ReentrantLock lock = new ReentrantLock(true);
-    private final MultiSet<PendingRequest> pendingRequests = new HashMultiSet<>();
 
     private final SyncEventEmitter<OperationEvent<T, TT>> operationInvoked;
     private final SyncEventEmitter<OperationEvent<T, TT>> operationCompleted;
@@ -66,8 +65,14 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         return Objects.hash(name);
     }
 
-    protected final Collection<PendingRequest> getPendingRequests() {
-        return pendingRequests;
+    protected abstract Collection<PendingRequest> getPendingRequests();
+
+    protected void addPendingRequest(PendingRequest request) {
+        getPendingRequests().add(request);
+    }
+
+    protected Iterator<PendingRequest> getPendingRequestsIterator() {
+        return getPendingRequests().iterator();
     }
 
     @Override
@@ -97,7 +102,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
                 promise.complete(read.get());
                 onRead(read.get());
             } else {
-                pendingRequests.add(newPendingAccessRequest(RequestTypes.READ, template, promise));
+               addPendingRequest(newPendingAccessRequest(RequestTypes.READ, template, promise));
             }
         } finally {
             getLock().unlock();
@@ -135,7 +140,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
                 onTaken(take.get());
             } else {
                 final PendingRequest pendingRequest = newPendingAccessRequest(RequestTypes.TAKE, template, promise);
-                pendingRequests.add(pendingRequest);
+                addPendingRequest(pendingRequest);
             }
         } finally {
             getLock().unlock();
@@ -200,7 +205,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
 
     private Optional<T> resumePendingAccessRequests(final T insertedTuple) {
         Optional<T> result = Optional.of(insertedTuple);
-        final Iterator<PendingRequest> i = pendingRequests.iterator();
+        final Iterator<PendingRequest> i = getPendingRequestsIterator();
         while (i.hasNext()) {
             final PendingRequest pendingRequest = i.next();
             if (pendingRequest.getRequestType() != RequestTypes.ABSENT
@@ -422,7 +427,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         try {
             final Optional<T> read = lookForTuple(template);
             if (read.isPresent()) {
-                getPendingRequests().add(newPendingAbsentRequest(template, promise));
+                addPendingRequest(newPendingAbsentRequest(template, promise));
             } else {
                 onAbsent(template);
                 promise.complete(template);
@@ -433,7 +438,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     }
 
     private void resumePendingAbsentRequests(final T removedTuple) {
-        final Iterator<PendingRequest> i = getPendingRequests().iterator();
+        final Iterator<PendingRequest> i = getPendingRequestsIterator();
         while (i.hasNext()) {
             final PendingRequest pendingRequest = i.next();
             if (pendingRequest.getRequestType() == RequestTypes.ABSENT

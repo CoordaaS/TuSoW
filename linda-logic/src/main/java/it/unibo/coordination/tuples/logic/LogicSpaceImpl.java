@@ -2,19 +2,31 @@ package it.unibo.coordination.tuples.logic;
 
 import alice.tuprolog.*;
 import it.unibo.coordination.tuples.core.impl.AbstractTupleSpace;
+import it.unibo.tuprolog.utils.CollectionUtils;
 import it.unibo.tuprolog.utils.PrologUtils;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 class LogicSpaceImpl extends AbstractTupleSpace<LogicTuple, LogicTemplate> implements InspectableLogicSpace {
 
     private final Prolog engine = new Prolog();
+    private final List<PendingRequest> pendingQueue = new LinkedList<>();
 
     public LogicSpaceImpl(String name, ExecutorService executor) {
         super(name, executor);
+    }
+
+    @Override
+    protected Collection<PendingRequest> getPendingRequests() {
+        return pendingQueue;
+    }
+
+    @Override
+    protected Iterator<PendingRequest> getPendingRequestsIterator() {
+        return CollectionUtils.randomIterator(pendingQueue);
     }
 
     @Override
