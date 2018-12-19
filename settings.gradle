@@ -1,5 +1,5 @@
 rootProject.name = 'parent'
-include 'core'
-include 'logic'
-include 'object'
+include 'linda-core'
+include 'linda-logic'
+include 'linda-objects'
 

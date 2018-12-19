@@ -10,8 +10,7 @@ repositories {
 }
 
 dependencies {
-    api("it.unibo.alice.tuprolog", "tuprolog", "3.3.0")
-    api(project(":core"))
+    api(project(":linda-core"))
 
     testImplementation("junit", "junit", "4.12")
 }
