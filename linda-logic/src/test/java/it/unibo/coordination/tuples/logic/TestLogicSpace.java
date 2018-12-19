@@ -25,7 +25,7 @@ public class TestLogicSpace {
     @Before
     public void setUp() throws Exception {
         executor = Executors.newSingleThreadExecutor();
-        tupleSpace = LogicSpace.create(executor);
+        tupleSpace = LogicSpace.deterministic(executor);
         test = new ConcurrentTestHelper();
         rand = new Random();
     }

@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 public interface InspectableLogicSpace extends LogicSpace, InspectableTupleSpace<LogicTuple, LogicTemplate> {
 
     static InspectableLogicSpace create(String name, ExecutorService executorService) {
-        return new LogicSpaceImpl(name, executorService);
+        return new DeterministicLogicSpaceImpl(name, executorService);
     }
 
     static InspectableLogicSpace create(String name) {

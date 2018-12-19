@@ -13,17 +13,30 @@ import java.util.stream.Stream;
 
 public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate> {
 
-    static LogicSpace create(String name, ExecutorService executorService) {
-        return new LogicSpaceImpl(name, executorService);
+    static LogicSpace deterministic(String name, ExecutorService executorService) {
+        return new DeterministicLogicSpaceImpl(name, executorService);
     }
 
-    static LogicSpace create(String name) {
-        return create(name, Engine.getDefaultEngine());
+    static LogicSpace deterministic(String name) {
+        return deterministic(name, Engine.getDefaultEngine());
     }
 
-    static LogicSpace create(ExecutorService executorService) {
-        return create(null, Engine.getDefaultEngine());
+    static LogicSpace deterministic(ExecutorService executorService) {
+        return deterministic(null, Engine.getDefaultEngine());
     }
+
+    static LogicSpace nonDeterministic(String name, ExecutorService executorService) {
+        return new NonDeterminismLogicSpaceImpl(name, executorService);
+    }
+
+    static LogicSpace nonDeterministic(String name) {
+        return nonDeterministic(name, Engine.getDefaultEngine());
+    }
+
+    static LogicSpace nonDeterministic(ExecutorService executorService) {
+        return nonDeterministic(null, Engine.getDefaultEngine());
+    }
+
 
     default CompletableFuture<LogicTuple> write(String template) {
         return write(LogicTuple.of(template));
