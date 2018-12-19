@@ -70,6 +70,16 @@ public class TupleEvent<T extends Tuple, TT extends Template> extends TupleSpace
     }
 
     @Override
+    public String toString() {
+        return "TupleEvent{" +
+                "tupleSpace=" + getTupleSpaceName() +
+                ", effect='" + effect + '\'' +
+                ", before=" + before +
+                ", tuple=" + tuple +
+                '}';
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(effect, before, tuple);
     }

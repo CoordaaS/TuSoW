@@ -32,7 +32,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
 
     public AbstractTupleSpace(final String name, final ExecutorService executor) {
         this.executor = Objects.requireNonNull(executor);
-        this.name = Optional.ofNullable(name).orElseGet(() -> this.getClass().getName() + "_" + System.identityHashCode(this));
+        this.name = Optional.ofNullable(name).orElseGet(() -> this.getClass().getSimpleName() + "_" + System.identityHashCode(this));
 
         this.operationInvoked = EventEmitter.ordered(executor);
         this.operationCompleted = EventEmitter.ordered(executor);
@@ -81,10 +81,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         operationInvoked.emit(invocationEvent);
         log("Invoked `read` operation on template: %s", template);
         final CompletableFuture<T> result = new CompletableFuture<>();
-        result.thenAccept(tuple -> {
+        result.thenAcceptAsync(tuple -> {
             operationCompleted.emit(invocationEvent.toTupleReturningCompletion(tuple));
             log("Completed `read` operation on template '%s', result: %s", template, tuple);
-        });
+        }, getExecutor());
         executor.execute(() -> this.handleRead(template, result));
         return result;
     }
@@ -118,10 +118,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         operationInvoked.emit(invocationEvent);
         log("Invoked `take` operation on template: %s", template);
         final CompletableFuture<T> result = new CompletableFuture<>();
-        result.thenAccept(tuple -> {
+        result.thenAcceptAsync(tuple -> {
             operationCompleted.emit(invocationEvent.toTupleReturningCompletion(tuple));
             log("Completed `take` operation on template '%s', result: %s", template, tuple);
-        });
+        }, getExecutor());
         executor.execute(() -> this.handleTake(template, result));
         return result;
     }
@@ -168,10 +168,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         operationInvoked.emit(invocationEvent);
         log("Invoked `write` operation for of: %s", tuple);
         final CompletableFuture<T> result = new CompletableFuture<>();
-        result.thenAccept(t -> {
+        result.thenAcceptAsync(t -> {
             operationCompleted.emit(invocationEvent.toTupleReturningCompletion(t));
             log("Completed `write` operation on tuple '%s', result: %s", tuple, t);
-        });
+        }, getExecutor());
         executor.execute(() -> this.handleWrite(tuple, result));
         return result;
     }
@@ -214,10 +214,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         operationInvoked.emit(invocationEvent);
         log("Invoked `get` operation");
         final CompletableFuture<MultiSet<? extends T>> result = new CompletableFuture<>();
-        result.thenAccept(tuples -> {
+        result.thenAcceptAsync(tuples -> {
             operationCompleted.emit(invocationEvent.toTuplesReturningCompletion(tuples));
             log("Completed `get` operation, result: %s", tuples);
-        });
+        }, getExecutor());
         executor.execute(() -> this.handleGet(result));
         return result;
     }
@@ -259,10 +259,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         operationInvoked.emit(invocationEvent);
         log("Invoked `readAll` operation on template %s", template);
         final CompletableFuture<MultiSet<? extends T>> result = new CompletableFuture<>();
-        result.thenAccept(tuples -> {
+        result.thenAcceptAsync(tuples -> {
             operationCompleted.emit(invocationEvent.toTuplesReturningCompletion(tuples));
             log("Completed `readAll` operation on template '%s', result: %s", template, tuples);
-        });
+        }, getExecutor());
         executor.execute(() -> this.handleReadAll(template, result));
         return result;
     }
@@ -284,10 +284,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         operationInvoked.emit(invocationEvent);
         log("Invoked `takeAll` operation on template %s", template);
         final CompletableFuture<MultiSet<? extends T>> result = new CompletableFuture<>();
-        result.thenAccept(tuples -> {
+        result.thenAcceptAsync(tuples -> {
             operationCompleted.emit(invocationEvent.toTuplesReturningCompletion(tuples));
             log("Completed `takeAll` operation on template '%s', result: %s", template, tuples);
-        });
+        }, getExecutor());
         executor.execute(() -> this.handleTakeAll(template, result));
         return result;
     }
@@ -309,10 +309,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         operationInvoked.emit(invocationEvent);
         log("Invoked `writeAll` operation on tuples: %s", tuples);
         final CompletableFuture<MultiSet<? extends T>> result = new CompletableFuture<>();
-        result.thenAccept(ts -> {
+        result.thenAcceptAsync(ts -> {
             operationCompleted.emit(invocationEvent.toTuplesReturningCompletion(ts));
             log("Completed `writeAll` operation on tuples %s, result: %s", tuples, ts);
-        });
+        }, getExecutor());
         executor.execute(() -> this.handleWriteAll(tuples, result));
         return result;
     }
@@ -338,10 +338,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         operationInvoked.emit(invocationEvent);
         log("Invoked `tryTake` operation on template: %s", template);
         final CompletableFuture<Optional<T>> result = new CompletableFuture<>();
-        result.thenAccept(tuple -> {
+        result.thenAcceptAsync(tuple -> {
             operationCompleted.emit(invocationEvent.toTuplesReturningCompletion(tuple.stream().collect(Collectors.toList())));
             log("Completed `tryTake` operation on template '%s', result: %s", template, tuple);
-        });
+        }, getExecutor());
         executor.execute(() -> this.handleTryTake(template, result));
         return result;
     }
@@ -363,10 +363,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         operationInvoked.emit(invocationEvent);
         log("Invoked `tryRead` operation on template: %s", template);
         final CompletableFuture<Optional<T>> result = new CompletableFuture<>();
-        result.thenAccept(tuple -> {
+        result.thenAcceptAsync(tuple -> {
             operationCompleted.emit(invocationEvent.toTuplesReturningCompletion(tuple.stream().collect(Collectors.toList())));
             log("Completed `tryRead` operation on template '%s', result: %s", template, tuple);
-        });
+        }, getExecutor());
         executor.execute(() -> this.handleTryRead(template, result));
         return result;
     }
@@ -395,10 +395,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         operationInvoked.emit(invocationEvent);
         log("Invoked `absent` operation on template: %s", template);
         final CompletableFuture<TT> result = new CompletableFuture<>();
-        result.thenAccept(t -> {
+        result.thenAcceptAsync(t -> {
             operationCompleted.emit(invocationEvent.toTemplateReturningCompletion(t));
             log("Completed `absent` operation on template '%s', result: %s", template, t);
-        });
+        }, getExecutor());
         executor.execute(() -> this.handleAbsent(template, result));
         return result;
     }
@@ -436,10 +436,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         operationInvoked.emit(invocationEvent);
         log("Invoked `tryAbsent` operation on template: %s", template);
         final CompletableFuture<Optional<T>> result = new CompletableFuture<>();
-        result.thenAccept(tuple -> {
+        result.thenAcceptAsync(tuple -> {
             operationCompleted.emit(invocationEvent.toTuplesReturningCompletion(tuple.stream().collect(Collectors.toList())));
             log("Completed `tryAbsent` operation on template '%s', result: %s", template, tuple);
-        });
+        }, getExecutor());
         executor.execute(() -> this.handleTryAbsent(template, result));
         return result;
     }

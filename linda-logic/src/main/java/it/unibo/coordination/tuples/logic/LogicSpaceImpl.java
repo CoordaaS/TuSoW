@@ -9,7 +9,7 @@ import org.apache.commons.collections4.multiset.HashMultiSet;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
-class LogicSpaceImpl extends AbstractTupleSpace<LogicTuple, LogicTemplate> implements LogicSpace {
+class LogicSpaceImpl extends AbstractTupleSpace<LogicTuple, LogicTemplate> implements InspectableLogicSpace {
 
     private final Prolog engine = new Prolog();
 

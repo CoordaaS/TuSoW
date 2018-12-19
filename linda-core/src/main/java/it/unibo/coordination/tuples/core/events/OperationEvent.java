@@ -141,6 +141,19 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
         return Objects.hash(super.hashCode(), operationType, operationPhase, argumentTuples, argumentTemplates, resultTuples, resultTemplates);
     }
 
+    @Override
+    public String toString() {
+        return OperationEvent.class.getSimpleName() + "." + getClass().getSimpleName() + "{" +
+                "tupleSpace=" + getTupleSpaceName() +
+                ", operationType=" + operationType +
+                ", operationPhase=" + operationPhase +
+                ", argumentTuples=" + argumentTuples +
+                ", argumentTemplates=" + argumentTemplates +
+                ", resultTuples=" + resultTuples +
+                ", resultTemplates=" + resultTemplates +
+                '}';
+    }
+
     public static final class Invocation<T extends Tuple, TT extends Template> extends OperationEvent<T, TT> {
 
         private Invocation(TupleSpace<T, TT> tupleSpace, OperationType operationType, Stream<? extends T> argumentTuples, Stream<? extends TT> argumentTemplates) {
@@ -148,7 +161,7 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
         }
 
         public Completion<T, TT> toTupleReturningCompletion(T tuple) {
-            if (!OperationType.isTemplateReturning(getOperationType()))
+            if (!OperationType.isTupleReturningSet(getOperationType()))
                 throw new IllegalStateException();
 
             return new Completion<>(this, Stream.of(tuple), Stream.empty());

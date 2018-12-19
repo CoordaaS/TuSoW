@@ -3,28 +3,26 @@ package it.unibo.coordination.tuples.logic;
 import alice.tuprolog.Term;
 import it.unibo.coordination.Engine;
 import it.unibo.coordination.tuples.core.ExtendedTupleSpace;
-import it.unibo.coordination.tuples.core.InspectableTupleSpace;
 import org.apache.commons.collections4.MultiSet;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate>, InspectableTupleSpace<LogicTuple, LogicTemplate> {
+public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate> {
 
     static LogicSpace create(String name, ExecutorService executorService) {
         return new LogicSpaceImpl(name, executorService);
     }
 
     static LogicSpace create(String name) {
-        return new LogicSpaceImpl(name, Engine.getDefaultEngine());
+        return create(name, Engine.getDefaultEngine());
     }
 
     static LogicSpace create(ExecutorService executorService) {
-        return new LogicSpaceImpl(null, Engine.getDefaultEngine());
+        return create(null, Engine.getDefaultEngine());
     }
 
     default CompletableFuture<LogicTuple> write(String template) {

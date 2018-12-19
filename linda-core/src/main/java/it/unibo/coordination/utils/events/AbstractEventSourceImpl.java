@@ -2,6 +2,7 @@ package it.unibo.coordination.utils.events;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 abstract class AbstractEventSourceImpl<T> implements EventSource<T>, EventEmitter<T> {
@@ -34,7 +35,7 @@ abstract class AbstractEventSourceImpl<T> implements EventSource<T>, EventEmitte
     }
 
     @Override
-    public abstract void emit(T data);
+    public abstract CompletableFuture<T> emit(T data);
 
     @Override
     public EventSource<T> getEventSource() {
