@@ -1,21 +1,9 @@
 package it.unibo.coordination.utils.events;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 
-abstract class AbstractEventSourceImpl<T> implements EventSource<T>, EventEmitter<T> {
-
-    private final ExecutorService engine;
-
-    protected AbstractEventSourceImpl(ExecutorService engine) {
-        this.engine = Objects.requireNonNull(engine);
-    }
-
-    protected final ExecutorService getEngine() {
-        return engine;
-    }
+abstract class AbstractEventSourceImpl<T> implements EventSource<T>, SyncEventEmitter<T>, AsyncEventEmitter<T> {
 
     protected abstract Collection<EventListener<T>> getEventListeners();
 
@@ -35,7 +23,10 @@ abstract class AbstractEventSourceImpl<T> implements EventSource<T>, EventEmitte
     }
 
     @Override
-    public abstract CompletableFuture<T> emit(T data);
+    public abstract T syncEmit(T data);
+
+    @Override
+    public abstract CompletableFuture<T> asyncEmit(T event);
 
     @Override
     public EventSource<T> getEventSource() {

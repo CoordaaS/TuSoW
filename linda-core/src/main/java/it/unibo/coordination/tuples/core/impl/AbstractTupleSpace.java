@@ -3,8 +3,8 @@ package it.unibo.coordination.tuples.core.impl;
 import it.unibo.coordination.tuples.core.*;
 import it.unibo.coordination.tuples.core.events.OperationEvent;
 import it.unibo.coordination.tuples.core.events.TupleEvent;
-import it.unibo.coordination.utils.events.EventEmitter;
 import it.unibo.coordination.utils.events.EventSource;
+import it.unibo.coordination.utils.events.SyncEventEmitter;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 
@@ -19,24 +19,24 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> implements ExtendedTupleSpace<T, TT>, InspectableTupleSpace<T, TT> {
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private final ExecutorService executor;
     private final String name;
     private final ReentrantLock lock = new ReentrantLock(true);
     private final MultiSet<PendingRequest> pendingRequests = new HashMultiSet<>();
 
-    private final EventEmitter<OperationEvent<T, TT>> operationInvoked;
-    private final EventEmitter<OperationEvent<T, TT>> operationCompleted;
-    private final EventEmitter<TupleEvent<T, TT>> tupleSpaceChanged;
+    private final SyncEventEmitter<OperationEvent<T, TT>> operationInvoked;
+    private final SyncEventEmitter<OperationEvent<T, TT>> operationCompleted;
+    private final SyncEventEmitter<TupleEvent<T, TT>> tupleSpaceChanged;
 
     public AbstractTupleSpace(final String name, final ExecutorService executor) {
         this.executor = Objects.requireNonNull(executor);
         this.name = Optional.ofNullable(name).orElseGet(() -> this.getClass().getSimpleName() + "_" + System.identityHashCode(this));
 
-        this.operationInvoked = EventEmitter.ordered(executor);
-        this.operationCompleted = EventEmitter.ordered(executor);
-        this.tupleSpaceChanged = EventEmitter.ordered(executor);
+        this.operationInvoked = SyncEventEmitter.ordered();
+        this.operationCompleted = SyncEventEmitter.ordered();
+        this.tupleSpaceChanged = SyncEventEmitter.ordered();
     }
 
     protected final ReentrantLock getLock() {
@@ -78,15 +78,15 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     @Override
     public CompletableFuture<T> read(final TT template) {
         var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.READ, template);
-        operationInvoked.emit(invocationEvent);
+        operationInvoked.syncEmit(invocationEvent);
         log("Invoked `read` operation on template: %s", template);
         final CompletableFuture<T> result = new CompletableFuture<>();
-        result.thenAcceptAsync(tuple -> {
-            operationCompleted.emit(invocationEvent.toTupleReturningCompletion(tuple));
-            log("Completed `read` operation on template '%s', result: %s", template, tuple);
-        }, getExecutor());
         executor.execute(() -> this.handleRead(template, result));
-        return result;
+        return result.thenApplyAsync(tuple -> {
+            operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(tuple));
+            log("Completed `read` operation on template '%s', result: %s", template, tuple);
+            return tuple;
+        }, getExecutor());
     }
 
     private void handleRead(final TT template, final CompletableFuture<T> promise) {
@@ -115,15 +115,15 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     @Override
     public CompletableFuture<T> take(final TT template) {
         var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TAKE, template);
-        operationInvoked.emit(invocationEvent);
+        operationInvoked.syncEmit(invocationEvent);
         log("Invoked `take` operation on template: %s", template);
         final CompletableFuture<T> result = new CompletableFuture<>();
-        result.thenAcceptAsync(tuple -> {
-            operationCompleted.emit(invocationEvent.toTupleReturningCompletion(tuple));
-            log("Completed `take` operation on template '%s', result: %s", template, tuple);
-        }, getExecutor());
         executor.execute(() -> this.handleTake(template, result));
-        return result;
+        return result.thenApplyAsync(tuple -> {
+            operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(tuple));
+            log("Completed `take` operation on template '%s', result: %s", template, tuple);
+            return tuple;
+        }, getExecutor());
     }
 
     private void handleTake(final TT template, final CompletableFuture<T> promise) {
@@ -143,15 +143,16 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     }
 
     private void onTaken(T tuple) {
-        tupleSpaceChanged.emit(TupleEvent.afterTaking(this, tuple));
+        tupleSpaceChanged.syncEmit(TupleEvent.afterTaking(this, tuple));
         resumePendingAbsentRequests(tuple);
     }
 
     private void onRead(T tuple) {
+        tupleSpaceChanged.syncEmit(TupleEvent.afterReading(this, tuple));
     }
 
     private void onWritten(T tuple) {
-        tupleSpaceChanged.emit(TupleEvent.afterWriting(this, tuple));
+        tupleSpaceChanged.syncEmit(TupleEvent.afterWriting(this, tuple));
     }
 
     private MultiSet<T> retrieveTuples(TT template) {
@@ -165,15 +166,15 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     @Override
     public CompletableFuture<T> write(final T tuple) {
         final var invocationEvent = OperationEvent.tupleAcceptingInvocation(this, OperationType.WRITE, tuple);
-        operationInvoked.emit(invocationEvent);
+        operationInvoked.syncEmit(invocationEvent);
         log("Invoked `write` operation for of: %s", tuple);
         final CompletableFuture<T> result = new CompletableFuture<>();
-        result.thenAcceptAsync(t -> {
-            operationCompleted.emit(invocationEvent.toTupleReturningCompletion(t));
-            log("Completed `write` operation on tuple '%s', result: %s", tuple, t);
-        }, getExecutor());
         executor.execute(() -> this.handleWrite(tuple, result));
-        return result;
+        return result.thenComposeAsync(t -> {
+            operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(t));
+            log("Completed `write` operation on tuple '%s', result: %s", tuple, t);
+            return CompletableFuture.completedFuture(t);
+        }, executor);
     }
 
     private void handleWrite(final T tuple, final CompletableFuture<T> promise) {
@@ -211,15 +212,15 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     @Override
     public CompletableFuture<MultiSet<? extends T>> get() {
         final var invocationEvent = OperationEvent.nothingAcceptingInvocation(this, OperationType.GET);
-        operationInvoked.emit(invocationEvent);
+        operationInvoked.syncEmit(invocationEvent);
         log("Invoked `get` operation");
         final CompletableFuture<MultiSet<? extends T>> result = new CompletableFuture<>();
-        result.thenAcceptAsync(tuples -> {
-            operationCompleted.emit(invocationEvent.toTuplesReturningCompletion(tuples));
-            log("Completed `get` operation, result: %s", tuples);
-        }, getExecutor());
         executor.execute(() -> this.handleGet(result));
-        return result;
+        return result.thenApplyAsync(tuples -> {
+            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuples));
+            log("Completed `get` operation, result: %s", tuples);
+            return tuples;
+        }, getExecutor());
     }
 
     private void handleGet(final CompletableFuture<MultiSet<? extends T>> promise) {
@@ -256,15 +257,15 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     @Override
     public CompletableFuture<MultiSet<? extends T>> readAll(final TT template) {
         final var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.READ_ALL, template);
-        operationInvoked.emit(invocationEvent);
+        operationInvoked.syncEmit(invocationEvent);
         log("Invoked `readAll` operation on template %s", template);
         final CompletableFuture<MultiSet<? extends T>> result = new CompletableFuture<>();
-        result.thenAcceptAsync(tuples -> {
-            operationCompleted.emit(invocationEvent.toTuplesReturningCompletion(tuples));
-            log("Completed `readAll` operation on template '%s', result: %s", template, tuples);
-        }, getExecutor());
         executor.execute(() -> this.handleReadAll(template, result));
-        return result;
+        return result.thenApplyAsync(tuples -> {
+            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuples));
+            log("Completed `readAll` operation on template '%s', result: %s", template, tuples);
+            return tuples;
+        }, getExecutor());
     }
 
     private void handleReadAll(final TT template, final CompletableFuture<MultiSet<? extends T>> promise) {
@@ -281,15 +282,15 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     @Override
     public CompletableFuture<MultiSet<? extends T>> takeAll(final TT template) {
         final var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TAKE_ALL, template);
-        operationInvoked.emit(invocationEvent);
+        operationInvoked.syncEmit(invocationEvent);
         log("Invoked `takeAll` operation on template %s", template);
         final CompletableFuture<MultiSet<? extends T>> result = new CompletableFuture<>();
-        result.thenAcceptAsync(tuples -> {
-            operationCompleted.emit(invocationEvent.toTuplesReturningCompletion(tuples));
-            log("Completed `takeAll` operation on template '%s', result: %s", template, tuples);
-        }, getExecutor());
         executor.execute(() -> this.handleTakeAll(template, result));
-        return result;
+        return result.thenApplyAsync(tuples -> {
+            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuples));
+            log("Completed `takeAll` operation on template '%s', result: %s", template, tuples);
+            return tuples;
+        }, getExecutor());
     }
 
     private void handleTakeAll(final TT template, final CompletableFuture<MultiSet<? extends T>> promise) {
@@ -306,15 +307,15 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     @Override
     public CompletableFuture<MultiSet<? extends T>> writeAll(final Collection<? extends T> tuples) {
         final var invocationEvent = OperationEvent.tuplesAcceptingInvocation(this, OperationType.WRITE_ALL, tuples);
-        operationInvoked.emit(invocationEvent);
+        operationInvoked.syncEmit(invocationEvent);
         log("Invoked `writeAll` operation on tuples: %s", tuples);
         final CompletableFuture<MultiSet<? extends T>> result = new CompletableFuture<>();
-        result.thenAcceptAsync(ts -> {
-            operationCompleted.emit(invocationEvent.toTuplesReturningCompletion(ts));
-            log("Completed `writeAll` operation on tuples %s, result: %s", tuples, ts);
-        }, getExecutor());
         executor.execute(() -> this.handleWriteAll(tuples, result));
-        return result;
+        return result.thenApplyAsync(ts -> {
+            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(ts));
+            log("Completed `writeAll` operation on tuples %s, result: %s", tuples, ts);
+            return ts;
+        }, getExecutor());
     }
 
     private void handleWriteAll(final Collection<? extends T> tuples, final CompletableFuture<MultiSet<? extends T>> promise) {
@@ -335,15 +336,15 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     @Override
     public CompletableFuture<Optional<T>> tryTake(final TT template) {
         final var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TRY_TAKE, template);
-        operationInvoked.emit(invocationEvent);
+        operationInvoked.syncEmit(invocationEvent);
         log("Invoked `tryTake` operation on template: %s", template);
         final CompletableFuture<Optional<T>> result = new CompletableFuture<>();
-        result.thenAcceptAsync(tuple -> {
-            operationCompleted.emit(invocationEvent.toTuplesReturningCompletion(tuple.stream().collect(Collectors.toList())));
-            log("Completed `tryTake` operation on template '%s', result: %s", template, tuple);
-        }, getExecutor());
         executor.execute(() -> this.handleTryTake(template, result));
-        return result;
+        return result.thenApplyAsync(tuple -> {
+            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuple.stream().collect(Collectors.toList())));
+            log("Completed `tryTake` operation on template '%s', result: %s", template, tuple);
+            return tuple;
+        }, getExecutor());
     }
 
     private void handleTryTake(final TT template, final CompletableFuture<Optional<T>> promise) {
@@ -360,15 +361,15 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     @Override
     public CompletableFuture<Optional<T>> tryRead(final TT template) {
         final var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TRY_READ, template);
-        operationInvoked.emit(invocationEvent);
+        operationInvoked.syncEmit(invocationEvent);
         log("Invoked `tryRead` operation on template: %s", template);
         final CompletableFuture<Optional<T>> result = new CompletableFuture<>();
-        result.thenAcceptAsync(tuple -> {
-            operationCompleted.emit(invocationEvent.toTuplesReturningCompletion(tuple.stream().collect(Collectors.toList())));
-            log("Completed `tryRead` operation on template '%s', result: %s", template, tuple);
-        }, getExecutor());
         executor.execute(() -> this.handleTryRead(template, result));
-        return result;
+        return result.thenApplyAsync(tuple -> {
+            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuple.stream().collect(Collectors.toList())));
+            log("Completed `tryRead` operation on template '%s', result: %s", template, tuple);
+            return tuple;
+        }, getExecutor());
     }
 
     private void handleTryRead(final TT template, final CompletableFuture<Optional<T>> promise) {
@@ -392,15 +393,15 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     @Override
     public CompletableFuture<TT> absent(final TT template) {
         final var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.ABSENT, template);
-        operationInvoked.emit(invocationEvent);
+        operationInvoked.syncEmit(invocationEvent);
         log("Invoked `absent` operation on template: %s", template);
         final CompletableFuture<TT> result = new CompletableFuture<>();
-        result.thenAcceptAsync(t -> {
-            operationCompleted.emit(invocationEvent.toTemplateReturningCompletion(t));
-            log("Completed `absent` operation on template '%s', result: %s", template, t);
-        }, getExecutor());
         executor.execute(() -> this.handleAbsent(template, result));
-        return result;
+        return result.thenApplyAsync(t -> {
+            operationCompleted.syncEmit(invocationEvent.toTemplateReturningCompletion(t));
+            log("Completed `absent` operation on template '%s', result: %s", template, t);
+            return t;
+        }, getExecutor());
     }
 
     private void handleAbsent(final TT template, final CompletableFuture<TT> promise) {
@@ -433,15 +434,15 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     @Override
     public CompletableFuture<Optional<T>> tryAbsent(final TT template) {
         final var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TRY_ABSENT, template);
-        operationInvoked.emit(invocationEvent);
+        operationInvoked.syncEmit(invocationEvent);
         log("Invoked `tryAbsent` operation on template: %s", template);
         final CompletableFuture<Optional<T>> result = new CompletableFuture<>();
-        result.thenAcceptAsync(tuple -> {
-            operationCompleted.emit(invocationEvent.toTuplesReturningCompletion(tuple.stream().collect(Collectors.toList())));
-            log("Completed `tryAbsent` operation on template '%s', result: %s", template, tuple);
-        }, getExecutor());
         executor.execute(() -> this.handleTryAbsent(template, result));
-        return result;
+        return result.thenApplyAsync(tuple -> {
+            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuple.stream().collect(Collectors.toList())));
+            log("Completed `tryAbsent` operation on template '%s', result: %s", template, tuple);
+            return tuple;
+        }, getExecutor());
     }
 
     private void handleTryAbsent(final TT template, final CompletableFuture<Optional<T>> promise) {

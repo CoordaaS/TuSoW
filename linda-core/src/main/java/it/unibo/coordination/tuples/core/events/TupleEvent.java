@@ -8,14 +8,13 @@ import java.util.Objects;
 
 public class TupleEvent<T extends Tuple, TT extends Template> extends TupleSpaceEvent<T, TT> {
 
-    private static final String EFFECT_WRITE = "write";
-    private static final String EFFECT_TAKE = "take";
+    public enum Effect { WRITTEN, READ, TAKEN, ABSENT };
 
-    private final String effect;
+    private final Effect effect;
     private final boolean before;
     private final T tuple;
 
-    private TupleEvent(TupleSpace<T, TT> tupleSpace, boolean before, String effect, T tuple) {
+    private TupleEvent(TupleSpace<T, TT> tupleSpace, boolean before, Effect effect, T tuple) {
         super(tupleSpace);
         this.before = before;
         this.effect = Objects.requireNonNull(effect);
@@ -23,27 +22,39 @@ public class TupleEvent<T extends Tuple, TT extends Template> extends TupleSpace
     }
 
     public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeWriting(TupleSpace<X, Y> tupleSpace, X tuple) {
-        return new TupleEvent<>(tupleSpace, true, EFFECT_WRITE, tuple);
+        return new TupleEvent<>(tupleSpace, true, Effect.WRITTEN, tuple);
     }
 
     public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> afterWriting(TupleSpace<X, Y> tupleSpace, X tuple) {
-        return new TupleEvent<>(tupleSpace, false, EFFECT_WRITE, tuple);
+        return new TupleEvent<>(tupleSpace, false, Effect.WRITTEN, tuple);
     }
 
     public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeTaking(TupleSpace<X, Y> tupleSpace, X tuple) {
-        return new TupleEvent<>(tupleSpace, true, EFFECT_TAKE, tuple);
+        return new TupleEvent<>(tupleSpace, true, Effect.TAKEN, tuple);
     }
 
     public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> afterTaking(TupleSpace<X, Y> tupleSpace, X tuple) {
-        return new TupleEvent<>(tupleSpace, false, EFFECT_TAKE, tuple);
+        return new TupleEvent<>(tupleSpace, false, Effect.TAKEN, tuple);
     }
 
-    public boolean isWritten() {
-        return EFFECT_WRITE.equals(effect);
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeReading(TupleSpace<X, Y> tupleSpace, X tuple) {
+        return new TupleEvent<>(tupleSpace, true, Effect.READ, tuple);
     }
 
-    public boolean isTaken() {
-        return EFFECT_TAKE.equals(effect);
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> afterReading(TupleSpace<X, Y> tupleSpace, X tuple) {
+        return new TupleEvent<>(tupleSpace, false, Effect.READ, tuple);
+    }
+
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeAbsent(TupleSpace<X, Y> tupleSpace, X tuple) {
+        return new TupleEvent<>(tupleSpace, true, Effect.ABSENT, tuple);
+    }
+
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> afterAbsent(TupleSpace<X, Y> tupleSpace, X tuple) {
+        return new TupleEvent<>(tupleSpace, false, Effect.ABSENT, tuple);
+    }
+
+    public Effect getEffect() {
+        return effect;
     }
 
     public boolean isBefore() {

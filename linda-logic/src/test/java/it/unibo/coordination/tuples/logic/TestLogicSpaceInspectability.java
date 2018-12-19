@@ -123,7 +123,8 @@ public class TestLogicSpaceInspectability {
         final var expectedEvent2 = TupleEvent.afterWriting(tupleSpace, LogicTuple.of("f(1)"));
         final var expectedEvent3 = expectedEvent1.toTupleReturningCompletion(LogicTuple.of("f(1)"));
         final var expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.READ, LogicTemplate.of("f(X)"));
-        final var expectedEvent5 = expectedEvent4.toTupleReturningCompletion(LogicTuple.of("f(1)"));
+        final var expectedEvent5 = TupleEvent.afterReading(tupleSpace, LogicTuple.of("f(1)"));
+        final var expectedEvent6 = expectedEvent4.toTupleReturningCompletion(LogicTuple.of("f(1)"));
 
         tupleSpace.operationInvoked().bind(observableBehaviour::add);
         tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
@@ -132,9 +133,9 @@ public class TestLogicSpaceInspectability {
         await(tupleSpace.write("f(1)"));
         await(tupleSpace.read("f(X)"));
 
-        Assert.assertEquals(1, observableBehaviour.size());
+        Assert.assertEquals(6, observableBehaviour.size());
         Assert.assertEquals(
-                List.of(expectedEvent1, expectedEvent2, expectedEvent3, expectedEvent4, expectedEvent5),
+                List.of(expectedEvent1, expectedEvent2, expectedEvent3, expectedEvent4, expectedEvent5, expectedEvent6),
                 observableBehaviour
         );
 
