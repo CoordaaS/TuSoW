@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 
-import static it.unibo.sd1819.lab6.webchat.presentation.MIMETypes.*;
-
 @JacksonXmlRootElement(localName = "user")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class User extends Representation {

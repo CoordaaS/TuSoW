@@ -7,9 +7,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static it.unibo.coordination.tusow.presentation.MIMETypes.*;
 
@@ -20,29 +22,41 @@ public abstract class Representation {
     private static final ObjectMapper yamlMapper = new YAMLMapper();
 
     public String toXMLString() {
-        final StringWriter writer = new StringWriter();
-        try {
-            xmlMapper.writeValue(writer, this);
-            return writer.toString();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+        return writeAsXML(this);
     }
 
     public String toJSONString() {
+        return writeAsJSON(this);
+    }
+
+    public String toYAMLString() {
+        return writeAsYAML(this);
+    }
+
+    protected static final String writeAsJSON(Object thiz) {
         final StringWriter writer = new StringWriter();
         try {
-            jsonMapper.writeValue(writer, this);
+            jsonMapper.writeValue(writer, thiz);
             return writer.toString();
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    public String toYAMLString() {
+    protected static final String writeAsYAML(Object thiz) {
         final StringWriter writer = new StringWriter();
         try {
-            yamlMapper.writeValue(writer, this);
+            yamlMapper.writeValue(writer, thiz);
+            return writer.toString();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected static final String writeAsXML(Object thiz) {
+        final StringWriter writer = new StringWriter();
+        try {
+            jsonMapper.writeValue(writer, thiz);
             return writer.toString();
         } catch (IOException e) {
             throw new IllegalStateException(e);

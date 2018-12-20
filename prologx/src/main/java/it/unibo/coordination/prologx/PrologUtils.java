@@ -1,10 +1,12 @@
 package it.unibo.coordination.prologx;
 
 import alice.tuprolog.*;
+import alice.tuprolog.Double;
+import alice.tuprolog.Float;
+import alice.tuprolog.Long;
+import alice.tuprolog.Number;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -128,6 +130,18 @@ public class PrologUtils {
         return conjunction;
     }
 
+    public static Stream<Term> conjunctionToStream(Term term) {
+        Struct struct;
+        if (term instanceof Struct && (struct = (Struct) term).getName().equals(",") && struct.getArity() == 2) {
+            return Stream.concat(
+                Stream.of(struct.getArg(0)),
+                Stream.of(struct.getArg(1)).flatMap(PrologUtils::conjunctionToStream)
+            );
+        } else {
+            return Stream.of(term);
+        }
+    }
+
     public static Struct unificationTerm(String var, Term term) {
         return unificationTerm(new Var(var), term);
     }
@@ -144,19 +158,61 @@ public class PrologUtils {
         return new Struct("retract", term);
     }
 
-    public static Term objectToTerm(Object payload) {
-        if (payload == null) {
-            return new Var();
-        } else if (payload instanceof Term) {
-            return (Term) payload;
-        } else if (payload instanceof PrologSerializable) {
-            return ((PrologSerializable) payload).toTerm();
-        } else {
-            try {
-                return Term.createTerm(payload.toString());
-            } catch (InvalidTermException e) {
-                return new Struct(payload.toString());
+    public static Term objectToTerm(Object object) {
+        if (object instanceof java.lang.Double) {
+            return new Double((java.lang.Double) object);
+        } else if (object instanceof java.lang.Integer) {
+            return new Int((Integer) object);
+        } else if (object instanceof java.lang.Float) {
+            return new Float((java.lang.Float) object);
+        } else if (object instanceof java.lang.Long) {
+            return new Long((java.lang.Long) object);
+        } else if (object instanceof List) {
+            var terms = ((List<?>) object).stream()
+                    .map(PrologUtils::objectToTerm)
+                    .toArray(Term[]::new);
+            return new Struct(terms);
+        } else if (object instanceof Map) {
+            final Map<String, Object> objectMap = (Map<String, Object>) object;
+            if (objectMap.containsKey("$var")) {
+
+            } else if (objectMap.containsKey("$fun")) {
+
             }
+        }
+        throw new IllegalArgumentException();
+    }
+
+    public static Object termToObject(Term term) {
+        if (term instanceof Double) {
+            return ((Double) term).doubleValue();
+        } else if (term instanceof Int) {
+            return ((Int) term).intValue();
+        } else if (term instanceof Float) {
+            return ((Int) term).floatValue();
+        } else if (term instanceof Long) {
+            return ((Int) term).intValue();
+        } else if (term instanceof Var && ((Var) term).isBound()) {
+            return Map.of("$var", ((Var) term).getOriginalName(), "$value", termToObject(((Var) term).getLink()));
+        } else if (term instanceof Var) {
+            final Map<String, Object> varMap = new LinkedHashMap<>();
+            varMap.put("$var", ((Var) term).getOriginalName());
+            varMap.put("$val", null);
+            return Collections.unmodifiableMap(varMap);
+        } else if (term.isList()) {
+            return listToStream(term)
+                    .map(PrologUtils::termToObject)
+                    .collect(Collectors.toList());
+        } else if (term instanceof Struct) {
+            final Struct struct = (Struct) term;
+            final Map<String, Object> structMap = new LinkedHashMap<>();
+            structMap.put("$fun", struct.getName());
+            for (int i = 0; i < struct.getArity(); i++) {
+                structMap.put("$arg" + i, termToObject(struct.getArg(i)));
+            }
+            return Collections.unmodifiableMap(structMap);
+        } else {
+            throw new IllegalStateException();
         }
     }
 }

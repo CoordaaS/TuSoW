@@ -3,16 +3,18 @@ package it.unibo.coordination.tusow.routes;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
-import it.unibo.sd1819.lab6.webchat.api.MembersApi;
-import it.unibo.sd1819.lab6.webchat.exceptions.BadContentError;
-import it.unibo.sd1819.lab6.webchat.exceptions.HttpError;
-import it.unibo.sd1819.lab6.webchat.exceptions.NotFoundError;
-import it.unibo.sd1819.lab6.webchat.presentation.*;
+import it.unibo.coordination.tusow.api.MembersApi;
+import it.unibo.coordination.tusow.api.RoomsApi;
+import it.unibo.coordination.tusow.exceptions.BadContentError;
+import it.unibo.coordination.tusow.exceptions.HttpError;
+import it.unibo.coordination.tusow.presentation.*;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import static it.unibo.sd1819.lab6.webchat.presentation.MIMETypes.*;
+import static it.unibo.coordination.tusow.presentation.MIMETypes.*;
 
 public class MembersPath extends Path {
 
@@ -75,14 +77,7 @@ public class MembersPath extends Path {
 	}
 
     private void validateMemberForPost(User member) {
-        requireSomeIsNonNull(member.getId(), member.getEmail(), member.getUsername());
 
-        final Optional<User> user = enrichUser(member);
-        if (user.isPresent()) {
-            member.setPropertiesToNonNullsOf(user.get());
-        } else {
-            throw new NotFoundError();
-        }
     }
 
     private void get(RoutingContext routingContext) {

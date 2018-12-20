@@ -3,18 +3,21 @@ package it.unibo.coordination.tusow.routes;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
-import it.unibo.sd1819.lab6.webchat.api.UsersApi;
-import it.unibo.sd1819.lab6.webchat.exceptions.BadContentError;
-import it.unibo.sd1819.lab6.webchat.exceptions.HttpError;
-import it.unibo.sd1819.lab6.webchat.presentation.Link;
-import it.unibo.sd1819.lab6.webchat.presentation.ListOfUsers;
-import it.unibo.sd1819.lab6.webchat.presentation.User;
+import it.unibo.coordination.tusow.api.RoomsApi;
+import it.unibo.coordination.tusow.api.UsersApi;
+import it.unibo.coordination.tusow.exceptions.BadContentError;
+import it.unibo.coordination.tusow.exceptions.HttpError;
+import it.unibo.coordination.tusow.presentation.*;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
-import static it.unibo.sd1819.lab6.webchat.presentation.MIMETypes.*;
+import static it.unibo.coordination.tusow.presentation.MIMETypes.*;
+
+import static it.unibo.coordination.tusow.presentation.MIMETypes.*;
 
 public class UsersPath extends Path {
 
