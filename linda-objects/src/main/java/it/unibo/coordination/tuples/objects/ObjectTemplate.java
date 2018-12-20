@@ -1,8 +1,8 @@
 package it.unibo.coordination.tuples.objects;
 
 
-import it.unibo.coordination.tuples.core.Template;
-import it.unibo.coordination.tuples.core.Tuple;
+import it.unibo.coordination.linda.core.Template;
+import it.unibo.coordination.linda.core.Tuple;
 
 import java.util.Optional;
 import java.util.function.Predicate;

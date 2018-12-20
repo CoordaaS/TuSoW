@@ -1,7 +1,7 @@
 package it.unibo.coordination.tuples.objects;
 
 
-import it.unibo.coordination.tuples.core.Tuple;
+import it.unibo.coordination.linda.core.Tuple;
 
 import java.util.Objects;
 
