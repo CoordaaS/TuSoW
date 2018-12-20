@@ -7,64 +7,29 @@ import it.unibo.coordination.linda.core.Tuple;
 
 import java.util.Objects;
 
-public final class LogicTuple implements Tuple, Comparable<LogicTuple> {
-    private static final String TUPLE_WRAPPER = "tuple";
-    private static Struct PATTERN = new Struct(TUPLE_WRAPPER, new Var("T"));
-    private final Struct term;
+public interface LogicTuple extends Tuple, Comparable<LogicTuple> {
 
-    private LogicTuple(final Term term) {
-        Objects.requireNonNull(term);
-        if (term instanceof Struct && ((Struct) term).getName().equals(TUPLE_WRAPPER) && ((Struct) term).getArity() == 1) {
-            this.term = (Struct) term;
-        } else {
-            this.term = new Struct(TUPLE_WRAPPER, term);
-        }
-    }
-
-    public static Struct getPattern() {
-        return PATTERN;
-    }
-
-    public static Struct getPattern(Term term) {
-        return new Struct(TUPLE_WRAPPER, term);
-    }
-
-    public static LogicTuple of(String tuple) {
+    static LogicTuple of(String tuple) {
         return LogicTuple.of(Term.createTerm(Objects.requireNonNull(tuple)));
     }
 
-    public static LogicTuple of(Term term) {
-        return new LogicTuple(term);
+    static LogicTuple of(Term term) {
+        return new LogicTupleImpl(term);
     }
 
-    @Override
-    public String toString() {
-        return term.toString();
+    static Struct getPattern() {
+        return new Struct("tuple", new Var("T"));
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LogicTuple that = (LogicTuple) o;
-        return Objects.equals(term, that.term);
+    static Struct getPattern(Term term) {
+        return new Struct("tuple", Objects.requireNonNull(term));
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(term.toString());
-    }
+    Struct asTerm();
 
-    public Struct asTerm() {
-        return term;
-    }
+    Term getTuple();
 
-    public Term getTuple() {
-        return asTerm().getArg(0);
-    }
-
-    @Override
-    public int compareTo(LogicTuple o) {
+    default int compareTo(LogicTuple o) {
         return getTuple().toString().compareTo(o.getTuple().toString());
     }
 }

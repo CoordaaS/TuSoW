@@ -104,7 +104,11 @@ public class PrologUtils {
     }
 
     public static Struct unificationTerm(String var, Term term) {
-        return new Struct("=", new Var(var), term);
+        return unificationTerm(new Var(var), term);
+    }
+
+    public static Struct unificationTerm(Term term1, Term term2) {
+        return new Struct("=", term1, term2);
     }
 
     public static Struct assertTerm(Term term) {
