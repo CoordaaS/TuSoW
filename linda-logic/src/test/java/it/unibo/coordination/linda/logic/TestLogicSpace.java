@@ -637,8 +637,9 @@ public class TestLogicSpace {
 
         }.start();
 
-        test.await();
+
         alice.await();
+        test.await();
     }
 
     @Test

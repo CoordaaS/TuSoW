@@ -1,116 +1,50 @@
 package it.unibo.coordination.linda.logic;
 
-import alice.tuprolog.*;
+import alice.tuprolog.Struct;
+import alice.tuprolog.Term;
+import alice.tuprolog.Var;
 import it.unibo.coordination.linda.core.Template;
 import it.unibo.coordination.linda.core.Tuple;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-public final class LogicTemplate implements Template {
+public interface LogicTemplate extends Template {
 
-    private static final String TEMPLATE_WRAPPER = "template";
-    private static final Prolog ENGINE = new Prolog();
-    private static final Match FAILURE = new LogicMatch(null);
-    private final Struct term;
-
-    private LogicTemplate(final Term term) {
-        Objects.requireNonNull(term);
-        if (term instanceof Struct && ((Struct) term).getName().equals(TEMPLATE_WRAPPER) && ((Struct) term).getArity() == 1) {
-            this.term = (Struct) term;
-        } else {
-            this.term = new Struct(TEMPLATE_WRAPPER, term);
-        }
+    static LogicTemplate of(String template) {
+        return of(Term.createTerm(Objects.requireNonNull(template)));
     }
 
-    public static LogicTemplate of(String template) {
-        return LogicTemplate.of(Term.createTerm(Objects.requireNonNull(template)));
+    static LogicTemplate of(Term term) {
+        return new LogicTemplateImpl(term);
     }
 
-    public static LogicTemplate of(Term term) {
-        return new LogicTemplate(term);
+    static Struct getPattern() {
+        return new Struct("template", new Var("T"));
+    }
+
+    static Struct getPattern(Term term) {
+        return new Struct("template", Objects.requireNonNull(term));
     }
 
     @Override
-    public Match matchWith(Tuple tuple) {
-        if (tuple instanceof LogicTuple) {
-            final SolveInfo si = ENGINE.solve(new Struct("=", getTemplate(), ((LogicTuple) tuple).getTuple()));
-            return new LogicMatch(si);
-        }
+    Match matchWith(Tuple tuple);
 
-        return FAILURE;
+    Struct asTerm();
+
+    Term getTemplate();
+
+    default LogicTuple toTuple() {
+        return LogicTuple.of(getTemplate());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LogicTemplate that = (LogicTemplate) o;
-        return Objects.equals(term, that.term);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(term.toString());
-    }
-
-    @Override
-    public String toString() {
-        return term.toString();
-    }
-
-    public Struct asTerm() {
-        return term;
-    }
-
-    public Term getTemplate() {
-        return asTerm().getArg(0);
-    }
-
-    Struct getTupleTemplate() {
-        return LogicTuple.getPattern(getTemplate());
-    }
-
-    private static class LogicMatch implements Match {
-
-        private final SolveInfo solveInfo;
-
-        public LogicMatch(SolveInfo solveInfo) {
-            this.solveInfo = solveInfo;
-        }
+    interface LogicMatch extends Match {
 
         @Override
-        public boolean isSuccess() {
-            return solveInfo != null && solveInfo.isSuccess();
+        default <X> Optional<X> get(Object key) {
+            return get(key.toString()).map(it -> (X)it);
         }
 
-        @Override
-        public <X> Optional<X> get(Object key) {
-            try {
-                if (solveInfo != null && solveInfo.isSuccess()) {
-                    return Optional.ofNullable((X) solveInfo.getVarValue(key.toString()));
-                } else {
-                    return Optional.empty();
-                }
-            } catch (NoSolutionException e) {
-                return Optional.empty();
-            }
-        }
-
-        @Override
-        public String toString() {
-            try {
-                if (solveInfo.isSuccess()) {
-                    return solveInfo.getBindingVars().stream()
-                            .map(v -> String.format("%s/%s", v.getOriginalName(), v.getTerm()))
-                            .collect(Collectors.joining("; "));
-                } else {
-                    return "no";
-                }
-            } catch (NoSolutionException e) {
-                return "no";
-            }
-        }
+        Optional<Term> get(String variableName);
     }
 }

@@ -4,11 +4,36 @@ import alice.tuprolog.*;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PrologUtils {
+
+    public static boolean assertOn(Prolog engine, Term term) {
+        try {
+            final var si = engine.solve(assertTerm(term));
+            return si.isSuccess();
+        } finally {
+            engine.solveEnd();
+        }
+    }
+
+    public static Optional<Term> retractFrom(Prolog engine, Term term) {
+        try {
+            final var si = engine.solve(retractTerm(term));
+            if (si.isSuccess()) {
+                final var retraction = (Struct) si.getSolution();
+                return Optional.of(retraction.getArg(0));
+            }
+            return Optional.empty();
+        } catch (NoSolutionException e) {
+            return Optional.empty();
+        } finally {
+            engine.solveEnd();
+        }
+    }
 
     public static Stream<SolveInfo> solveStream(Prolog engine, Term goal) {
         return Stream.generate(new Supplier<SolveInfo>() {
@@ -104,7 +129,11 @@ public class PrologUtils {
     }
 
     public static Struct unificationTerm(String var, Term term) {
-        return new Struct("=", new Var(var), term);
+        return unificationTerm(new Var(var), term);
+    }
+
+    public static Struct unificationTerm(Term term1, Term term2) {
+        return new Struct("=", term1, term2);
     }
 
     public static Struct assertTerm(Term term) {
