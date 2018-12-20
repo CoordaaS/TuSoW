@@ -5,7 +5,6 @@ import alice.tuprolog.Struct;
 import alice.tuprolog.Var;
 import it.unibo.coordination.tuples.core.impl.AbstractTupleSpace;
 import it.unibo.tuprolog.utils.PrologUtils;
-import org.apache.commons.collections4.MultiSet;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -50,12 +49,12 @@ abstract class AbstractLogicSpaceImpl extends AbstractTupleSpace<LogicTuple, Log
     }
 
     @Override
-    protected final MultiSet<LogicTuple> getAllTuples() {
+    protected final Stream<LogicTuple> getAllTuples() {
         return lookForTuples(LogicTemplate.of(new Var()), Integer.MAX_VALUE);
     }
 
     @Override
     protected int countTuples() {
-        return getAllTuples().size();
+        return (int) getAllTuples().count();
     }
 }

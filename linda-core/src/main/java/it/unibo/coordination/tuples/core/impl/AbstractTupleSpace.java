@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> implements ExtendedTupleSpace<T, TT>, InspectableTupleSpace<T, TT> {
 
@@ -109,11 +110,11 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         }
     }
 
-    protected final MultiSet<T> lookForTuples(final TT template) {
+    protected final Stream<T> lookForTuples(final TT template) {
         return lookForTuples(template, Integer.MAX_VALUE);
     }
 
-    protected abstract MultiSet<T> lookForTuples(final TT template, int limit);
+    protected abstract Stream<T> lookForTuples(final TT template, int limit);
 
     protected abstract Optional<T> lookForTuple(final TT template);
 
@@ -168,11 +169,11 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         tupleSpaceChanged.syncEmit(TupleEvent.afterAbsent(this, template));
     }
 
-    private MultiSet<T> retrieveTuples(TT template) {
+    private Stream<T> retrieveTuples(TT template) {
         return retrieveTuples(template, Integer.MAX_VALUE);
     }
 
-    protected abstract MultiSet<T> retrieveTuples(TT template, int limit);
+    protected abstract Stream<T> retrieveTuples(TT template, int limit);
 
     protected abstract Optional<T> retrieveTuple(TT template);
 
@@ -244,14 +245,14 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     private void handleGet(final CompletableFuture<MultiSet<? extends T>> promise) {
         getLock().lock();
         try {
-            final MultiSet<T> result = getAllTuples();
+            final MultiSet<T> result = getAllTuples().collect(Collectors.toCollection(HashMultiSet::new));
             promise.complete(result);
         } finally {
             getLock().unlock();
         }
     }
 
-    protected abstract MultiSet<T> getAllTuples();
+    protected abstract Stream<T> getAllTuples();
 
     @Override
     public CompletableFuture<Integer> getSize() {
@@ -289,7 +290,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     private void handleReadAll(final TT template, final CompletableFuture<MultiSet<? extends T>> promise) {
         getLock().lock();
         try {
-            final MultiSet<T> result = lookForTuples(template);
+            final MultiSet<T> result = lookForTuples(template).collect(Collectors.toCollection(HashMultiSet::new));
             promise.complete(result);
             result.forEach(this::onRead);
         } finally {
@@ -314,7 +315,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     private void handleTakeAll(final TT template, final CompletableFuture<MultiSet<? extends T>> promise) {
         getLock().lock();
         try {
-            final MultiSet<T> result = retrieveTuples(template);
+            final MultiSet<T> result = retrieveTuples(template).collect(Collectors.toCollection(HashMultiSet::new));
             result.forEach(this::onTaken);
             promise.complete(result);
         } finally {

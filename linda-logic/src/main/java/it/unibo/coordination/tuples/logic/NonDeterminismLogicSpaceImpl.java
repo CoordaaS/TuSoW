@@ -1,15 +1,11 @@
 package it.unibo.coordination.tuples.logic;
 
 import it.unibo.tuprolog.utils.CollectionUtils;
-import org.apache.commons.collections4.MultiSet;
-import org.apache.commons.collections4.multiset.HashMultiSet;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class NonDeterminismLogicSpaceImpl extends AbstractLogicSpaceImpl implements InspectableLogicSpace {
 
@@ -30,12 +26,16 @@ class NonDeterminismLogicSpaceImpl extends AbstractLogicSpaceImpl implements Ins
     }
 
     @Override
-    protected MultiSet<LogicTuple> lookForTuples(LogicTemplate template, int limit) {
-        return lookForTuplesImpl(template, limit).collect(Collectors.toCollection(HashMultiSet::new));
+    protected Stream<LogicTuple> lookForTuples(LogicTemplate template, int limit) {
+        final var buffered = lookForTuplesImpl(template, Integer.MAX_VALUE).collect(Collectors.toList());
+        Collections.sort(buffered);
+        return buffered.stream().limit(limit);
     }
 
     @Override
-    protected MultiSet<LogicTuple> retrieveTuples(LogicTemplate template, int limit) {
-        return retrieveTuplesImpl(template, limit).collect(Collectors.toCollection(HashMultiSet::new));
+    protected Stream<LogicTuple> retrieveTuples(LogicTemplate template, int limit) {
+        final var buffered = retrieveTuplesImpl(template, Integer.MAX_VALUE).collect(Collectors.toList());
+        Collections.sort(buffered);
+        return buffered.stream().limit(limit);
     }
 }

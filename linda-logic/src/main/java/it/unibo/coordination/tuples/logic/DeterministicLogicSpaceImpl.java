@@ -1,13 +1,10 @@
 package it.unibo.coordination.tuples.logic;
 
-import org.apache.commons.collections4.MultiSet;
-import org.apache.commons.collections4.multiset.HashMultiSet;
-
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class DeterministicLogicSpaceImpl extends AbstractLogicSpaceImpl implements InspectableLogicSpace {
 
@@ -23,12 +20,12 @@ class DeterministicLogicSpaceImpl extends AbstractLogicSpaceImpl implements Insp
     }
 
     @Override
-    protected MultiSet<LogicTuple> lookForTuples(LogicTemplate template, int limit) {
-        return lookForTuplesImpl(template, limit).collect(Collectors.toCollection(HashMultiSet::new));
+    protected Stream<LogicTuple> lookForTuples(LogicTemplate template, int limit) {
+        return lookForTuplesImpl(template, limit);
     }
 
     @Override
-    protected MultiSet<LogicTuple> retrieveTuples(LogicTemplate template, int limit) {
-        return retrieveTuplesImpl(template, limit).collect(Collectors.toCollection(HashMultiSet::new));
+    protected Stream<LogicTuple> retrieveTuples(LogicTemplate template, int limit) {
+        return retrieveTuplesImpl(template, limit);
     }
 }
