@@ -18,34 +18,41 @@ abstract class AbstractLogicSpaceImpl extends AbstractTupleSpace<LogicTuple, Log
         super(name, executor);
     }
 
-
-    protected final Stream<LogicTuple> lookForTuplesImpl(LogicTemplate template, int limit) {
+    @Override
+    protected Stream<LogicTuple> lookForTuples(LogicTemplate template, int limit) {
         return PrologUtils.solutionsStream(engine, template.toTuple().asTerm())
                 .limit(limit)
+                .map(Struct.class::cast)
                 .map(LogicTuple::of);
     }
 
     @Override
     protected final Optional<LogicTuple> lookForTuple(LogicTemplate template) {
-        return lookForTuplesImpl(template, 1).findAny();
+        return lookForTuples(template, 1).findAny();
     }
 
-    protected final Stream<LogicTuple> retrieveTuplesImpl(LogicTemplate template, int limit) {
+    @Override
+    protected final Stream<LogicTuple> retrieveTuples(LogicTemplate template, int limit) {
         return PrologUtils.solutionsStream(engine, PrologUtils.retractTerm(template.toTuple().asTerm()))
                 .limit(limit)
-                .map(term -> (Struct)term)
-                .map(struct -> struct.getArg(0))
+                .map(Struct.class::cast)
+                .map(s -> s.getArg(0))
                 .map(LogicTuple::of);
     }
 
     @Override
     protected final Optional<LogicTuple> retrieveTuple(LogicTemplate template) {
-        return retrieveTuplesImpl(template, 1).findAny();
+        return retrieveTuple(template.toTuple());
+    }
+
+    protected final Optional<LogicTuple> retrieveTuple(LogicTuple tuple) {
+        return PrologUtils.retractFrom(engine, tuple.asTerm())
+                .map(LogicTupleImpl::new);
     }
 
     @Override
     protected void insertTuple(LogicTuple tuple) {
-        engine.getTheoryManager().assertZ(tuple.asTerm(), true, null, false);
+        PrologUtils.assertOn(engine, tuple.asTerm());
     }
 
     @Override

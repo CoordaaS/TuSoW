@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.Stream;
 
 class DeterministicLogicSpaceImpl extends AbstractLogicSpaceImpl implements InspectableLogicSpace {
 
@@ -19,13 +18,5 @@ class DeterministicLogicSpaceImpl extends AbstractLogicSpaceImpl implements Insp
         return pendingQueue;
     }
 
-    @Override
-    protected Stream<LogicTuple> lookForTuples(LogicTemplate template, int limit) {
-        return lookForTuplesImpl(template, limit);
-    }
 
-    @Override
-    protected Stream<LogicTuple> retrieveTuples(LogicTemplate template, int limit) {
-        return retrieveTuplesImpl(template, limit);
-    }
 }

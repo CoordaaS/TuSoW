@@ -27,15 +27,8 @@ class NonDeterminismLogicSpaceImpl extends AbstractLogicSpaceImpl implements Ins
 
     @Override
     protected Stream<LogicTuple> lookForTuples(LogicTemplate template, int limit) {
-        final var buffered = lookForTuplesImpl(template, Integer.MAX_VALUE).collect(Collectors.toList());
-        Collections.sort(buffered);
-        return buffered.stream().limit(limit);
-    }
-
-    @Override
-    protected Stream<LogicTuple> retrieveTuples(LogicTemplate template, int limit) {
-        final var buffered = retrieveTuplesImpl(template, Integer.MAX_VALUE).collect(Collectors.toList());
-        Collections.sort(buffered);
-        return buffered.stream().limit(limit);
+        final var buffered = super.lookForTuples(template, Integer.MAX_VALUE).collect(Collectors.toList());
+        Collections.shuffle(buffered);
+        return buffered.stream();
     }
 }
