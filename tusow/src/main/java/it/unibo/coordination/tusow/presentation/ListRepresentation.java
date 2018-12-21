@@ -30,11 +30,11 @@ public abstract class ListRepresentation<X extends Representation> extends Abstr
         this(Stream.concat(Stream.of(element1), Stream.of(elements)));
     }
 
-    protected List<X> getItems() {
+    public List<X> getItems() {
         return list;
     }
 
-    protected void setItems(List<X> list) {
+    public void setItems(List<X> list) {
         this.list = list;
     }
 

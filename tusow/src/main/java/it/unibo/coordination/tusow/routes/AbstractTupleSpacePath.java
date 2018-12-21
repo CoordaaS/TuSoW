@@ -3,12 +3,13 @@ package it.unibo.coordination.tusow.routes;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
-import it.unibo.coordination.tusow.api.LogicTupleSpaceApi;
+import it.unibo.coordination.tusow.api.TupleSpaceApi;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
 import it.unibo.coordination.tusow.exceptions.InternalServerError;
-import it.unibo.coordination.tusow.presentation.ListOfLogicTupleRepresentation;
-import it.unibo.coordination.tusow.presentation.LogicTemplateRepresentation;
+import it.unibo.coordination.tusow.presentation.ListRepresentation;
+import it.unibo.coordination.tusow.presentation.TemplateRepresentation;
+import it.unibo.coordination.tusow.presentation.TupleRepresentation;
 import it.unibo.coordination.utils.Tuple;
 import it.unibo.coordination.utils.Tuple3;
 import it.unibo.coordination.utils.Tuple4;
@@ -21,11 +22,10 @@ import java.util.Optional;
 import static it.unibo.coordination.tusow.presentation.MIMETypes.APPLICATION_JSON;
 import static it.unibo.coordination.tusow.presentation.MIMETypes.APPLICATION_YAML;
 
-public class LogicTupleSpacePath extends Path {
+public abstract class AbstractTupleSpacePath<T extends TupleRepresentation, TT extends TemplateRepresentation> extends Path {
 
-
-    public LogicTupleSpacePath() {
-        super("/logic/{tupleSpaceName}");
+    public AbstractTupleSpacePath(String tupleSpaceType) {
+        super("/" + Objects.requireNonNull(tupleSpaceType) + "/{tupleSpaceName}");
     }
 
     @Override
@@ -47,16 +47,18 @@ public class LogicTupleSpacePath extends Path {
                 .produces(APPLICATION_YAML);
     }
 
+    protected abstract TupleSpaceApi<T, TT> getTupleSpaceApi();
+
     public void post(RoutingContext routingContext) {
-        final LogicTupleSpaceApi api = LogicTupleSpaceApi.get(routingContext);
-        final Future<ListOfLogicTupleRepresentation> result = Future.future();
+        final var api = getTupleSpaceApi();
+        final Future<ListRepresentation<T>> result = Future.future();
 
         try {
-            final var tupleSpaceName = routingContext.pathParam("tupleSpaceName");
-            final var bulk = Optional.ofNullable(routingContext.queryParams().get("bulk")).map(Boolean::parseBoolean);
-            final var tuples = ListOfLogicTupleRepresentation.parse(routingContext.parsedHeaders().contentType().value(), routingContext.getBodyAsString());
+            final String tupleSpaceName = routingContext.pathParam("tupleSpaceName");
+            final Optional<Boolean> bulk = Optional.ofNullable(routingContext.queryParams().get("bulk")).map(Boolean::parseBoolean);
+            final ListRepresentation<T> tuples = parseTuples(routingContext.parsedHeaders().contentType().value(), routingContext.getBodyAsString());
 
-            final var cleanInputs = validateInputsForPost(tupleSpaceName, bulk, tuples);
+            final Tuple3<String, Boolean, ListRepresentation<T>> cleanInputs = validateInputsForPost(tupleSpaceName, bulk, tuples);
 
             result.setHandler(responseHandler(routingContext, response -> validateOutputsForPost(cleanInputs, response)));
 
@@ -68,12 +70,14 @@ public class LogicTupleSpacePath extends Path {
         }
     }
 
-    private Tuple3<String, Boolean, ListOfLogicTupleRepresentation> validateInputsForPost(String tupleSpaceName, Optional<Boolean> bulk, ListOfLogicTupleRepresentation tuples) {
+    protected abstract ListRepresentation<T> parseTuples(String mimeType, String payload) throws IOException;
+
+    private Tuple3<String, Boolean, ListRepresentation<T>> validateInputsForPost(String tupleSpaceName, Optional<Boolean> bulk, ListRepresentation<T> tuples) {
         final var bulkValue = bulk.orElse(false);
 
-        if (!bulkValue && tuples.getTuples().size() != 1) {
+        if (!bulkValue && tuples.getItems().size() != 1) {
             throw new BadContentError();
-        } else if (tuples.getTuples().size() == 0) {
+        } else if (tuples.getItems().size() == 0) {
             throw new BadContentError();
         }
 
@@ -84,12 +88,12 @@ public class LogicTupleSpacePath extends Path {
             );
     }
 
-    private ListOfLogicTupleRepresentation validateOutputsForPost(Tuple3<String, Boolean, ListOfLogicTupleRepresentation> inputs, ListOfLogicTupleRepresentation output) {
+    private ListRepresentation<T> validateOutputsForPost(Tuple3<String, Boolean, ListRepresentation<T>> inputs, ListRepresentation<T> output) {
         return validateOutputsForPost(inputs.getFirst(), inputs.getSecond(), inputs.getThird(), output);
     }
 
-    private ListOfLogicTupleRepresentation validateOutputsForPost(String tupleSpaceName, boolean bulk, ListOfLogicTupleRepresentation input, ListOfLogicTupleRepresentation output) {
-        if (input.getTuples().size() != output.getTuples().size()) {
+    private ListRepresentation<T> validateOutputsForPost(String tupleSpaceName, boolean bulk, ListRepresentation<T> input, ListRepresentation<T> output) {
+        if (input.getItems().size() != output.getItems().size()) {
             throw new InternalServerError();
         }
 
@@ -97,16 +101,16 @@ public class LogicTupleSpacePath extends Path {
     }
 
     public void delete(RoutingContext routingContext) {
-        final LogicTupleSpaceApi api = LogicTupleSpaceApi.get(routingContext);
-        final Future<ListOfLogicTupleRepresentation> result = Future.future();
+        final var api = getTupleSpaceApi();
+        final Future<ListRepresentation<T>> result = Future.future();
 
         try {
-            final var tupleSpaceName = routingContext.pathParam("tupleSpaceName");
-            final var bulk = Optional.ofNullable(routingContext.queryParams().get("bulk")).map(Boolean::parseBoolean);
-            final var predicative = Optional.ofNullable(routingContext.queryParams().get("predicative")).map(Boolean::parseBoolean);
-            final var template = LogicTemplateRepresentation.parse(routingContext.parsedHeaders().contentType().value(), routingContext.getBodyAsString());
+            final String tupleSpaceName = routingContext.pathParam("tupleSpaceName");
+            final Optional<Boolean> bulk = Optional.ofNullable(routingContext.queryParams().get("bulk")).map(Boolean::parseBoolean);
+            final Optional<Boolean> predicative = Optional.ofNullable(routingContext.queryParams().get("predicative")).map(Boolean::parseBoolean);
+            final TT template = parseTemplate(routingContext.parsedHeaders().contentType().value(), routingContext.getBodyAsString());
 
-            final var cleanInputs = validateInputsForDelete(tupleSpaceName, bulk, predicative, template);
+            final Tuple4<String, Boolean, Boolean, TT> cleanInputs = validateInputsForDelete(tupleSpaceName, bulk, predicative, template);
 
             result.setHandler(responseHandler(routingContext, response -> validateOutputsForDelete(cleanInputs, response)));
 
@@ -118,7 +122,9 @@ public class LogicTupleSpacePath extends Path {
         }
     }
 
-    private Tuple4<String, Boolean, Boolean, LogicTemplateRepresentation> validateInputsForDelete(String tupleSpaceName, Optional<Boolean> bulk, Optional<Boolean> predicative, LogicTemplateRepresentation template) {
+    protected abstract TT parseTemplate(String mimeType, String payload) throws IOException;
+
+    private Tuple4<String, Boolean, Boolean, TT> validateInputsForDelete(String tupleSpaceName, Optional<Boolean> bulk, Optional<Boolean> predicative, TT template) {
         return Tuple.of(
                 Objects.requireNonNull(tupleSpaceName),
                 bulk.orElse(false),
@@ -127,13 +133,13 @@ public class LogicTupleSpacePath extends Path {
             );
     }
 
-    private ListOfLogicTupleRepresentation validateOutputsForDelete(Tuple4<String, Boolean, Boolean, LogicTemplateRepresentation> inputs, ListOfLogicTupleRepresentation output) {
+    private <TL extends ListRepresentation<T>> TL validateOutputsForDelete(Tuple4<String, Boolean, Boolean, TT> inputs, TL output) {
         return validateOutputsForDelete(inputs.getFirst(), inputs.getSecond(), inputs.getThird(), inputs.getFourth(), output);
     }
 
-    private ListOfLogicTupleRepresentation validateOutputsForDelete(String tupleSpaceName, boolean bulk, boolean predicative, LogicTemplateRepresentation template, ListOfLogicTupleRepresentation output) {
+    private <TL extends ListRepresentation<T>> TL validateOutputsForDelete(String tupleSpaceName, boolean bulk, boolean predicative, TT template, TL output) {
 
-        if (!bulk && output.getTuples().size() > 1) {
+        if (!bulk && output.getItems().size() > 1) {
             throw new InternalServerError();
         }
 
@@ -141,15 +147,15 @@ public class LogicTupleSpacePath extends Path {
     }
 
     public void get(RoutingContext routingContext) {
-        final LogicTupleSpaceApi api = LogicTupleSpaceApi.get(routingContext);
-        final Future<ListOfLogicTupleRepresentation> result = Future.future();
+        final var api = getTupleSpaceApi();
+        final Future<ListRepresentation<T>> result = Future.future();
 
         try {
             final var tupleSpaceName = routingContext.pathParam("tupleSpaceName");
             final var bulk = Optional.ofNullable(routingContext.queryParams().get("bulk")).map(Boolean::parseBoolean);
             final var predicative = Optional.ofNullable(routingContext.queryParams().get("predicative")).map(Boolean::parseBoolean);
             final var negated = Optional.ofNullable(routingContext.queryParams().get("negated")).map(Boolean::parseBoolean);
-            final var template = LogicTemplateRepresentation.parse(routingContext.parsedHeaders().contentType().value(), routingContext.getBodyAsString());
+            final var template = parseTemplate(routingContext.parsedHeaders().contentType().value(), routingContext.getBodyAsString());
 
             final var cleanInputs = validateInputsForGet(tupleSpaceName, bulk, predicative, negated, template);
 
@@ -163,7 +169,7 @@ public class LogicTupleSpacePath extends Path {
         }
     }
 
-    private Tuple5<String, Boolean, Boolean, Boolean, LogicTemplateRepresentation> validateInputsForGet(String tupleSpaceName, Optional<Boolean> bulk, Optional<Boolean> predicative, Optional<Boolean> negated, LogicTemplateRepresentation template) {
+    private Tuple5<String, Boolean, Boolean, Boolean, TT> validateInputsForGet(String tupleSpaceName, Optional<Boolean> bulk, Optional<Boolean> predicative, Optional<Boolean> negated, TT template) {
         return Tuple.of(
                 Objects.requireNonNull(tupleSpaceName),
                 bulk.orElse(false),
@@ -173,13 +179,13 @@ public class LogicTupleSpacePath extends Path {
         );
     }
 
-    private ListOfLogicTupleRepresentation validateOutputsForGet(Tuple5<String, Boolean, Boolean, Boolean, LogicTemplateRepresentation> inputs, ListOfLogicTupleRepresentation output) {
+    private <TL extends ListRepresentation<T>> TL validateOutputsForGet(Tuple5<String, Boolean, Boolean, Boolean, TT> inputs, TL output) {
         return validateOutputsForDelete(inputs.getFirst(), inputs.getSecond(), inputs.getThird(), inputs.getFourth(), inputs.getFifth(), output);
     }
 
-    private ListOfLogicTupleRepresentation validateOutputsForDelete(String tupleSpaceName, boolean bulk, boolean predicative, boolean negated, LogicTemplateRepresentation template, ListOfLogicTupleRepresentation output) {
+    private <TL extends ListRepresentation<T>> TL validateOutputsForDelete(String tupleSpaceName, boolean bulk, boolean predicative, boolean negated, TT template, TL output) {
 
-        if (!bulk && output.getTuples().size() > 1) {
+        if (!bulk && output.getItems().size() > 1) {
             throw new InternalServerError();
         }
 

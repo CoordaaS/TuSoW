@@ -112,7 +112,7 @@ public class LogicTemplateRepresentation extends AbstractRepresentation implemen
         );
     }
 
-    protected static LogicTemplateRepresentation parse(String mimeType, String representation) throws IOException {
+    public static LogicTemplateRepresentation parse(String mimeType, String representation) throws IOException {
         if (APPLICATION_JSON.equals(mimeType) || APPLICATION_ANY.equals(mimeType) || ANY.equals(mimeType)) {
             return fromJSON(representation);
         } else if (APPLICATION_XML.equals(mimeType)) {

@@ -2,52 +2,34 @@ package it.unibo.coordination.tusow.api;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.ext.web.RoutingContext;
-import it.unibo.coordination.linda.core.Template;
-import it.unibo.coordination.linda.core.Tuple;
-import it.unibo.coordination.tusow.presentation.*;
-
-import java.util.Collection;
-import java.util.function.Function;
+import it.unibo.coordination.tusow.presentation.ListRepresentation;
+import it.unibo.coordination.tusow.presentation.TemplateRepresentation;
+import it.unibo.coordination.tusow.presentation.TupleRepresentation;
 
 public interface TupleSpaceApi<T extends TupleRepresentation, TT extends TemplateRepresentation> extends Api {
 
-//    void createNewTuple(String tupleSpaceName,
-//               T tuple,
-//               Handler<AsyncResult<T>> handler);
+//    <TL extends ListRepresentation<? extends T>> void createNewTuples(String tupleSpaceName,
+//                                                                      boolean bulk,
+//                                                                      TL tuples,
+//                                                                      Handler<? extends AsyncResult<? extends ListRepresentation<T>>> handler);
 
     void createNewTuples(String tupleSpaceName,
+                        boolean bulk,
                         ListRepresentation<T> tuples,
-                        Handler<AsyncResult<? super ListRepresentation<T>>> handler);
-
-//    void observeTuple(String tupleSpaceName,
-//                      boolean predicative,
-//                      TT template,
-//                      Handler<AsyncResult<T>> handler);
+                        Handler<? extends AsyncResult<? extends ListRepresentation<T>>> handler);
 
     void observeTuples(String tupleSpaceName,
+                      boolean bulk,
                       boolean predicative,
-                      ListRepresentation<TT> template,
-                      Handler<AsyncResult<ListRepresentation<T>>> handler);
-
-//    void consumeTuple(String tupleSpaceName,
-//                       boolean predicative,
-//                       TT template,
-//                       Handler<AsyncResult<T>> handler);
+                      boolean negated,
+                      TT template,
+                      Handler<? extends AsyncResult<? extends ListRepresentation<T>>> handler);
 
     void consumeTuples(String tupleSpaceName,
+                      boolean bulk,
                       boolean predicative,
-                      ListRepresentation<TT> template,
-                      Handler<AsyncResult<ListRepresentation<T>>> handler);
+                      TT template,
+                      Handler<? extends AsyncResult<? extends ListRepresentation<T>>> handler);
 
-//    void absentTuple(String tupleSpaceName,
-//                      boolean predicative,
-//                      TT template,
-//                      Handler<AsyncResult<T>> handler);
-
-    void absentTuples(String tupleSpaceName,
-                       boolean predicative,
-                       ListRepresentation<TT> template,
-                       Handler<AsyncResult<ListRepresentation<T>>> handler);
 }
 
