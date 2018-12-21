@@ -43,15 +43,15 @@ public class ListOfChatRooms extends ListRepresentation<ChatRoom> {
     }
 
     public static ListOfChatRooms fromJSON(String representation) throws IOException {
-        return Representation.fromJSON(representation, ListOfChatRooms.class);
+        return AbstractRepresentation.fromJSON(representation, ListOfChatRooms.class);
     }
 
     public static ListOfChatRooms fromYAML(String representation) throws IOException {
-        return Representation.fromYAML(representation, ListOfChatRooms.class);
+        return AbstractRepresentation.fromYAML(representation, ListOfChatRooms.class);
     }
 
     public static ListOfChatRooms fromXML(String representation) throws IOException {
-        return Representation.fromXML(representation, ListOfChatRooms.class);
+        return AbstractRepresentation.fromXML(representation, ListOfChatRooms.class);
     }
 
     public static ListOfChatRooms parse(String mimeType, String payload) throws IOException {

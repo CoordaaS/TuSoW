@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @JacksonXmlRootElement(localName = "user")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class User extends Representation {
+public class User extends AbstractRepresentation {
 
     private UUID id = null;
     private String username = null;
@@ -218,15 +218,15 @@ public class User extends Representation {
     }
 
     public static User fromJSON(String representation) throws IOException {
-        return Representation.fromJSON(representation, User.class);
+        return AbstractRepresentation.fromJSON(representation, User.class);
     }
 
     public static User fromYAML(String representation) throws IOException {
-        return Representation.fromYAML(representation, User.class);
+        return AbstractRepresentation.fromYAML(representation, User.class);
     }
 
     public static User fromXML(String representation) throws IOException {
-        return Representation.fromXML(representation, User.class);
+        return AbstractRepresentation.fromXML(representation, User.class);
     }
 
     public static User parse(String mimeType, String payload) throws IOException {

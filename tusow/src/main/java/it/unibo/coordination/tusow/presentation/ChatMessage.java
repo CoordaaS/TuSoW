@@ -9,7 +9,7 @@ import java.time.OffsetDateTime;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ChatMessage extends Representation implements Comparable<ChatMessage> {
+public class ChatMessage extends AbstractRepresentation implements Comparable<ChatMessage> {
 
     private Link chatRoom = null;
     private Integer index = null;
@@ -135,15 +135,15 @@ public class ChatMessage extends Representation implements Comparable<ChatMessag
     }
 
     public static ChatMessage fromJSON(String representation) throws IOException {
-        return Representation.fromJSON(representation, ChatMessage.class);
+        return AbstractRepresentation.fromJSON(representation, ChatMessage.class);
     }
 
     public static ChatMessage fromYAML(String representation) throws IOException {
-        return Representation.fromYAML(representation, ChatMessage.class);
+        return AbstractRepresentation.fromYAML(representation, ChatMessage.class);
     }
 
     public static ChatMessage fromXML(String representation) throws IOException {
-        return Representation.fromXML(representation, ChatMessage.class);
+        return AbstractRepresentation.fromXML(representation, ChatMessage.class);
     }
 
     public static ChatMessage parse(String mimeType, String payload) throws IOException {

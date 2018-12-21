@@ -186,6 +186,8 @@ public class PrologUtils {
             return new Float((java.lang.Float) object);
         } else if (object instanceof java.lang.Long) {
             return new Long((java.lang.Long) object);
+        } else if (object instanceof String) {
+            return new Struct(object.toString());
         } else if (object instanceof List) {
             var terms = ((List<?>) object).stream()
                     .map(PrologUtils::objectToTerm)
@@ -235,12 +237,16 @@ public class PrologUtils {
                     .collect(Collectors.toList());
         } else if (term instanceof Struct) {
             final Struct struct = (Struct) term;
-            final Map<String, Object> structMap = new LinkedHashMap<>();
-            structMap.put("$fun", struct.getName());
-            for (int i = 0; i < struct.getArity(); i++) {
-                structMap.put("$arg" + i, termToObject(struct.getArg(i)));
+            if (struct.getArity() == 0) {
+                return struct.getName();
+            } else {
+                final Map<String, Object> structMap = new LinkedHashMap<>();
+                structMap.put("$fun", struct.getName());
+                for (int i = 0; i < struct.getArity(); i++) {
+                    structMap.put("$arg" + i, termToObject(struct.getArg(i)));
+                }
+                return Collections.unmodifiableMap(structMap);
             }
-            return Collections.unmodifiableMap(structMap);
         }
         throw new IllegalStateException();
     }

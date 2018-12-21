@@ -47,4 +47,20 @@ public interface LogicTemplate extends Template {
 
         Optional<Term> get(String variableName);
     }
+
+    @Override
+    boolean equals(Object o);
+
+    @Override
+    int hashCode();
+
+    static boolean equals(LogicTemplate t1, LogicTemplate t2) {
+        if (t1 == t2) return true;
+        if (t1 == null || t2 == null) return false;
+        return Objects.equals(t1.asTerm(), t2.asTerm());
+    }
+
+    static int hashCode(LogicTemplate t) {
+        return Objects.hashCode(t.asTerm().toString());
+    }
 }

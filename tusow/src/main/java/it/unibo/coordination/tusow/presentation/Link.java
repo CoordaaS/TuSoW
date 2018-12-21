@@ -10,7 +10,7 @@ import java.util.Objects;
 
 @JacksonXmlRootElement(localName = "link")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Link extends Representation {
+public class Link extends AbstractRepresentation {
 
     private String url = null;
 
@@ -58,15 +58,15 @@ public class Link extends Representation {
     }
 
     public static Link fromJSON(String representation) throws IOException {
-        return Representation.fromJSON(representation, Link.class);
+        return AbstractRepresentation.fromJSON(representation, Link.class);
     }
 
     public static Link fromYAML(String representation) throws IOException {
-        return Representation.fromYAML(representation, Link.class);
+        return AbstractRepresentation.fromYAML(representation, Link.class);
     }
 
     public static Link fromXML(String representation) throws IOException {
-        return Representation.fromXML(representation, Link.class);
+        return AbstractRepresentation.fromXML(representation, Link.class);
     }
 
     public static Link parse(String mimeType, String payload) throws IOException {

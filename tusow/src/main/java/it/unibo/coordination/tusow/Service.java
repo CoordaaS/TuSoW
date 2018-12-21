@@ -12,7 +12,7 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import it.unibo.coordination.tusow.routes.Path;
-import it.unibo.coordination.tusow.routes.WebChatPath;
+import it.unibo.coordination.tusow.routes.TupleSpacesPath;
 
 public class Service extends AbstractVerticle {
     private static final Logger LOGGER = LoggerFactory.getLogger(Service.class);
@@ -31,7 +31,7 @@ public class Service extends AbstractVerticle {
     public void start(Future<Void> startFuture) throws Exception {
         Json.mapper.registerModule(new JavaTimeModule());
 
-        attach(router, new WebChatPath("1"));
+        attach(router, new TupleSpacesPath("1", "tuple-spaces"));
         
         server = getVertx().createHttpServer()
 	        .requestHandler(router::accept)

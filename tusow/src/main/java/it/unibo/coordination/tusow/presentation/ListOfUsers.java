@@ -43,15 +43,15 @@ public class ListOfUsers extends ListRepresentation<User> {
     }
 
     public static ListOfUsers fromJSON(String representation) throws IOException {
-        return Representation.fromJSON(representation, ListOfUsers.class);
+        return AbstractRepresentation.fromJSON(representation, ListOfUsers.class);
     }
 
     public static ListOfUsers fromYAML(String representation) throws IOException {
-        return Representation.fromYAML(representation, ListOfUsers.class);
+        return AbstractRepresentation.fromYAML(representation, ListOfUsers.class);
     }
 
     public static ListOfUsers fromXML(String representation) throws IOException {
-        return Representation.fromXML(representation, ListOfUsers.class);
+        return AbstractRepresentation.fromXML(representation, ListOfUsers.class);
     }
 
     public static ListOfUsers parse(String mimeType, String payload) throws IOException {

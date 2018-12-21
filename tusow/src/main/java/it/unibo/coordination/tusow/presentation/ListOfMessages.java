@@ -44,15 +44,15 @@ public class ListOfMessages extends ListRepresentation<ChatMessage> {
     }
 
     public static ListOfMessages fromJSON(String representation) throws IOException {
-        return Representation.fromJSON(representation, ListOfMessages.class);
+        return AbstractRepresentation.fromJSON(representation, ListOfMessages.class);
     }
 
     public static ListOfMessages fromYAML(String representation) throws IOException {
-        return Representation.fromYAML(representation, ListOfMessages.class);
+        return AbstractRepresentation.fromYAML(representation, ListOfMessages.class);
     }
 
     public static ListOfMessages fromXML(String representation) throws IOException {
-        return Representation.fromXML(representation, ListOfMessages.class);
+        return AbstractRepresentation.fromXML(representation, ListOfMessages.class);
     }
 
     public static ListOfMessages parse(String mimeType, String payload) throws IOException {

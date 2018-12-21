@@ -12,6 +12,7 @@ import io.vertx.ext.web.handler.ErrorHandler;
 import io.vertx.ext.web.handler.LoggerHandler;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
+import it.unibo.coordination.tusow.presentation.AbstractRepresentation;
 import it.unibo.coordination.tusow.presentation.Representation;
 
 import java.util.Collection;

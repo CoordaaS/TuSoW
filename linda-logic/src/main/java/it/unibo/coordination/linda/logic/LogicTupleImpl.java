@@ -20,20 +20,18 @@ final class LogicTupleImpl implements LogicTuple {
 
     @Override
     public String toString() {
-        return term.toString();
+        return asTerm().toString();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LogicTuple that = (LogicTuple) o;
-        return Objects.equals(term, that.asTerm());
+        return o instanceof LogicTuple
+                && LogicTuple.equals(this, (LogicTuple) o);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(term.toString());
+        return LogicTuple.hashCode(this);
     }
 
     public Struct asTerm() {
@@ -42,10 +40,5 @@ final class LogicTupleImpl implements LogicTuple {
 
     public Term getTuple() {
         return asTerm().getArg(0);
-    }
-
-    @Override
-    public int compareTo(LogicTuple o) {
-        return getTuple().toString().compareTo(o.getTuple().toString());
     }
 }

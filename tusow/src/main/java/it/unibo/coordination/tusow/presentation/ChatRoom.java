@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JacksonXmlRootElement(localName = "chatRoom")
-public class ChatRoom extends Representation {
+public class ChatRoom extends AbstractRepresentation {
 
     private String name = null;
     private User owner = null;
@@ -234,15 +234,15 @@ public class ChatRoom extends Representation {
     }
 
     public static ChatRoom fromJSON(String representation) throws IOException {
-        return Representation.fromJSON(representation, ChatRoom.class);
+        return AbstractRepresentation.fromJSON(representation, ChatRoom.class);
     }
 
     public static ChatRoom fromYAML(String representation) throws IOException {
-        return Representation.fromYAML(representation, ChatRoom.class);
+        return AbstractRepresentation.fromYAML(representation, ChatRoom.class);
     }
 
     public static ChatRoom fromXML(String representation) throws IOException {
-        return Representation.fromXML(representation, ChatRoom.class);
+        return AbstractRepresentation.fromXML(representation, ChatRoom.class);
     }
 
     public static ChatRoom parse(String mimeType, String payload) throws IOException {

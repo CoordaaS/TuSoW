@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class ListRepresentation<X extends Representation> extends Representation {
+public abstract class ListRepresentation<X extends Representation> extends AbstractRepresentation {
 
     private List<X> list;
 

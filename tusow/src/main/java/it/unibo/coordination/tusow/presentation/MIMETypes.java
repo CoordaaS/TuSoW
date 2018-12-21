@@ -8,6 +8,8 @@ public final class MIMETypes {
 
     public static String APPLICATION_XML = "application/xml";
 
+    public static String APPLICATION_PROLOG = "application/prolog";
+
     public static String TEXT_HTML = "text/html";
 
     public static String TEXT_PLAIN = "text/plain";
