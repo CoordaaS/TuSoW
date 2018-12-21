@@ -38,32 +38,17 @@ public class ListOfLogicTupleRepresentation extends ListRepresentation<LogicTupl
 
     @Override
     public String toJSONString() {
-        return writeAsJSON(
-                Map.of(
-                        "tuples",
-                        getTuples().stream().map(PrologUtils::objectToTerm)
-                )
-        );
+        return writeAsJSON(Map.of("tuples", toObject()));
     }
 
     @Override
     public String toYAMLString() {
-        return writeAsYAML(
-                Map.of(
-                        "tuples",
-                        getTuples().stream().map(PrologUtils::objectToTerm)
-                )
-        );
+        return writeAsYAML(Map.of("tuples", toObject()));
     }
 
     @Override
     public String toXMLString() {
-        return writeAsXML(
-                Map.of(
-                        "tuples",
-                        getTuples().stream().map(PrologUtils::objectToTerm)
-                )
-        );
+        return writeAsXML(Map.of("tuples", toObject()));
     }
 
     public static ListOfLogicTupleRepresentation fromObject(Object object) {

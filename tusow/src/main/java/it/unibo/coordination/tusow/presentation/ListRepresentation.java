@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class ListRepresentation<X extends Representation> extends AbstractRepresentation {
+public abstract class ListRepresentation<X extends Representation> extends AbstractRepresentation implements Representation {
 
     private List<X> list;
 
@@ -34,6 +34,14 @@ public abstract class ListRepresentation<X extends Representation> extends Abstr
         return list;
     }
 
+    public int size() {
+        return list.size();
+    }
+
+    public boolean isEmpty() {
+        return list.isEmpty();
+    }
+
     public void setItems(List<X> list) {
         this.list = list;
     }
@@ -56,5 +64,10 @@ public abstract class ListRepresentation<X extends Representation> extends Abstr
         return "ListRepresentation{" +
                 "list=" + list +
                 '}';
+    }
+
+    @Override
+    public Object toObject() {
+        return list.stream().map(Representation::toObject).collect(Collectors.toList());
     }
 }

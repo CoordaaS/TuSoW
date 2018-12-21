@@ -25,12 +25,20 @@ import static it.unibo.coordination.tusow.presentation.MIMETypes.APPLICATION_YAM
 public abstract class AbstractTupleSpacePath<T extends TupleRepresentation, TT extends TemplateRepresentation> extends Path {
 
     public AbstractTupleSpacePath(String tupleSpaceType) {
-        super("/" + Objects.requireNonNull(tupleSpaceType) + "/{tupleSpaceName}");
+        super("/" + Objects.requireNonNull(tupleSpaceType) + "/:tupleSpaceName");
     }
 
     @Override
     protected void setupRoutes() {
-        addRoute(HttpMethod.GET, this::delete)
+        addRoute(HttpMethod.DELETE, this::delete)
+                .consumes(APPLICATION_JSON)
+//                .consumes(APPLICATION_XML)
+                .consumes(APPLICATION_YAML)
+                .produces(APPLICATION_JSON)
+//                .produces(APPLICATION_XML)
+                .produces(APPLICATION_YAML);
+
+        addRoute(HttpMethod.GET, this::get)
                 .consumes(APPLICATION_JSON)
 //                .consumes(APPLICATION_XML)
                 .consumes(APPLICATION_YAML)
@@ -47,10 +55,10 @@ public abstract class AbstractTupleSpacePath<T extends TupleRepresentation, TT e
                 .produces(APPLICATION_YAML);
     }
 
-    protected abstract TupleSpaceApi<T, TT> getTupleSpaceApi();
+    protected abstract TupleSpaceApi<T, TT> getTupleSpaceApi(RoutingContext routingContext);
 
     public void post(RoutingContext routingContext) {
-        final var api = getTupleSpaceApi();
+        final var api = getTupleSpaceApi(routingContext);
         final Future<ListRepresentation<T>> result = Future.future();
 
         try {
@@ -101,7 +109,7 @@ public abstract class AbstractTupleSpacePath<T extends TupleRepresentation, TT e
     }
 
     public void delete(RoutingContext routingContext) {
-        final var api = getTupleSpaceApi();
+        final var api = getTupleSpaceApi(routingContext);
         final Future<ListRepresentation<T>> result = Future.future();
 
         try {
@@ -147,7 +155,7 @@ public abstract class AbstractTupleSpacePath<T extends TupleRepresentation, TT e
     }
 
     public void get(RoutingContext routingContext) {
-        final var api = getTupleSpaceApi();
+        final var api = getTupleSpaceApi(routingContext);
         final Future<ListRepresentation<T>> result = Future.future();
 
         try {

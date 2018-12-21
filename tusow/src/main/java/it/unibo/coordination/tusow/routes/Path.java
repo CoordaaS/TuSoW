@@ -4,14 +4,18 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.ErrorHandler;
 import io.vertx.ext.web.handler.LoggerHandler;
+import it.unibo.coordination.tusow.Service;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
+import it.unibo.coordination.tusow.presentation.ListRepresentation;
 import it.unibo.coordination.tusow.presentation.Representation;
 
 import java.util.Collection;
@@ -20,6 +24,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public abstract class Path {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Path.class);
 
 	private String path;
     private Router router;
@@ -33,6 +39,7 @@ public abstract class Path {
 	protected abstract void setupRoutes();
 	
 	protected Route addRoute(HttpMethod method, String path, Handler<RoutingContext> handler) {
+	    LOGGER.info("Add route: {0} {1}", method, getPath() + path);
 		return router.route(method, getPath() + path)
 	        .handler(LoggerHandler.create())
 	    	.handler(BodyHandler.create())
@@ -71,10 +78,13 @@ public abstract class Path {
 			} else {
 			    try {
                     final X cleanResult = cleaner.apply(x.result());
-                    String result = cleanResult.toMIMETypeString(routingContext.getAcceptableContentType());
+                    final String result = cleanResult.toMIMETypeString(routingContext.getAcceptableContentType());
+
+                    final int statusCode = cleanResult instanceof ListRepresentation && ((ListRepresentation) cleanResult).isEmpty() ? 204 : 200;
+
                     routingContext.response()
                             .putHeader(HttpHeaders.CONTENT_TYPE, routingContext.getAcceptableContentType())
-                            .setStatusCode(200)
+                            .setStatusCode(statusCode)
                             .end(result);
                 } catch (HttpError e)  {
 					routingContext.response()

@@ -11,6 +11,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.LoggerHandler;
 import it.unibo.coordination.tusow.routes.Path;
 import it.unibo.coordination.tusow.routes.TupleSpacesPath;
 

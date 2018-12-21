@@ -9,9 +9,9 @@ public final class TupleSpaces {
 
     private TupleSpaces() {}
 
-    private Map<String, LogicSpace> logicSpaces = new HashMap<>();
+    private static Map<String, LogicSpace> logicSpaces = new HashMap<>();
 
-    public LogicSpace getLogicSpace(String name) {
+    public static LogicSpace getLogicSpace(String name) {
         if (!logicSpaces.containsKey(name)) {
             logicSpaces.put(name, LogicSpace.deterministic(name));
         }

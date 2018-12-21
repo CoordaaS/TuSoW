@@ -106,7 +106,7 @@ public class LogicTupleRepresentation extends AbstractRepresentation implements 
         );
     }
 
-    protected static LogicTupleRepresentation parse(String mimeType, String representation) throws IOException {
+    public static LogicTupleRepresentation parse(String mimeType, String representation) throws IOException {
         if (APPLICATION_JSON.equals(mimeType) || APPLICATION_ANY.equals(mimeType) || ANY.equals(mimeType)) {
             return fromJSON(representation);
         } else if (APPLICATION_XML.equals(mimeType)) {
