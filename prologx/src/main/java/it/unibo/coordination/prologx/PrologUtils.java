@@ -9,6 +9,7 @@ import alice.tuprolog.Number;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class PrologUtils {
@@ -158,6 +159,24 @@ public class PrologUtils {
         return new Struct("retract", term);
     }
 
+    public static Term anyToTerm(Object payload) {
+        if (payload == null) {
+            return new Var();
+        } else if (payload instanceof Term) {
+            return (Term) payload;
+        } else if (payload instanceof PrologSerializable) {
+            return ((PrologSerializable) payload).toTerm();
+        } else {
+            try {
+                return Term.createTerm(payload.toString());
+            } catch (InvalidTermException e) {
+                return new Struct(payload.toString());
+            }
+        }
+    }
+
+    private static final Prolog HELPER = new Prolog();
+
     public static Term objectToTerm(Object object) {
         if (object instanceof java.lang.Double) {
             return new Double((java.lang.Double) object);
@@ -175,9 +194,20 @@ public class PrologUtils {
         } else if (object instanceof Map) {
             final Map<String, Object> objectMap = (Map<String, Object>) object;
             if (objectMap.containsKey("$var")) {
-
+                final var variable = new Var(objectMap.get("$var").toString());
+                if (objectMap.get("$val") != null) {
+                    variable.unify(HELPER, objectToTerm(objectMap.get("$val")));
+                }
+                return variable;
             } else if (objectMap.containsKey("$fun")) {
+                final Term[] arguments = IntStream.range(0, objectMap.size() - 1)
+                        .mapToObj(i -> objectMap.get("$arg" + i))
+                        .peek(it -> {
+                            if (it == null) throw new IllegalArgumentException();
+                        }).map(PrologUtils::objectToTerm)
+                        .toArray(Term[]::new);
 
+                return new Struct(objectMap.get("$fun").toString(), arguments);
             }
         }
         throw new IllegalArgumentException();
@@ -189,9 +219,9 @@ public class PrologUtils {
         } else if (term instanceof Int) {
             return ((Int) term).intValue();
         } else if (term instanceof Float) {
-            return ((Int) term).floatValue();
+            return ((Float) term).floatValue();
         } else if (term instanceof Long) {
-            return ((Int) term).intValue();
+            return ((Long) term).intValue();
         } else if (term instanceof Var && ((Var) term).isBound()) {
             return Map.of("$var", ((Var) term).getOriginalName(), "$value", termToObject(((Var) term).getLink()));
         } else if (term instanceof Var) {
@@ -211,8 +241,7 @@ public class PrologUtils {
                 structMap.put("$arg" + i, termToObject(struct.getArg(i)));
             }
             return Collections.unmodifiableMap(structMap);
-        } else {
-            throw new IllegalStateException();
         }
+        throw new IllegalStateException();
     }
 }
