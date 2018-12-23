@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @JacksonXmlRootElement(localName = "user")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class User extends AbstractRepresentation {
+public class User extends AbstractRepresentation implements Representation {
 
     private UUID id = null;
     private String username = null;

@@ -11,7 +11,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.LoggerHandler;
 import it.unibo.coordination.tusow.routes.Path;
 import it.unibo.coordination.tusow.routes.TupleSpacesPath;
 
@@ -35,7 +34,7 @@ public class Service extends AbstractVerticle {
         attach(router, new TupleSpacesPath("1", "tuple-spaces"));
         
         server = getVertx().createHttpServer()
-	        .requestHandler(router::accept)
+	        .requestHandler(router)
 	        .listen(getPort(), x -> {
                 LOGGER.info("Service listening on port: {0}", "" + getPort());
                 startFuture.complete();

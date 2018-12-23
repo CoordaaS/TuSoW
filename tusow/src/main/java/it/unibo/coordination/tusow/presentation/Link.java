@@ -10,7 +10,7 @@ import java.util.Objects;
 
 @JacksonXmlRootElement(localName = "link")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Link extends AbstractRepresentation {
+public class Link extends AbstractRepresentation implements Representation {
 
     private String url = null;
 

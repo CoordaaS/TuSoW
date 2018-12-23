@@ -3,19 +3,16 @@ package it.unibo.coordination.tusow.routes;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
-import it.unibo.coordination.tusow.api.RoomsApi;
 import it.unibo.coordination.tusow.api.UsersApi;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
-import it.unibo.coordination.tusow.presentation.*;
+import it.unibo.coordination.tusow.presentation.Link;
+import it.unibo.coordination.tusow.presentation.ListOfUsers;
+import it.unibo.coordination.tusow.presentation.User;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
-
-import static it.unibo.coordination.tusow.presentation.MIMETypes.*;
 
 import static it.unibo.coordination.tusow.presentation.MIMETypes.*;
 
