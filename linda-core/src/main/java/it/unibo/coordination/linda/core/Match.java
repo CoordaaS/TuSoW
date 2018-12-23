@@ -4,7 +4,7 @@ import java.util.Optional;
 
 public interface Match<T extends Tuple, TT extends Template, K, V> {
 
-    T getTuple();
+    Optional<T> getTuple();
 
     TT getTemplate();
 

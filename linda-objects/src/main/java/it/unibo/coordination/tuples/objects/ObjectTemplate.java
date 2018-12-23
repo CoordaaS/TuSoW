@@ -43,8 +43,8 @@ public final class ObjectTemplate<T> implements Template, Predicate<Tuple> {
 
 
         @Override
-        public ObjectTuple<T> getTuple() {
-            return tuple instanceof ObjectTuple ? (ObjectTuple<T>)tuple : null;
+        public Optional<ObjectTuple<T>> getTuple() {
+            return tuple instanceof ObjectTuple ? Optional.of((ObjectTuple<T>)tuple) : Optional.empty();
         }
 
         @Override

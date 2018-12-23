@@ -64,16 +64,16 @@ final class LogicTemplateImpl implements LogicTemplate {
     private class LogicMatchImpl implements LogicMatch {
 
         private final SolveInfo solveInfo;
-        private final LogicTuple tuple;
+        private final Tuple tuple;
 
-        LogicMatchImpl(SolveInfo solveInfo, LogicTuple tuple) {
+        LogicMatchImpl(SolveInfo solveInfo, Tuple tuple) {
             this.solveInfo = solveInfo;
             this.tuple = tuple;
         }
 
         @Override
-        public LogicTuple getTuple() {
-            return tuple;
+        public Optional<LogicTuple> getTuple() {
+            return tuple instanceof LogicTuple ? Optional.of((LogicTuple) tuple) : Optional.empty();
         }
 
         @Override
