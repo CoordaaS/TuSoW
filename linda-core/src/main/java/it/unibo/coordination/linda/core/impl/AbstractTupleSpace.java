@@ -110,11 +110,11 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         }
     }
 
-    protected final Stream<Match<T, TT, K, V>> lookForTuples(final TT template) {
+    protected final Stream<? extends Match<T, TT, K, V>> lookForTuples(final TT template) {
         return lookForTuples(template, Integer.MAX_VALUE);
     }
 
-    protected abstract Stream<Match<T, TT, K, V>> lookForTuples(final TT template, int limit);
+    protected abstract Stream<? extends Match<T, TT, K, V>> lookForTuples(final TT template, int limit);
 
     protected abstract Match<T, TT, K, V> lookForTuple(final TT template);
 
@@ -169,11 +169,11 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         tupleSpaceChanged.syncEmit(TupleEvent.afterAbsent(this, template));
     }
 
-    private Stream<Match<T, TT, K, V>> retrieveTuples(TT template) {
+    private Stream<? extends Match<T, TT, K, V>> retrieveTuples(TT template) {
         return retrieveTuples(template, Integer.MAX_VALUE);
     }
 
-    protected abstract Stream<Match<T, TT, K, V>> retrieveTuples(TT template, int limit);
+    protected abstract Stream<? extends Match<T, TT, K, V>> retrieveTuples(TT template, int limit);
 
     protected abstract Match<T, TT, K, V> retrieveTuple(TT template);
 

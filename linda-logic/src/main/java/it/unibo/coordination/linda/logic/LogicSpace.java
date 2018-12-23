@@ -3,6 +3,7 @@ package it.unibo.coordination.linda.logic;
 import alice.tuprolog.Term;
 import it.unibo.coordination.Engine;
 import it.unibo.coordination.linda.core.ExtendedTupleSpace;
+import it.unibo.coordination.linda.core.Match;
 import org.apache.commons.collections4.MultiSet;
 
 import java.util.Optional;
@@ -105,11 +106,11 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
     }
 
     default CompletableFuture<LogicTemplate> absent(final String template) {
-        return absent(LogicTemplate.of(template));
+        return absent(LogicTemplate.of(template)).thenApplyAsync(Match::getTemplate);
     }
 
     default CompletableFuture<LogicTemplate> absent(final Term template) {
-        return absent(LogicTemplate.of(template));
+        return absent(LogicTemplate.of(template)).thenApplyAsync(Match::getTemplate);
     }
 
     default CompletableFuture<Optional<LogicTuple>> tryAbsentTuple(String template) {
