@@ -6,4 +6,5 @@ include 'tusow'
 include 'utils'
 include 'prologx'
 include 'test-utils'
+include 'linda-strings'
 
