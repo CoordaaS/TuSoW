@@ -1,6 +1,5 @@
 package it.unibo.coordination.linda.core;
 
-import java.util.Optional;
 import java.util.function.Predicate;
 
 public interface Template extends Predicate<Tuple> {
@@ -9,18 +8,10 @@ public interface Template extends Predicate<Tuple> {
         return matchWith(tuple).isSuccess();
     }
 
-    Match matchWith(Tuple tuple);
+    Match<? extends Tuple, ? extends Template, ?, ?> matchWith(Tuple tuple);
 
     @Override
     default boolean test(Tuple tuple) {
         return matches(tuple);
-    }
-
-    interface Match {
-
-        boolean isSuccess();
-
-        <X> Optional<X> get(Object key);
-
     }
 }

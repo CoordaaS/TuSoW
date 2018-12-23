@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 final class LogicTemplateImpl implements LogicTemplate {
 
     private static final Prolog ENGINE = new Prolog();
-    private static final LogicMatch FAILURE = new LogicMatch(null);
     private final Struct term;
 
     LogicTemplateImpl(final Term term) {
@@ -25,13 +24,14 @@ final class LogicTemplateImpl implements LogicTemplate {
     }
 
     @Override
-    public Match matchWith(Tuple tuple) {
+    public LogicMatch matchWith(Tuple tuple) {
         if (tuple instanceof LogicTuple) {
-            final SolveInfo si = ENGINE.solve(PrologUtils.unificationTerm(getTemplate(), ((LogicTuple) tuple).getTuple()));
-            return new LogicMatch(si);
+            final LogicTuple logicTuple = (LogicTuple) tuple;
+            final SolveInfo si = ENGINE.solve(PrologUtils.unificationTerm(getTemplate(), logicTuple.getTuple()));
+            return new LogicMatchImpl(si, logicTuple);
         }
 
-        return FAILURE;
+        return new LogicMatchImpl(null, null);
     }
 
     @Override
@@ -61,12 +61,24 @@ final class LogicTemplateImpl implements LogicTemplate {
         return term.getArg(0);
     }
 
-    private static class LogicMatch implements LogicTemplate.LogicMatch {
+    private class LogicMatchImpl implements LogicMatch {
 
         private final SolveInfo solveInfo;
+        private final LogicTuple tuple;
 
-        LogicMatch(SolveInfo solveInfo) {
+        LogicMatchImpl(SolveInfo solveInfo, LogicTuple tuple) {
             this.solveInfo = solveInfo;
+            this.tuple = tuple;
+        }
+
+        @Override
+        public LogicTuple getTuple() {
+            return tuple;
+        }
+
+        @Override
+        public LogicTemplate getTemplate() {
+            return LogicTemplateImpl.this;
         }
 
         @Override

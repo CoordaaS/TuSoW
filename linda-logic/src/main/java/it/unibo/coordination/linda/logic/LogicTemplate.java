@@ -7,7 +7,6 @@ import it.unibo.coordination.linda.core.Template;
 import it.unibo.coordination.linda.core.Tuple;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public interface LogicTemplate extends Template {
 
@@ -28,7 +27,7 @@ public interface LogicTemplate extends Template {
     }
 
     @Override
-    Match matchWith(Tuple tuple);
+    LogicMatch matchWith(Tuple tuple);
 
     Struct asTerm();
 
@@ -36,16 +35,6 @@ public interface LogicTemplate extends Template {
 
     default LogicTuple toTuple() {
         return LogicTuple.of(getTemplate());
-    }
-
-    interface LogicMatch extends Match {
-
-        @Override
-        default <X> Optional<X> get(Object key) {
-            return get(key.toString()).map(it -> (X)it);
-        }
-
-        Optional<Term> get(String variableName);
     }
 
     @Override

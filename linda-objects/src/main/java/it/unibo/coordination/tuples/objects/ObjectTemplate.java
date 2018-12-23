@@ -1,6 +1,5 @@
 package it.unibo.coordination.tuples.objects;
 
-
 import it.unibo.coordination.linda.core.Template;
 import it.unibo.coordination.linda.core.Tuple;
 
@@ -26,22 +25,32 @@ public final class ObjectTemplate<T> implements Template, Predicate<Tuple> {
     }
 
     @Override
-    public Match matchWith(Tuple tuple) {
-        return new ObjectMatch(tuple);
+    public ObjectMatch<T> matchWith(Tuple tuple) {
+        return new ObjectMatchImpl(tuple);
     }
 
     public ObjectTemplate<T> where(Predicate<T> predicate) {
         return new ObjectTemplate<>(type, this.predicate.and(predicate));
     }
 
-    private class ObjectMatch implements Match {
+    private class ObjectMatchImpl implements ObjectMatch<T> {
 
         private final Tuple tuple;
 
-        private ObjectMatch(Tuple property) {
+        private ObjectMatchImpl(Tuple property) {
             this.tuple = property;
         }
 
+
+        @Override
+        public ObjectTuple<T> getTuple() {
+            return tuple instanceof ObjectTuple ? (ObjectTuple<T>)tuple : null;
+        }
+
+        @Override
+        public ObjectTemplate<T> getTemplate() {
+            return ObjectTemplate.this;
+        }
 
         @Override
         public boolean isSuccess() {
@@ -56,8 +65,9 @@ public final class ObjectTemplate<T> implements Template, Predicate<Tuple> {
         }
 
         @Override
-        public <X> Optional<X> get(Object key) {
+        public Optional<Object> get(Object key) {
             return Optional.empty();
         }
+
     }
 }

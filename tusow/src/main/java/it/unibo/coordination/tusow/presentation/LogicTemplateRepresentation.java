@@ -3,6 +3,7 @@ package it.unibo.coordination.tusow.presentation;
 import alice.tuprolog.Struct;
 import alice.tuprolog.Term;
 import it.unibo.coordination.linda.core.Tuple;
+import it.unibo.coordination.linda.logic.LogicMatch;
 import it.unibo.coordination.linda.logic.LogicTemplate;
 import it.unibo.coordination.prologx.PrologUtils;
 
@@ -32,7 +33,7 @@ public class LogicTemplateRepresentation extends AbstractRepresentation implemen
     }
 
     @Override
-    public Match matchWith(Tuple tuple) {
+    public LogicMatch matchWith(Tuple tuple) {
         return adapted.matchWith(tuple);
     }
 
