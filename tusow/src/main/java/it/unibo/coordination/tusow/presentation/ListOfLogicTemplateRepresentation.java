@@ -39,7 +39,7 @@ public class ListOfLogicTemplateRepresentation extends ListRepresentation<LogicT
     public Map<String, Object> toObject() {
         return Map.of(
                 "templates",
-                getTemplates().stream().map(PrologUtils::objectToTerm)
+                getTemplates().stream().map(PrologUtils::dynamicObjectToTerm)
         );
     }
 

@@ -1,10 +1,9 @@
 package it.unibo.coordination.prologx;
 
-import alice.tuprolog.*;
 import alice.tuprolog.Double;
 import alice.tuprolog.Float;
 import alice.tuprolog.Long;
-import alice.tuprolog.Number;
+import alice.tuprolog.*;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -177,7 +176,7 @@ public class PrologUtils {
 
     private static final Prolog HELPER = new Prolog();
 
-    public static Term objectToTerm(Object object) {
+    public static Term dynamicObjectToTerm(Object object) {
         if (object instanceof java.lang.Double) {
             return new Double((java.lang.Double) object);
         } else if (object instanceof java.lang.Integer) {
@@ -190,32 +189,32 @@ public class PrologUtils {
             return new Struct(object.toString());
         } else if (object instanceof List) {
             var terms = ((List<?>) object).stream()
-                    .map(PrologUtils::objectToTerm)
+                    .map(PrologUtils::dynamicObjectToTerm)
                     .toArray(Term[]::new);
             return new Struct(terms);
         } else if (object instanceof Map) {
             final Map<String, Object> objectMap = (Map<String, Object>) object;
-            if (objectMap.containsKey("$var")) {
-                final var variable = new Var(objectMap.get("$var").toString());
-                if (objectMap.get("$val") != null) {
-                    variable.unify(HELPER, objectToTerm(objectMap.get("$val")));
+            if (objectMap.containsKey("var")) {
+                final var variable = new Var(objectMap.get("var").toString());
+                if (objectMap.get("val") != null) {
+                    variable.unify(HELPER, dynamicObjectToTerm(objectMap.get("val")));
                 }
                 return variable;
-            } else if (objectMap.containsKey("$fun")) {
-                final Term[] arguments = IntStream.range(0, objectMap.size() - 1)
-                        .mapToObj(i -> objectMap.get("$arg" + i))
+            } else if (objectMap.containsKey("fun") && objectMap.containsKey("args")) {
+                final Term[] arguments = ((List<?>) objectMap.get("args"))
+                        .stream()
                         .peek(it -> {
                             if (it == null) throw new IllegalArgumentException();
-                        }).map(PrologUtils::objectToTerm)
+                        }).map(PrologUtils::dynamicObjectToTerm)
                         .toArray(Term[]::new);
 
-                return new Struct(objectMap.get("$fun").toString(), arguments);
+                return new Struct(objectMap.get("fun").toString(), arguments);
             }
         }
         throw new IllegalArgumentException();
     }
 
-    public static Object termToObject(Term term) {
+    public static Object termToDynamicObject(Term term) {
         if (term instanceof Double) {
             return ((Double) term).doubleValue();
         } else if (term instanceof Int) {
@@ -225,29 +224,28 @@ public class PrologUtils {
         } else if (term instanceof Long) {
             return ((Long) term).intValue();
         } else if (term instanceof Var && ((Var) term).isBound()) {
-            return Map.of("$var", ((Var) term).getOriginalName(), "$value", termToObject(((Var) term).getLink()));
+            return Map.of("var", ((Var) term).getOriginalName(), "val", termToDynamicObject(((Var) term).getLink()));
         } else if (term instanceof Var) {
             final Map<String, Object> varMap = new LinkedHashMap<>();
-            varMap.put("$var", ((Var) term).getOriginalName());
-            varMap.put("$val", null);
+            varMap.put("var", ((Var) term).getOriginalName());
+            varMap.put("val", null);
             return Collections.unmodifiableMap(varMap);
         } else if (term.isList()) {
             return listToStream(term)
-                    .map(PrologUtils::termToObject)
+                    .map(PrologUtils::termToDynamicObject)
                     .collect(Collectors.toList());
         } else if (term instanceof Struct) {
             final Struct struct = (Struct) term;
             if (struct.getArity() == 0) {
                 return struct.getName();
             } else {
-                final Map<String, Object> structMap = new LinkedHashMap<>();
-                structMap.put("$fun", struct.getName());
-                for (int i = 0; i < struct.getArity(); i++) {
-                    structMap.put("$arg" + i, termToObject(struct.getArg(i)));
-                }
-                return Collections.unmodifiableMap(structMap);
+                return Map.of("fun", struct.getName(), "args", argumentsStream(struct).collect(Collectors.toList()));
             }
         }
         throw new IllegalStateException();
+    }
+
+    public static Stream<Term> argumentsStream(Struct struct) {
+        return IntStream.range(0, struct.getArity()).mapToObj(struct::getArg);
     }
 }

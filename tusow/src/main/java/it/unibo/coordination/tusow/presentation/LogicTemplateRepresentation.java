@@ -73,7 +73,7 @@ public class LogicTemplateRepresentation extends AbstractRepresentation implemen
 
     @Override
     public Object toObject() {
-        return PrologUtils.termToObject(asTerm());
+        return PrologUtils.termToDynamicObject(asTerm());
     }
 
     @Override
@@ -91,7 +91,7 @@ public class LogicTemplateRepresentation extends AbstractRepresentation implemen
     }
 
     public static LogicTemplateRepresentation fromObject(Object object) {
-        return LogicTemplateRepresentation.of(PrologUtils.objectToTerm(object));
+        return LogicTemplateRepresentation.of(PrologUtils.dynamicObjectToTerm(object));
     }
 
     public static LogicTemplateRepresentation fromJSON(String representation) throws IOException {

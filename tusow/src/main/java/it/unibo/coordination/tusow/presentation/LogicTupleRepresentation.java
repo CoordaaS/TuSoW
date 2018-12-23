@@ -6,7 +6,7 @@ import it.unibo.coordination.linda.logic.LogicTuple;
 import it.unibo.coordination.prologx.PrologUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Objects;
 
 import static it.unibo.coordination.tusow.presentation.MIMETypes.*;
 
@@ -67,7 +67,7 @@ public class LogicTupleRepresentation extends AbstractRepresentation implements 
 
     @Override
     public Object toObject() {
-        return PrologUtils.termToObject(asTerm());
+        return PrologUtils.termToDynamicObject(asTerm());
     }
 
     @Override
@@ -85,7 +85,7 @@ public class LogicTupleRepresentation extends AbstractRepresentation implements 
     }
 
     public static LogicTupleRepresentation fromObject(Object object) {
-        return LogicTupleRepresentation.of(PrologUtils.objectToTerm(object));
+        return LogicTupleRepresentation.of(PrologUtils.dynamicObjectToTerm(object));
     }
 
     public static LogicTupleRepresentation fromJSON(String representation) throws IOException {
