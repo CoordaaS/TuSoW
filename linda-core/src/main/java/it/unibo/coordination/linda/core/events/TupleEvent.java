@@ -15,7 +15,7 @@ public class TupleEvent<T extends Tuple, TT extends Template> extends TupleSpace
     private final T tuple;
     private final TT template;
 
-    private TupleEvent(TupleSpace<T, TT> tupleSpace, boolean before, Effect effect, T tuple, TT template) {
+    private TupleEvent(TupleSpace<T, TT, ?, ?> tupleSpace, boolean before, Effect effect, T tuple, TT template) {
         super(tupleSpace);
         this.before = before;
         this.effect = Objects.requireNonNull(effect);
@@ -23,43 +23,43 @@ public class TupleEvent<T extends Tuple, TT extends Template> extends TupleSpace
         this.template = template;
     }
 
-    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeWriting(TupleSpace<X, Y> tupleSpace, X tuple) {
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeWriting(TupleSpace<X, Y, ?, ?> tupleSpace, X tuple) {
         return new TupleEvent<>(tupleSpace, true, Effect.WRITTEN, tuple, null);
     }
 
-    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> afterWriting(TupleSpace<X, Y> tupleSpace, X tuple) {
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> afterWriting(TupleSpace<X, Y, ?, ?> tupleSpace, X tuple) {
         return new TupleEvent<>(tupleSpace, false, Effect.WRITTEN, tuple, null);
     }
 
-    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeTaking(TupleSpace<X, Y> tupleSpace, X tuple) {
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeTaking(TupleSpace<X, Y, ?, ?> tupleSpace, X tuple) {
         return new TupleEvent<>(tupleSpace, true, Effect.TAKEN, tuple, null);
     }
 
-    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> afterTaking(TupleSpace<X, Y> tupleSpace, X tuple) {
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> afterTaking(TupleSpace<X, Y, ?, ?> tupleSpace, X tuple) {
         return new TupleEvent<>(tupleSpace, false, Effect.TAKEN, tuple, null);
     }
 
-    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeReading(TupleSpace<X, Y> tupleSpace, X tuple) {
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeReading(TupleSpace<X, Y, ?, ?> tupleSpace, X tuple) {
         return new TupleEvent<>(tupleSpace, true, Effect.READ, tuple, null);
     }
 
-    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> afterReading(TupleSpace<X, Y> tupleSpace, X tuple) {
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> afterReading(TupleSpace<X, Y, ?, ?> tupleSpace, X tuple) {
         return new TupleEvent<>(tupleSpace, false, Effect.READ, tuple, null);
     }
 
-    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeAbsent(TupleSpace<X, Y> tupleSpace, Y template) {
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeAbsent(TupleSpace<X, Y, ?, ?> tupleSpace, Y template) {
         return new TupleEvent<>(tupleSpace, true, Effect.ABSENT, null, template);
     }
 
-    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> afterAbsent(TupleSpace<X, Y> tupleSpace, Y template) {
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> afterAbsent(TupleSpace<X, Y, ?, ?> tupleSpace, Y template) {
         return new TupleEvent<>(tupleSpace, false, Effect.ABSENT, null, template);
     }
 
-    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeAbsent(TupleSpace<X, Y> tupleSpace, Y template, X counterexample) {
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeAbsent(TupleSpace<X, Y, ?, ?> tupleSpace, Y template, X counterexample) {
         return new TupleEvent<>(tupleSpace, true, Effect.ABSENT, counterexample, template);
     }
 
-    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> afterAbsent(TupleSpace<X, Y> tupleSpace, Y template, X counterexample) {
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> afterAbsent(TupleSpace<X, Y, ?, ?> tupleSpace, Y template, X counterexample) {
         return new TupleEvent<>(tupleSpace, false, Effect.ABSENT, counterexample, template);
     }
 

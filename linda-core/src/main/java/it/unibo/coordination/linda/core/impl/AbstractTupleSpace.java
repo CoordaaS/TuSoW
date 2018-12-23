@@ -18,7 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> implements ExtendedTupleSpace<T, TT>, InspectableTupleSpace<T, TT> {
+public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K, V> implements ExtendedTupleSpace<T, TT, K, V>, InspectableTupleSpace<T, TT, K, V> {
 
     private static final boolean DEBUG = true;
 
@@ -57,7 +57,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AbstractTupleSpace<?, ?> that = (AbstractTupleSpace<?, ?>) o;
+        AbstractTupleSpace<?, ?, ?, ?> that = (AbstractTupleSpace<?, ?, ?, ?>) o;
         return Objects.equals(name, that.name);
     }
 
@@ -82,26 +82,26 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     }
 
     @Override
-    public CompletableFuture<T> read(final TT template) {
+    public CompletableFuture<Match<T, TT, K, V>> read(final TT template) {
         var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.READ, template);
         operationInvoked.syncEmit(invocationEvent);
         log("Invoked `read` operation on template: %s", template);
-        final CompletableFuture<T> result = new CompletableFuture<>();
+        final CompletableFuture<Match<T, TT, K, V>> result = new CompletableFuture<>();
         executor.execute(() -> this.handleRead(template, result));
         return result.thenApplyAsync(tuple -> {
-            operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(tuple));
+            operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(tuple.getTuple().get()));
             log("Completed `read` operation on template '%s', result: %s", template, tuple);
             return tuple;
         }, getExecutor());
     }
 
-    private void handleRead(final TT template, final CompletableFuture<T> promise) {
+    private void handleRead(final TT template, final CompletableFuture<Match<T, TT, K, V>> promise) {
         getLock().lock();
         try {
-            final Optional<T> read = lookForTuple(template);
-            if (read.isPresent()) {
-                promise.complete(read.get());
-                onRead(read.get());
+            final Match<T, TT, K, V> read = lookForTuple(template);
+            if (read.isSuccess()) {
+                promise.complete(read);
+                onRead(read.getTuple().get());
             } else {
                addPendingRequest(newPendingAccessRequest(RequestTypes.READ, template, promise));
             }
@@ -110,35 +110,35 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         }
     }
 
-    protected final Stream<T> lookForTuples(final TT template) {
+    protected final Stream<Match<T, TT, K, V>> lookForTuples(final TT template) {
         return lookForTuples(template, Integer.MAX_VALUE);
     }
 
-    protected abstract Stream<T> lookForTuples(final TT template, int limit);
+    protected abstract Stream<Match<T, TT, K, V>> lookForTuples(final TT template, int limit);
 
-    protected abstract Optional<T> lookForTuple(final TT template);
+    protected abstract Match<T, TT, K, V> lookForTuple(final TT template);
 
     @Override
-    public CompletableFuture<T> take(final TT template) {
+    public CompletableFuture<Match<T, TT, K, V>> take(final TT template) {
         var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TAKE, template);
         operationInvoked.syncEmit(invocationEvent);
         log("Invoked `take` operation on template: %s", template);
-        final CompletableFuture<T> result = new CompletableFuture<>();
+        final CompletableFuture<Match<T, TT, K, V>> result = new CompletableFuture<>();
         executor.execute(() -> this.handleTake(template, result));
         return result.thenApplyAsync(tuple -> {
-            operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(tuple));
+            operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(tuple.getTuple().get()));
             log("Completed `take` operation on template '%s', result: %s", template, tuple);
             return tuple;
         }, getExecutor());
     }
 
-    private void handleTake(final TT template, final CompletableFuture<T> promise) {
+    private void handleTake(final TT template, final CompletableFuture<Match<T, TT, K, V>> promise) {
         getLock().lock();
         try {
-            final Optional<T> take = retrieveTuple(template);
-            if (take.isPresent()) {
-                promise.complete(take.get());
-                onTaken(take.get());
+            final Match<T, TT, K, V> take = retrieveTuple(template);
+            if (take.isSuccess()) {
+                promise.complete(take);
+                onTaken(take.getTuple().get());
             } else {
                 final PendingRequest pendingRequest = newPendingAccessRequest(RequestTypes.TAKE, template, promise);
                 addPendingRequest(pendingRequest);
@@ -169,13 +169,13 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         tupleSpaceChanged.syncEmit(TupleEvent.afterAbsent(this, template));
     }
 
-    private Stream<T> retrieveTuples(TT template) {
+    private Stream<Match<T, TT, K, V>> retrieveTuples(TT template) {
         return retrieveTuples(template, Integer.MAX_VALUE);
     }
 
-    protected abstract Stream<T> retrieveTuples(TT template, int limit);
+    protected abstract Stream<Match<T, TT, K, V>> retrieveTuples(TT template, int limit);
 
-    protected abstract Optional<T> retrieveTuple(TT template);
+    protected abstract Match<T, TT, K, V> retrieveTuple(TT template);
 
     @Override
     public CompletableFuture<T> write(final T tuple) {
@@ -202,6 +202,8 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         }
     }
 
+    protected abstract Match<T, TT, K, V> match(TT template, T tuple);
+
     protected abstract void insertTuple(T tuple);
 
     private Optional<T> resumePendingAccessRequests(final T insertedTuple) {
@@ -209,17 +211,20 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         final Iterator<PendingRequest> i = getPendingRequestsIterator();
         while (i.hasNext()) {
             final PendingRequest pendingRequest = i.next();
-            if (pendingRequest.getRequestType() != RequestTypes.ABSENT
-                    && pendingRequest.getTemplate().matches(insertedTuple)) {
+            final Match<T, TT, K, V> match = match(pendingRequest.getTemplate(), insertedTuple);
+
+            if (!match.isSuccess()) {
+                continue;
+            } else if (pendingRequest.getRequestType() != RequestTypes.ABSENT) {
                 i.remove();
                 if (pendingRequest.getRequestType() == RequestTypes.TAKE) {
                     result = Optional.empty();
                     onTaken(insertedTuple);
-                    pendingRequest.getPromiseTuple().complete(insertedTuple);
+                    pendingRequest.getPromise().complete(match);
                     break;
                 } else if (pendingRequest.getRequestType() == RequestTypes.READ) {
                     onRead(insertedTuple);
-                    pendingRequest.getPromiseTuple().complete(insertedTuple);
+                    pendingRequest.getPromise().complete(match);
                 } else {
                     throw new IllegalStateException();
                 }
@@ -229,11 +234,11 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     }
 
     @Override
-    public CompletableFuture<MultiSet<? extends T>> get() {
+    public CompletableFuture<MultiSet<T>> get() {
         final var invocationEvent = OperationEvent.nothingAcceptingInvocation(this, OperationType.GET);
         operationInvoked.syncEmit(invocationEvent);
         log("Invoked `get` operation");
-        final CompletableFuture<MultiSet<? extends T>> result = new CompletableFuture<>();
+        final CompletableFuture<MultiSet<T>> result = new CompletableFuture<>();
         executor.execute(() -> this.handleGet(result));
         return result.thenApplyAsync(tuples -> {
             operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuples));
@@ -242,7 +247,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         }, getExecutor());
     }
 
-    private void handleGet(final CompletableFuture<MultiSet<? extends T>> promise) {
+    private void handleGet(final CompletableFuture<MultiSet<T>> promise) {
         getLock().lock();
         try {
             final MultiSet<T> result = getAllTuples().collect(Collectors.toCollection(HashMultiSet::new));
@@ -274,49 +279,53 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     }
 
     @Override
-    public CompletableFuture<MultiSet<? extends T>> readAll(final TT template) {
+    public CompletableFuture<Collection<Match<T, TT, K, V>>> readAll(final TT template) {
         final var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.READ_ALL, template);
         operationInvoked.syncEmit(invocationEvent);
         log("Invoked `readAll` operation on template %s", template);
-        final CompletableFuture<MultiSet<? extends T>> result = new CompletableFuture<>();
+        final CompletableFuture<Collection<Match<T, TT, K, V>>> result = new CompletableFuture<>();
         executor.execute(() -> this.handleReadAll(template, result));
         return result.thenApplyAsync(tuples -> {
-            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuples));
+            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(
+                        tuples.stream().map(Match::getTuple).map(Optional::get)
+                    ));
             log("Completed `readAll` operation on template '%s', result: %s", template, tuples);
             return tuples;
         }, getExecutor());
     }
 
-    private void handleReadAll(final TT template, final CompletableFuture<MultiSet<? extends T>> promise) {
+    private void handleReadAll(final TT template, final CompletableFuture<Collection<Match<T, TT, K, V>>> promise) {
         getLock().lock();
         try {
-            final MultiSet<T> result = lookForTuples(template).collect(Collectors.toCollection(HashMultiSet::new));
+            final var result = lookForTuples(template).collect(Collectors.toList());
+            result.stream().map(Match::getTuple).map(Optional::get).forEach(this::onRead);
             promise.complete(result);
-            result.forEach(this::onRead);
         } finally {
             getLock().unlock();
         }
     }
 
     @Override
-    public CompletableFuture<MultiSet<? extends T>> takeAll(final TT template) {
+    public CompletableFuture<Collection<Match<T, TT, K, V>>> takeAll(final TT template) {
         final var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TAKE_ALL, template);
         operationInvoked.syncEmit(invocationEvent);
         log("Invoked `takeAll` operation on template %s", template);
-        final CompletableFuture<MultiSet<? extends T>> result = new CompletableFuture<>();
+        final CompletableFuture<Collection<Match<T, TT, K, V>>> result = new CompletableFuture<>();
         executor.execute(() -> this.handleTakeAll(template, result));
         return result.thenApplyAsync(tuples -> {
-            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuples));
+            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(
+                    tuples.stream().map(Match::getTuple).map(Optional::get)
+                ));
             log("Completed `takeAll` operation on template '%s', result: %s", template, tuples);
             return tuples;
         }, getExecutor());
     }
 
-    private void handleTakeAll(final TT template, final CompletableFuture<MultiSet<? extends T>> promise) {
+    private void handleTakeAll(final TT template, final CompletableFuture<Collection<Match<T, TT, K, V>>> promise) {
         getLock().lock();
         try {
-            final MultiSet<T> result = retrieveTuples(template).collect(Collectors.toCollection(HashMultiSet::new));
-            result.forEach(this::onTaken);
+            final var result = retrieveTuples(template).collect(Collectors.toList());
+            result.stream().map(Match::getTuple).map(Optional::get).forEach(this::onTaken);
             promise.complete(result);
         } finally {
             getLock().unlock();
@@ -324,11 +333,11 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     }
 
     @Override
-    public CompletableFuture<MultiSet<? extends T>> writeAll(final Collection<? extends T> tuples) {
+    public CompletableFuture<MultiSet<T>> writeAll(final Collection<? extends T> tuples) {
         final var invocationEvent = OperationEvent.tuplesAcceptingInvocation(this, OperationType.WRITE_ALL, tuples);
         operationInvoked.syncEmit(invocationEvent);
         log("Invoked `writeAll` operation on tuples: %s", tuples);
-        final CompletableFuture<MultiSet<? extends T>> result = new CompletableFuture<>();
+        final CompletableFuture<MultiSet<T>> result = new CompletableFuture<>();
         executor.execute(() -> this.handleWriteAll(tuples, result));
         return result.thenApplyAsync(ts -> {
             operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(ts));
@@ -337,7 +346,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         }, getExecutor());
     }
 
-    private void handleWriteAll(final Collection<? extends T> tuples, final CompletableFuture<MultiSet<? extends T>> promise) {
+    private void handleWriteAll(final Collection<? extends T> tuples, final CompletableFuture<MultiSet<T>> promise) {
         getLock().lock();
         final MultiSet<T> result = new HashMultiSet<>();
         try {
@@ -353,24 +362,24 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     }
 
     @Override
-    public CompletableFuture<Optional<T>> tryTake(final TT template) {
+    public CompletableFuture<Match<T, TT, K, V>> tryTake(final TT template) {
         final var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TRY_TAKE, template);
         operationInvoked.syncEmit(invocationEvent);
         log("Invoked `tryTake` operation on template: %s", template);
-        final CompletableFuture<Optional<T>> result = new CompletableFuture<>();
+        final CompletableFuture<Match<T, TT, K, V>> result = new CompletableFuture<>();
         executor.execute(() -> this.handleTryTake(template, result));
         return result.thenApplyAsync(tuple -> {
-            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuple.stream().collect(Collectors.toList())));
+            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuple.getTuple().stream().collect(Collectors.toList())));
             log("Completed `tryTake` operation on template '%s', result: %s", template, tuple);
             return tuple;
         }, getExecutor());
     }
 
-    private void handleTryTake(final TT template, final CompletableFuture<Optional<T>> promise) {
+    private void handleTryTake(final TT template, final CompletableFuture<Match<T, TT, K, V>> promise) {
         getLock().lock();
         try {
-            final Optional<T> take = retrieveTuple(template);
-            take.ifPresent(this::onTaken);
+            final var take = retrieveTuple(template);
+            take.getTuple().ifPresent(this::onTaken);
             promise.complete(take);
         } finally {
             getLock().unlock();
@@ -378,25 +387,25 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     }
 
     @Override
-    public CompletableFuture<Optional<T>> tryRead(final TT template) {
+    public CompletableFuture<Match<T, TT, K, V>> tryRead(final TT template) {
         final var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TRY_READ, template);
         operationInvoked.syncEmit(invocationEvent);
         log("Invoked `tryRead` operation on template: %s", template);
-        final CompletableFuture<Optional<T>> result = new CompletableFuture<>();
+        final CompletableFuture<Match<T, TT, K, V>> result = new CompletableFuture<>();
         executor.execute(() -> this.handleTryRead(template, result));
         return result.thenApplyAsync(tuple -> {
-            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuple.stream().collect(Collectors.toList())));
+            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuple.getTuple().stream().collect(Collectors.toList())));
             log("Completed `tryRead` operation on template '%s', result: %s", template, tuple);
             return tuple;
         }, getExecutor());
     }
 
-    private void handleTryRead(final TT template, final CompletableFuture<Optional<T>> promise) {
+    private void handleTryRead(final TT template, final CompletableFuture<Match<T, TT, K, V>> promise) {
         getLock().lock();
         try {
-            final Optional<T> take = lookForTuple(template);
-            take.ifPresent(this::onRead);
-            promise.complete(take);
+            final Match<T, TT, K, V> read = lookForTuple(template);
+            read.getTuple().ifPresent(this::onRead);
+            promise.complete(read);
         } finally {
             getLock().unlock();
         }
@@ -410,28 +419,30 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     }
 
     @Override
-    public CompletableFuture<TT> absent(final TT template) {
+    public CompletableFuture<Match<T, TT, K, V>> absent(final TT template) {
         final var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.ABSENT, template);
         operationInvoked.syncEmit(invocationEvent);
         log("Invoked `absent` operation on template: %s", template);
-        final CompletableFuture<TT> result = new CompletableFuture<>();
+        final CompletableFuture<Match<T, TT, K, V>> result = new CompletableFuture<>();
         executor.execute(() -> this.handleAbsent(template, result));
         return result.thenApplyAsync(t -> {
-            operationCompleted.syncEmit(invocationEvent.toTemplateReturningCompletion(t));
+            operationCompleted.syncEmit(invocationEvent.toTemplateReturningCompletion(t.getTemplate()));
             log("Completed `absent` operation on template '%s', result: %s", template, t);
             return t;
         }, getExecutor());
     }
 
-    private void handleAbsent(final TT template, final CompletableFuture<TT> promise) {
+    protected abstract Match<T, TT, K, V> failedMatch(TT template);
+
+    private void handleAbsent(final TT template, final CompletableFuture<Match<T, TT, K, V>> promise) {
         getLock().lock();
         try {
-            final Optional<T> read = lookForTuple(template);
-            if (read.isPresent()) {
+            final var read = lookForTuple(template);
+            if (read.isSuccess()) {
                 addPendingRequest(newPendingAbsentRequest(template, promise));
             } else {
                 onAbsent(template);
-                promise.complete(template);
+                promise.complete(failedMatch(template));
             }
         } finally {
             getLock().unlock();
@@ -444,34 +455,34 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
             final PendingRequest pendingRequest = i.next();
             if (pendingRequest.getRequestType() == RequestTypes.ABSENT
                     && pendingRequest.getTemplate().matches(removedTuple)
-                    && !lookForTuple(pendingRequest.getTemplate()).isPresent()) {
+                    && !lookForTuple(pendingRequest.getTemplate()).isSuccess()) {
 
                 i.remove();
                 onAbsent(pendingRequest.getTemplate());
-                pendingRequest.getPromiseTemplate().complete(pendingRequest.getTemplate());
+                pendingRequest.getPromise().complete(failedMatch(pendingRequest.getTemplate()));
             }
         }
     }
 
     @Override
-    public CompletableFuture<Optional<T>> tryAbsent(final TT template) {
+    public CompletableFuture<Match<T, TT, K, V>> tryAbsent(final TT template) {
         final var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TRY_ABSENT, template);
         operationInvoked.syncEmit(invocationEvent);
         log("Invoked `tryAbsent` operation on template: %s", template);
-        final CompletableFuture<Optional<T>> result = new CompletableFuture<>();
+        final CompletableFuture<Match<T, TT, K, V>> result = new CompletableFuture<>();
         executor.execute(() -> this.handleTryAbsent(template, result));
         return result.thenApplyAsync(tuple -> {
-            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuple.stream().collect(Collectors.toList())));
+            operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuple.getTuple().stream().collect(Collectors.toList())));
             log("Completed `tryAbsent` operation on template '%s', result: %s", template, tuple);
             return tuple;
         }, getExecutor());
     }
 
-    private void handleTryAbsent(final TT template, final CompletableFuture<Optional<T>> promise) {
+    private void handleTryAbsent(final TT template, final CompletableFuture<Match<T, TT, K, V>> promise) {
         getLock().lock();
         try {
-            final Optional<T> counterexample = lookForTuple(template);
-            counterexample.ifPresent(c -> onAbsent(template, c));
+            final Match<T, TT, K, V> counterexample = lookForTuple(template);
+            counterexample.getTuple().ifPresent(c -> onAbsent(template, c));
             promise.complete(counterexample);
         } finally {
             getLock().unlock();
@@ -493,12 +504,12 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
         return tupleSpaceChanged.getEventSource();
     }
 
-    private PendingRequest newPendingAccessRequest(final RequestTypes requestType, final TT template, final CompletableFuture<T> promiseTuple) {
-        return new PendingRequest(requestType, template, promiseTuple, null);
+    private PendingRequest newPendingAccessRequest(final RequestTypes requestType, final TT template, final CompletableFuture<Match<T, TT, K, V>> promise) {
+        return new PendingRequest(requestType, template, promise);
     }
 
-    private PendingRequest newPendingAbsentRequest(final TT template, final CompletableFuture<TT> promiseTemplate) {
-        return new PendingRequest(RequestTypes.ABSENT, template, null, promiseTemplate);
+    private PendingRequest newPendingAbsentRequest(final TT template, final CompletableFuture<Match<T, TT, K, V>> promise) {
+        return new PendingRequest(RequestTypes.ABSENT, template, promise);
     }
 
     protected enum RequestTypes {
@@ -508,14 +519,12 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
     protected final class PendingRequest {
         private final RequestTypes requestType;
         private final TT template;
-        private final CompletableFuture<T> promiseTuple;
-        private final CompletableFuture<TT> promiseTemplate;
+        private final CompletableFuture<Match<T, TT, K, V>> promise;
 
-        private PendingRequest(final RequestTypes requestType, final TT template, final CompletableFuture<T> promiseTuple, CompletableFuture<TT> promiseTemplate) {
+        private PendingRequest(final RequestTypes requestType, final TT template, final CompletableFuture<Match<T, TT, K, V>> promise) {
             this.requestType = Objects.requireNonNull(requestType);
             this.template = Objects.requireNonNull(template);
-            this.promiseTuple = promiseTuple;
-            this.promiseTemplate = promiseTemplate;
+            this.promise = Objects.requireNonNull(promise);
         }
 
         public RequestTypes getRequestType() {
@@ -526,12 +535,8 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
             return template;
         }
 
-        public CompletableFuture<T> getPromiseTuple() {
-            return promiseTuple;
-        }
-
-        public CompletableFuture<TT> getPromiseTemplate() {
-            return promiseTemplate;
+        public CompletableFuture<Match<T, TT, K, V>> getPromise() {
+            return promise;
         }
 
         @Override
@@ -541,13 +546,12 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
             PendingRequest that = (PendingRequest) o;
             return requestType == that.requestType &&
                     Objects.equals(template, that.template) &&
-                    Objects.equals(promiseTuple, that.promiseTuple) &&
-                    Objects.equals(promiseTemplate, that.promiseTemplate);
+                    Objects.equals(promise, that.promise);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(requestType, template, promiseTuple, promiseTemplate);
+            return Objects.hash(requestType, template, promise);
         }
 
         @Override
@@ -555,8 +559,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template> i
             return "PendingRequest{" +
                     "requestType=" + requestType +
                     ", template=" + template +
-                    ", promiseTuple=" + promiseTuple +
-                    ", promiseTemplate=" + promiseTemplate +
+                    ", promiseTuple=" + promise +
                     '}';
         }
 

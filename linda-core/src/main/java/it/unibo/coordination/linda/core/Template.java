@@ -8,7 +8,7 @@ public interface Template extends Predicate<Tuple> {
         return matchWith(tuple).isSuccess();
     }
 
-    Match<? extends Tuple, ? extends Template, ?, ?> matchWith(Tuple tuple);
+    <T extends Tuple, TT extends Template, K, V> Match<T, TT, K, V> matchWith(T tuple);
 
     @Override
     default boolean test(Tuple tuple) {

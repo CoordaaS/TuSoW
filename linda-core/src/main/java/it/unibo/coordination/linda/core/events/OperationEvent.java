@@ -2,7 +2,10 @@ package it.unibo.coordination.linda.core.events;
 
 import it.unibo.coordination.linda.core.*;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,7 +18,7 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
     private final List<T> resultTuples;
     private final List<TT> resultTemplates;
 
-    private OperationEvent(TupleSpace<T, TT> tupleSpace, OperationType operationType, OperationPhase operationPhase,
+    private OperationEvent(TupleSpace<T, TT, ?, ?> tupleSpace, OperationType operationType, OperationPhase operationPhase,
                            Stream<? extends T> argumentTuples, Stream<? extends TT> argumentTemplates, Stream<? extends T> resultTuples, Stream<? extends TT> resultTemplates) {
         super(tupleSpace);
         this.operationType = Objects.requireNonNull(operationType);
@@ -26,7 +29,7 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
         this.resultTemplates = resultTemplates.collect(Collectors.toList());
     }
 
-    public static <X extends Tuple, Y extends Template> Invocation<X, Y> nothingAcceptingInvocation(TupleSpace<X, Y> tupleSpace, OperationType operationType) {
+    public static <X extends Tuple, Y extends Template> Invocation<X, Y> nothingAcceptingInvocation(TupleSpace<X, Y, ?, ?> tupleSpace, OperationType operationType) {
         if (!OperationType.isNothingAccepting(operationType))
             throw new IllegalArgumentException(operationType.toString());
 
@@ -35,7 +38,7 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
         );
     }
 
-    public static <X extends Tuple, Y extends Template> Invocation<X, Y> tupleAcceptingInvocation(TupleSpace<X, Y> tupleSpace, OperationType operationType, X tuple) {
+    public static <X extends Tuple, Y extends Template> Invocation<X, Y> tupleAcceptingInvocation(TupleSpace<X, Y, ?, ?> tupleSpace, OperationType operationType, X tuple) {
         if (!OperationType.isTupleAcceptingSet(operationType))
             throw new IllegalArgumentException(operationType.toString());
 
@@ -44,7 +47,7 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
         );
     }
 
-    public static <X extends Tuple, Y extends Template> Invocation<X, Y> tuplesAcceptingInvocation(TupleSpace<X, Y> tupleSpace, OperationType operationType, Collection<? extends X> tuples) {
+    public static <X extends Tuple, Y extends Template> Invocation<X, Y> tuplesAcceptingInvocation(TupleSpace<X, Y, ?, ?> tupleSpace, OperationType operationType, Collection<? extends X> tuples) {
         if (!OperationType.isTuplesAcceptingSet(operationType))
             throw new IllegalArgumentException(operationType.toString());
 
@@ -53,7 +56,7 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
         );
     }
 
-    public static <X extends Tuple, Y extends Template> Invocation<X, Y> templateAcceptingInvocation(TupleSpace<X, Y> tupleSpace, OperationType operationType, Y template) {
+    public static <X extends Tuple, Y extends Template> Invocation<X, Y> templateAcceptingInvocation(TupleSpace<X, Y, ?, ?> tupleSpace, OperationType operationType, Y template) {
         if (!OperationType.isTemplateAccepting(operationType))
             throw new IllegalArgumentException(operationType.toString());
 
@@ -62,7 +65,7 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
         );
     }
 
-    public static <X extends Tuple, Y extends Template> Invocation<X, Y> templatesAcceptingInvocation(TupleSpace<X, Y> tupleSpace, OperationType operationType, Collection<? extends Y> templates) {
+    public static <X extends Tuple, Y extends Template> Invocation<X, Y> templatesAcceptingInvocation(TupleSpace<X, Y, ?, ?> tupleSpace, OperationType operationType, Collection<? extends Y> templates) {
         if (!OperationType.isTemplatesAccepting(operationType))
             throw new IllegalArgumentException(operationType.toString());
 
@@ -153,7 +156,7 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
 
     public static final class Invocation<T extends Tuple, TT extends Template> extends OperationEvent<T, TT> {
 
-        private Invocation(TupleSpace<T, TT> tupleSpace, OperationType operationType, Stream<? extends T> argumentTuples, Stream<? extends TT> argumentTemplates) {
+        private Invocation(TupleSpace<T, TT, ?, ?> tupleSpace, OperationType operationType, Stream<? extends T> argumentTuples, Stream<? extends TT> argumentTemplates) {
             super(tupleSpace, operationType, OperationPhase.INVOCATION, argumentTuples, argumentTemplates, Stream.empty(), Stream.empty());
         }
 
@@ -165,14 +168,18 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
         }
 
         public Completion<T, TT> toTuplesReturningCompletion(T... tuples) {
-            return toTuplesReturningCompletion(Arrays.asList(tuples));
+            return toTuplesReturningCompletion(Stream.of(tuples));
         }
 
-        public Completion<T, TT> toTuplesReturningCompletion(Collection<? extends T> tuples) {
+        public Completion<T, TT> toTuplesReturningCompletion(Stream<? extends T> tuples) {
             if (!OperationType.isTuplesReturningSet(getOperationType()))
                 throw new IllegalStateException();
 
-            return new Completion<>(this, tuples.stream(), Stream.empty());
+            return new Completion<>(this, tuples, Stream.empty());
+        }
+
+        public Completion<T, TT> toTuplesReturningCompletion(Collection<? extends T> tuples) {
+            return toTuplesReturningCompletion(tuples.stream());
         }
 
         public Completion<T, TT> toTemplateReturningCompletion(TT template) {

@@ -9,9 +9,9 @@ import java.util.Objects;
 
 public class TupleSpaceEvent<T extends Tuple, TT extends Template> {
 
-    private final TupleSpace<T, TT> tupleSpace;
+    private final TupleSpace<T, TT, ?, ?> tupleSpace;
 
-    TupleSpaceEvent(TupleSpace<T, TT> tupleSpace) {
+    TupleSpaceEvent(TupleSpace<T, TT, ?, ?> tupleSpace) {
         this.tupleSpace = Objects.requireNonNull(tupleSpace);
     }
 
@@ -19,12 +19,12 @@ public class TupleSpaceEvent<T extends Tuple, TT extends Template> {
         return tupleSpace.getName();
     }
 
-    public TupleSpace<T, TT> getTupleSpace() {
+    public TupleSpace<T, TT, ?, ?> getTupleSpace() {
         return tupleSpace;
     }
 
-    public ExtendedTupleSpace<T, TT> getExtendedTupleSpace() {
-        return (ExtendedTupleSpace<T, TT>) tupleSpace;
+    public ExtendedTupleSpace<T, TT, ?, ?> getExtendedTupleSpace() {
+        return (ExtendedTupleSpace<T, TT, ?, ?>) tupleSpace;
     }
 
     @Override
