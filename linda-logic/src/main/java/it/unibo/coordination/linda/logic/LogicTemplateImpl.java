@@ -1,12 +1,13 @@
 package it.unibo.coordination.linda.logic;
 
-import alice.tuprolog.*;
+import alice.tuprolog.Prolog;
+import alice.tuprolog.SolveInfo;
+import alice.tuprolog.Struct;
+import alice.tuprolog.Term;
 import it.unibo.coordination.linda.core.Tuple;
 import it.unibo.coordination.prologx.PrologUtils;
 
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 final class LogicTemplateImpl implements LogicTemplate {
 
@@ -28,10 +29,10 @@ final class LogicTemplateImpl implements LogicTemplate {
         if (tuple instanceof LogicTuple) {
             final LogicTuple logicTuple = (LogicTuple) tuple;
             final SolveInfo si = ENGINE.solve(PrologUtils.unificationTerm(getTemplate(), logicTuple.getTuple()));
-            return new LogicMatchImpl(si, logicTuple);
+            return new LogicMatchImpl(this, si, logicTuple);
         }
 
-        return new LogicMatchImpl(null, null);
+        return new LogicMatchImpl(this, null, null);
     }
 
     @Override
@@ -61,57 +62,4 @@ final class LogicTemplateImpl implements LogicTemplate {
         return term.getArg(0);
     }
 
-    private class LogicMatchImpl implements LogicMatch {
-
-        private final SolveInfo solveInfo;
-        private final Tuple tuple;
-
-        LogicMatchImpl(SolveInfo solveInfo, Tuple tuple) {
-            this.solveInfo = solveInfo;
-            this.tuple = tuple;
-        }
-
-        @Override
-        public Optional<LogicTuple> getTuple() {
-            return tuple instanceof LogicTuple ? Optional.of((LogicTuple) tuple) : Optional.empty();
-        }
-
-        @Override
-        public LogicTemplate getTemplate() {
-            return LogicTemplateImpl.this;
-        }
-
-        @Override
-        public boolean isSuccess() {
-            return solveInfo != null && solveInfo.isSuccess();
-        }
-
-        @Override
-        public Optional<Term> get(String variableName) {
-            try {
-                if (solveInfo != null && solveInfo.isSuccess()) {
-                    return Optional.ofNullable(solveInfo.getVarValue(variableName));
-                } else {
-                    return Optional.empty();
-                }
-            } catch (NoSolutionException e) {
-                return Optional.empty();
-            }
-        }
-
-        @Override
-        public String toString() {
-            try {
-                if (solveInfo.isSuccess()) {
-                    return solveInfo.getBindingVars().stream()
-                            .map(v -> String.format("%s/%s", v.getOriginalName(), v.getTerm()))
-                            .collect(Collectors.joining("; "));
-                } else {
-                    return "no";
-                }
-            } catch (NoSolutionException e) {
-                return "no";
-            }
-        }
-    }
 }

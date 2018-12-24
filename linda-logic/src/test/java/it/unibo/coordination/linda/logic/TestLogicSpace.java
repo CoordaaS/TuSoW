@@ -63,7 +63,7 @@ public class TestLogicSpace {
 
             @Override
             protected void loop() throws Exception {
-                test.assertBlocksIndefinitely(tupleSpace.read("f(X)"),
+                test.assertBlocksIndefinitely(tupleSpace.readTuple("f(X)"),
                         "A read operation should block if no tuple matching the requested template is available");
                 stop();
             }
@@ -87,7 +87,7 @@ public class TestLogicSpace {
 
             @Override
             protected void loop() throws Exception {
-                test.assertBlocksIndefinitely(tupleSpace.take("f(x)"),
+                test.assertBlocksIndefinitely(tupleSpace.takeTuple("f(x)"),
                         "A take operation should block if no tuple matching the requested template is available");
                 stop();
             }
@@ -139,9 +139,9 @@ public class TestLogicSpace {
             @Override
             protected void loop() throws Exception {
                 for (int i = rand.nextInt(10) + 1; i >= 0; i--) {
-                    test.assertEquals(tupleSpace.read("s(X)"), tuple);
+                    test.assertEquals(tupleSpace.readTuple("s(X)"), tuple);
                 }
-                test.assertEquals(tupleSpace.read("s(Y)"), tuple);
+                test.assertEquals(tupleSpace.readTuple("s(Y)"), tuple);
                 stop();
             }
 
@@ -198,8 +198,8 @@ public class TestLogicSpace {
 
             @Override
             protected void loop() throws Exception {
-                final Future<LogicTuple> toBeRead1 = tupleSpace.read("s(X)");
-                final Future<LogicTuple> toBeRead2 = tupleSpace.read("s(Y)");
+                final Future<LogicTuple> toBeRead1 = tupleSpace.readTuple("s(X)");
+                final Future<LogicTuple> toBeRead2 = tupleSpace.readTuple("s(Y)");
 
                 alice.start();
 
@@ -231,8 +231,8 @@ public class TestLogicSpace {
 
             @Override
             protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.take("foo(X)"), tuple);
-                test.assertBlocksIndefinitely(tupleSpace.take("foo(_)"));
+                test.assertEquals(tupleSpace.takeTuple("foo(X)"), tuple);
+                test.assertBlocksIndefinitely(tupleSpace.takeTuple("foo(_)"));
                 stop();
             }
 
@@ -289,10 +289,10 @@ public class TestLogicSpace {
 
             @Override
             protected void loop() throws Exception {
-                final Future<LogicTuple> toBeWritten = tupleSpace.take("foo(X)");
+                final Future<LogicTuple> toBeWritten = tupleSpace.takeTuple("foo(X)");
                 alice.start();
                 test.assertEquals(toBeWritten, tuple);
-                test.assertBlocksIndefinitely(tupleSpace.take("foo(_)"));
+                test.assertBlocksIndefinitely(tupleSpace.takeTuple("foo(_)"));
                 stop();
             }
 
@@ -319,7 +319,7 @@ public class TestLogicSpace {
 
             @Override
             protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.read("msg(to(carl), M)"), tuple4Carl);
+                test.assertEquals(tupleSpace.readTuple("msg(to(carl), M)"), tuple4Carl);
                 stop();
             }
 
@@ -334,7 +334,7 @@ public class TestLogicSpace {
 
             @Override
             protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.read("msg(to(bob), M)"), tuple4Bob);
+                test.assertEquals(tupleSpace.readTuple("msg(to(bob), M)"), tuple4Bob);
                 stop();
             }
 
@@ -352,8 +352,8 @@ public class TestLogicSpace {
                 test.assertEventuallyReturns(tupleSpace.write(tuple4Bob));
                 test.assertEventuallyReturns(tupleSpace.write(tuple4Carl));
 
-                test.assertOneOf(tupleSpace.take("msg(to(_), M)"), tuple4Bob, tuple4Carl);
-                test.assertOneOf(tupleSpace.take("msg(to(_), M)"), tuple4Bob, tuple4Carl);
+                test.assertOneOf(tupleSpace.takeTuple("msg(to(_), M)"), tuple4Bob, tuple4Carl);
+                test.assertOneOf(tupleSpace.takeTuple("msg(to(_), M)"), tuple4Bob, tuple4Carl);
 
                 stop();
             }
@@ -387,7 +387,7 @@ public class TestLogicSpace {
                 test.assertEventuallyReturns(tupleSpace.write("a"));
                 test.assertEquals(tupleSpace.getSize(), 3);
 
-                test.assertEventuallyReturns(tupleSpace.take("a"));
+                test.assertEventuallyReturns(tupleSpace.takeTuple("a"));
                 test.assertEquals(tupleSpace.getSize(), 2);
 
                 stop();
@@ -493,8 +493,8 @@ public class TestLogicSpace {
 
             @Override
             protected void loop() throws Exception {
-                final Future<LogicTuple> toBeRead = tupleSpace.read("f(A)");
-                final Future<LogicTuple> toBeTaken = tupleSpace.take("g(A)");
+                final Future<LogicTuple> toBeRead = tupleSpace.readTuple("f(A)");
+                final Future<LogicTuple> toBeTaken = tupleSpace.takeTuple("g(A)");
 
                 alice.start();
 
@@ -532,8 +532,8 @@ public class TestLogicSpace {
                 test.assertEquals(tupleSpace.getSize(), 0);
                 test.assertEventuallyReturns(tupleSpace.writeAll(tuples));
                 test.assertEquals(tupleSpace.getSize(), tuples.size());
-                test.assertEquals(tupleSpace.readAll("a(N)"), expected);
-                test.assertEquals(tupleSpace.readAll("a(N)"), expected);
+                test.assertEquals(tupleSpace.readAllTuples("a(N)"), expected);
+                test.assertEquals(tupleSpace.readAllTuples("a(N)"), expected);
                 test.assertEquals(tupleSpace.getSize(), tuples.size());
 
                 stop();
@@ -561,9 +561,9 @@ public class TestLogicSpace {
                 test.assertEquals(tupleSpace.getSize(), 0);
                 test.assertEventuallyReturns(tupleSpace.write("p(a)"));
                 test.assertEquals(tupleSpace.getSize(), 1);
-                test.assertEquals(tupleSpace.tryRead("p(Z)"), Optional.of(LogicTuple.of("p(a)")));
+                test.assertEquals(tupleSpace.tryReadTuple("p(Z)"), Optional.of(LogicTuple.of("p(a)")));
                 test.assertEquals(tupleSpace.getSize(), 1);
-                test.assertEquals(tupleSpace.tryRead("p(Z)"), Optional.of(LogicTuple.of("p(a)")));
+                test.assertEquals(tupleSpace.tryReadTuple("p(Z)"), Optional.of(LogicTuple.of("p(a)")));
                 test.assertEquals(tupleSpace.getSize(), 1);
                 stop();
             }
@@ -590,9 +590,9 @@ public class TestLogicSpace {
                 test.assertEquals(tupleSpace.getSize(), 0);
                 test.assertEventuallyReturns(tupleSpace.write("p(a)"));
                 test.assertEquals(tupleSpace.getSize(), 1);
-                test.assertEquals(tupleSpace.tryTake("p(Z)"), Optional.of(LogicTuple.of("p(a)")));
+                test.assertEquals(tupleSpace.tryTakeTuple("p(Z)"), Optional.of(LogicTuple.of("p(a)")));
                 test.assertEquals(tupleSpace.getSize(), 0);
-                test.assertEquals(tupleSpace.tryTake("p(Z)"), Optional.empty());
+                test.assertEquals(tupleSpace.tryTakeTuple("p(Z)"), Optional.empty());
                 stop();
             }
 
@@ -623,8 +623,8 @@ public class TestLogicSpace {
                 test.assertEquals(tupleSpace.getSize(), 0);
                 test.assertEventuallyReturns(tupleSpace.writeAll(tuples));
                 test.assertEquals(tupleSpace.getSize(), tuples.size());
-                test.assertEquals(tupleSpace.takeAll("a(N)"), expected);
-                test.assertEquals(tupleSpace.takeAll("a(N)"), new HashMultiSet<>());
+                test.assertEquals(tupleSpace.takeAllTuples("a(N)"), expected);
+                test.assertEquals(tupleSpace.takeAllTuples("a(N)"), new HashMultiSet<>());
                 test.assertEquals(tupleSpace.getSize(), 1);
 
                 stop();
@@ -697,7 +697,7 @@ public class TestLogicSpace {
 
             @Override
             protected void loop() throws Exception {
-                test.assertTrue(tupleSpace.tryAbsent("f(X)"), opt -> !opt.isPresent());
+                test.assertTrue(tupleSpace.tryAbsentTuple("f(X)"), opt -> !opt.isPresent());
                 stop();
             }
 
@@ -721,7 +721,7 @@ public class TestLogicSpace {
             @Override
             protected void loop() throws Exception {
                 test.assertEventuallyReturns(tupleSpace.write("f(1)"));
-                test.assertEquals(tupleSpace.tryAbsent("f(X)"), Optional.of(LogicTuple.of("f(1)")));
+                test.assertEquals(tupleSpace.tryAbsentTuple("f(X)"), Optional.of(LogicTuple.of("f(1)")));
 
                 stop();
             }
@@ -747,7 +747,7 @@ public class TestLogicSpace {
 
             @Override
             protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.take("foo(B)"), tuple);
+                test.assertEquals(tupleSpace.takeTuple("foo(B)"), tuple);
                 stop();
             }
 
@@ -791,7 +791,7 @@ public class TestLogicSpace {
 
             @Override
             protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.tryTake("foo(B)"), Optional.of(tuple));
+                test.assertEquals(tupleSpace.tryTakeTuple("foo(B)"), Optional.of(tuple));
                 stop();
             }
 
@@ -836,7 +836,7 @@ public class TestLogicSpace {
 
             @Override
             protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.takeAll("foo(B)"), tuples);
+                test.assertEquals(tupleSpace.takeAllTuples("foo(B)"), tuples);
                 stop();
             }
 

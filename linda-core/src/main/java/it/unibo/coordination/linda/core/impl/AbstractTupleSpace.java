@@ -8,10 +8,7 @@ import it.unibo.coordination.utils.events.SyncEventEmitter;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
@@ -279,11 +276,11 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
     }
 
     @Override
-    public CompletableFuture<Collection<Match<T, TT, K, V>>> readAll(final TT template) {
+    public CompletableFuture<Collection<? extends Match<T, TT, K, V>>> readAll(final TT template) {
         final var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.READ_ALL, template);
         operationInvoked.syncEmit(invocationEvent);
         log("Invoked `readAll` operation on template %s", template);
-        final CompletableFuture<Collection<Match<T, TT, K, V>>> result = new CompletableFuture<>();
+        final CompletableFuture<Collection<? extends Match<T, TT, K, V>>> result = new CompletableFuture<>();
         executor.execute(() -> this.handleReadAll(template, result));
         return result.thenApplyAsync(tuples -> {
             operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(
@@ -294,10 +291,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         }, getExecutor());
     }
 
-    private void handleReadAll(final TT template, final CompletableFuture<Collection<Match<T, TT, K, V>>> promise) {
+    private void handleReadAll(final TT template, final CompletableFuture<Collection<? extends Match<T, TT, K, V>>> promise) {
         getLock().lock();
         try {
-            final var result = lookForTuples(template).collect(Collectors.toList());
+            final List<? extends Match<T, TT, K, V>> result = lookForTuples(template).collect(Collectors.toList());
             result.stream().map(Match::getTuple).map(Optional::get).forEach(this::onRead);
             promise.complete(result);
         } finally {
@@ -306,11 +303,11 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
     }
 
     @Override
-    public CompletableFuture<Collection<Match<T, TT, K, V>>> takeAll(final TT template) {
+    public CompletableFuture<Collection<? extends Match<T, TT, K, V>>> takeAll(final TT template) {
         final var invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TAKE_ALL, template);
         operationInvoked.syncEmit(invocationEvent);
         log("Invoked `takeAll` operation on template %s", template);
-        final CompletableFuture<Collection<Match<T, TT, K, V>>> result = new CompletableFuture<>();
+        final CompletableFuture<Collection<? extends Match<T, TT, K, V>>> result = new CompletableFuture<>();
         executor.execute(() -> this.handleTakeAll(template, result));
         return result.thenApplyAsync(tuples -> {
             operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(
@@ -321,7 +318,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         }, getExecutor());
     }
 
-    private void handleTakeAll(final TT template, final CompletableFuture<Collection<Match<T, TT, K, V>>> promise) {
+    private void handleTakeAll(final TT template, final CompletableFuture<Collection<? extends Match<T, TT, K, V>>> promise) {
         getLock().lock();
         try {
             final var result = retrieveTuples(template).collect(Collectors.toList());

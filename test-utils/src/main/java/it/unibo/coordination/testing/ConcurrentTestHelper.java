@@ -68,11 +68,11 @@ public class ConcurrentTestHelper {
         toDoList.add(() -> Assert.assertTrue(message, condition));
     }
 
-    public void assertEquals(final Object actual, final Object expected, final String message) {
+    public <T> void assertEquals(final T actual, final T expected, final String message) {
         assertTrue(expected.equals(actual), message);
     }
 
-    public void assertEquals(final Object actual, final Object expected) {
+    public <T> void assertEquals(final T actual, final T expected) {
         assertTrue(expected.equals(actual),
                 String.format("Failed assertion: %s must be equals to %s", actual, expected));
     }

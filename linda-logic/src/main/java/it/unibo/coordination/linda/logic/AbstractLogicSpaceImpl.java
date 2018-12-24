@@ -3,12 +3,10 @@ package it.unibo.coordination.linda.logic;
 import alice.tuprolog.Prolog;
 import alice.tuprolog.Struct;
 import alice.tuprolog.Term;
-import alice.tuprolog.Var;
 import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.impl.AbstractTupleSpace;
 import it.unibo.coordination.prologx.PrologUtils;
 
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
@@ -31,7 +29,7 @@ abstract class AbstractLogicSpaceImpl extends AbstractTupleSpace<LogicTuple, Log
 
     @Override
     protected final LogicMatch lookForTuple(LogicTemplate template) {
-        return lookForTuples(template, 1).findAny().orElseGet(LogicMatch::failed);
+        return lookForTuples(template, 1).findAny().orElseGet(() -> LogicMatch.failed(template));
     }
 
     @Override
@@ -45,13 +43,8 @@ abstract class AbstractLogicSpaceImpl extends AbstractTupleSpace<LogicTuple, Log
     }
 
     @Override
-    protected final Optional<LogicTuple> retrieveTuple(LogicTemplate template) {
-        return retrieveTuple(template.toTuple());
-    }
-
-    protected final Optional<LogicTuple> retrieveTuple(LogicTuple tuple) {
-        return PrologUtils.retractFrom(engine, tuple.asTerm())
-                .map(LogicTupleImpl::new);
+    protected final LogicMatch retrieveTuple(LogicTemplate template) {
+        return retrieveTuples(template, 1).findFirst().orElseGet(() -> LogicMatch.failed(template));
     }
 
     @Override

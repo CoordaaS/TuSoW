@@ -27,7 +27,7 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
     }
 
     static LogicSpace nonDeterministic(String name, ExecutorService executorService) {
-        return new NonDeterminismLogicSpaceImpl(name, executorService);
+        throw new UnsupportedOperationException("not implemented");
     }
 
     static LogicSpace nonDeterministic(String name) {

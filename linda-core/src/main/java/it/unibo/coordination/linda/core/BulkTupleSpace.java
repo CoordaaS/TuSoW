@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 
 public interface BulkTupleSpace<T extends Tuple, TT extends Template, K, V> extends TupleSpace<T, TT, K, V> {
 
-    CompletableFuture<Collection<Match<T, TT, K, V>>> readAll(TT template);
+    CompletableFuture<Collection<? extends Match<T, TT, K, V>>> readAll(TT template);
 
     default CompletableFuture<MultiSet<T>> readAllTuples(TT template) {
         return readAll(template).thenApplyAsync(matches ->
@@ -21,7 +21,7 @@ public interface BulkTupleSpace<T extends Tuple, TT extends Template, K, V> exte
                 );
     }
 
-    CompletableFuture<Collection<Match<T, TT, K, V>>> takeAll(TT template);
+    CompletableFuture<Collection<? extends Match<T, TT, K, V>>> takeAll(TT template);
 
     default CompletableFuture<MultiSet<T>> takeAllTuples(TT template) {
         return takeAll(template).thenApplyAsync(matches ->
