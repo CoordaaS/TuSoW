@@ -96,7 +96,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         getLock().lock();
         try {
             final Match<T, TT, K, V> read = lookForTuple(template);
-            if (read.isSuccess()) {
+            if (read.isMatching()) {
                 promise.complete(read);
                 onRead(read.getTuple().get());
             } else {
@@ -133,7 +133,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         getLock().lock();
         try {
             final Match<T, TT, K, V> take = retrieveTuple(template);
-            if (take.isSuccess()) {
+            if (take.isMatching()) {
                 promise.complete(take);
                 onTaken(take.getTuple().get());
             } else {
@@ -210,7 +210,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
             final PendingRequest pendingRequest = i.next();
             final Match<T, TT, K, V> match = match(pendingRequest.getTemplate(), insertedTuple);
 
-            if (!match.isSuccess()) {
+            if (!match.isMatching()) {
                 continue;
             } else if (pendingRequest.getRequestType() != RequestTypes.ABSENT) {
                 i.remove();
@@ -435,7 +435,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         getLock().lock();
         try {
             final Match<T, TT, K, V> read = lookForTuple(template);
-            if (read.isSuccess()) {
+            if (read.isMatching()) {
                 addPendingRequest(newPendingAbsentRequest(template, promise));
             } else {
                 onAbsent(template);
@@ -452,7 +452,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
             final PendingRequest pendingRequest = i.next();
             if (pendingRequest.getRequestType() == RequestTypes.ABSENT
                     && pendingRequest.getTemplate().matches(removedTuple)
-                    && !lookForTuple(pendingRequest.getTemplate()).isSuccess()) {
+                    && !lookForTuple(pendingRequest.getTemplate()).isMatching()) {
 
                 i.remove();
                 onAbsent(pendingRequest.getTemplate());

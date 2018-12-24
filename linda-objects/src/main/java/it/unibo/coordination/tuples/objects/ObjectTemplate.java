@@ -3,6 +3,7 @@ package it.unibo.coordination.tuples.objects;
 import it.unibo.coordination.linda.core.Template;
 import it.unibo.coordination.linda.core.Tuple;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -53,7 +54,7 @@ public final class ObjectTemplate<T> implements Template, Predicate<Tuple> {
         }
 
         @Override
-        public boolean isSuccess() {
+        public boolean isMatching() {
             if (tuple instanceof ObjectTuple) {
                 final ObjectTuple<?> objectTuple = (ObjectTuple<?>) tuple;
                 if (type.isAssignableFrom(objectTuple.get().getClass())) {
@@ -67,6 +68,11 @@ public final class ObjectTemplate<T> implements Template, Predicate<Tuple> {
         @Override
         public Optional<Object> get(Object key) {
             return Optional.empty();
+        }
+
+        @Override
+        public Map<Object, Object> toMap() {
+            return Map.of();
         }
 
     }

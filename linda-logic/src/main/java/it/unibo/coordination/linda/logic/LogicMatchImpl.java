@@ -3,8 +3,10 @@ package it.unibo.coordination.linda.logic;
 import alice.tuprolog.NoSolutionException;
 import alice.tuprolog.SolveInfo;
 import alice.tuprolog.Term;
+import alice.tuprolog.Var;
 import it.unibo.coordination.linda.core.Tuple;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,7 +34,7 @@ class LogicMatchImpl implements LogicMatch {
     }
 
     @Override
-    public boolean isSuccess() {
+    public boolean isMatching() {
         return solveInfo != null && solveInfo.isSuccess();
     }
 
@@ -46,6 +48,25 @@ class LogicMatchImpl implements LogicMatch {
             }
         } catch (NoSolutionException e) {
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public Map<String, Term> toMap() {
+        if (solveInfo != null && solveInfo.isSuccess()) {
+            try {
+                return solveInfo.getBindingVars().stream()
+                        .collect(
+                                Collectors.toUnmodifiableMap(
+                                        Var::getOriginalName,
+                                        Var::getLink
+                                )
+                            );
+            } catch (NoSolutionException e) {
+                return Map.of();
+            }
+        } else {
+            return Map.of();
         }
     }
 

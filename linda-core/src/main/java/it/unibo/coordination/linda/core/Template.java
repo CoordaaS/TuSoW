@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 public interface Template extends Predicate<Tuple> {
 
     default boolean matches(Tuple tuple) {
-        return matchWith(tuple).isSuccess();
+        return matchWith(tuple).isMatching();
     }
 
     <T extends Tuple, TT extends Template, K, V> Match<T, TT, K, V> matchWith(T tuple);
