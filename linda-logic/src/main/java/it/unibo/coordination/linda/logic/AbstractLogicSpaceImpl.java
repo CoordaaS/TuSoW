@@ -71,6 +71,6 @@ abstract class AbstractLogicSpaceImpl extends AbstractTupleSpace<LogicTuple, Log
 
     @Override
     protected Match<LogicTuple, LogicTemplate, String, Term> failedMatch(LogicTemplate template) {
-        return null;
+        return LogicMatch.failed(template);
     }
 }

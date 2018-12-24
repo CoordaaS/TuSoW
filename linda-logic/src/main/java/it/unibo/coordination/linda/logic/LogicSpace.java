@@ -55,6 +55,14 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
         return readTuple(LogicTemplate.of(template));
     }
 
+    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> read(String template) {
+        return read(LogicTemplate.of(template));
+    }
+
+    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> read(Term template) {
+        return read(LogicTemplate.of(template));
+    }
+
     default CompletableFuture<Optional<LogicTuple>> tryReadTuple(String template) {
         return tryReadTuple(LogicTemplate.of(template));
     }
@@ -69,6 +77,14 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
 
     default CompletableFuture<LogicTuple> takeTuple(Term template) {
         return takeTuple(LogicTemplate.of(template));
+    }
+
+    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> take(String template) {
+        return take(LogicTemplate.of(template));
+    }
+
+    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> take(Term template) {
+        return take(LogicTemplate.of(template));
     }
 
     default CompletableFuture<Optional<LogicTuple>> tryTakeTuple(String template) {

@@ -434,7 +434,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
     private void handleAbsent(final TT template, final CompletableFuture<Match<T, TT, K, V>> promise) {
         getLock().lock();
         try {
-            final var read = lookForTuple(template);
+            final Match<T, TT, K, V> read = lookForTuple(template);
             if (read.isSuccess()) {
                 addPendingRequest(newPendingAbsentRequest(template, promise));
             } else {

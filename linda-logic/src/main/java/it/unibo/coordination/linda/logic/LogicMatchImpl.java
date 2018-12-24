@@ -52,7 +52,7 @@ class LogicMatchImpl implements LogicMatch {
     @Override
     public String toString() {
         try {
-            if (solveInfo.isSuccess()) {
+            if (solveInfo != null && solveInfo.isSuccess()) {
                 return solveInfo.getBindingVars().stream()
                         .map(v -> String.format("%s/%s", v.getOriginalName(), v.getTerm()))
                         .collect(Collectors.joining("; "));
