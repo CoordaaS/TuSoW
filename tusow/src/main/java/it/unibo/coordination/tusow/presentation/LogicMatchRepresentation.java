@@ -18,6 +18,14 @@ public class LogicMatchRepresentation extends AbstractMatchRepresentation<LogicT
         super(match);
     }
 
+    public static LogicMatchRepresentation wrap(Match<LogicTuple, LogicTemplate, String, Term> match) {
+        if (match instanceof LogicMatchRepresentation) {
+            return (LogicMatchRepresentation) match;
+        } else {
+            return new LogicMatchRepresentation(match);
+        }
+    }
+
     @Override
     protected Object valueToDynamicObject(Term value) {
         return PrologUtils.termToDynamicObject(value);

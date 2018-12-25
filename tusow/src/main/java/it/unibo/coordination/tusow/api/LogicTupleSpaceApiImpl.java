@@ -1,5 +1,6 @@
 package it.unibo.coordination.tusow.api;
 
+import alice.tuprolog.Term;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -7,10 +8,7 @@ import io.vertx.ext.web.RoutingContext;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.NotImplementedError;
 import it.unibo.coordination.tusow.linda.TupleSpaces;
-import it.unibo.coordination.tusow.presentation.ListOfLogicTupleRepresentation;
-import it.unibo.coordination.tusow.presentation.ListRepresentation;
-import it.unibo.coordination.tusow.presentation.LogicTemplateRepresentation;
-import it.unibo.coordination.tusow.presentation.LogicTupleRepresentation;
+import it.unibo.coordination.tusow.presentation.*;
 
 import java.util.List;
 
@@ -39,8 +37,7 @@ class LogicTupleSpaceApiImpl extends AbstractApi implements LogicTupleSpaceApi {
     }
 
     @Override
-    public void observeTuples(String tupleSpaceName, boolean bulk, boolean predicative, boolean negated, LogicTemplateRepresentation template, Handler<AsyncResult<ListRepresentation<LogicTupleRepresentation>>> handler) {
-
+    public void observeTuples(String tupleSpaceName, boolean bulk, boolean predicative, boolean negated, LogicTemplateRepresentation template, Handler<AsyncResult<? super ListRepresentation<? extends MatchRepresentation<LogicTupleRepresentation, LogicTemplateRepresentation, String, Term>>>> handler) {
         final var logicSpace = TupleSpaces.getLogicSpace(tupleSpaceName);
 
         if (bulk && predicative) throw new BadContentError();
@@ -50,8 +47,10 @@ class LogicTupleSpaceApiImpl extends AbstractApi implements LogicTupleSpaceApi {
                 throw new NotImplementedError();
             } else if (predicative) {
                 logicSpace.tryAbsent(template).thenAcceptAsync(t -> {
-                    var lots = new ListOfLogicTupleRepresentation(t.stream().map(LogicTupleRepresentation::wrap));
-                    handler.handle(Future.succeededFuture(lots));
+                    ListOfLogicMatchRepresentation result = new ListOfLogicMatchRepresentation(
+                        LogicMatchRepresentation.wrap(t)
+                    );
+                    handler.handle(Future.succeededFuture(result));
                 });
             } else {
                 logicSpace.absent(template).thenAcceptAsync(t -> {
@@ -80,7 +79,7 @@ class LogicTupleSpaceApiImpl extends AbstractApi implements LogicTupleSpaceApi {
     }
 
     @Override
-    public void consumeTuples(String tupleSpaceName, boolean bulk, boolean predicative, LogicTemplateRepresentation template, Handler<AsyncResult<ListRepresentation<LogicTupleRepresentation>>> handler) {
+    public void consumeTuples(String tupleSpaceName, boolean bulk, boolean predicative, LogicTemplateRepresentation template, Handler<AsyncResult<? super ListRepresentation<? extends MatchRepresentation<LogicTupleRepresentation, LogicTemplateRepresentation, String, Term>>>> handler) {
 
         final var logicSpace = TupleSpaces.getLogicSpace(tupleSpaceName);
 
