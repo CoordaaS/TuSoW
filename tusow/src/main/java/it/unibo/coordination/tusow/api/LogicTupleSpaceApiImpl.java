@@ -6,6 +6,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
 import it.unibo.coordination.linda.core.Match;
+import it.unibo.coordination.linda.logic.LogicMatch;
 import it.unibo.coordination.linda.logic.LogicTemplate;
 import it.unibo.coordination.linda.logic.LogicTuple;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
@@ -13,8 +14,10 @@ import it.unibo.coordination.tusow.exceptions.NotImplementedError;
 import it.unibo.coordination.tusow.linda.TupleSpaces;
 import it.unibo.coordination.tusow.presentation.*;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 class LogicTupleSpaceApiImpl extends AbstractApi implements LogicTupleSpaceApi {
 
@@ -23,32 +26,31 @@ class LogicTupleSpaceApiImpl extends AbstractApi implements LogicTupleSpaceApi {
     }
 
     @Override
-    public void createNewTuples(String tupleSpaceName, boolean bulk, ListRepresentation<LogicTupleRepresentation> tuples, Handler<AsyncResult<ListRepresentation<LogicTupleRepresentation>>> handler) {
+    public void createNewTuples(String tupleSpaceName, boolean bulk, Collection<? extends LogicTuple> tuples, Handler<AsyncResult<Collection<? extends LogicTuple>>> handler) {
 
         final var logicSpace = TupleSpaces.getLogicSpace(tupleSpaceName);
 
         if (bulk) {
-            logicSpace.writeAll(tuples.getItems()).thenAcceptAsync(ts -> {
-                var lots = new ListOfLogicTupleRepresentation(ts.stream().map(LogicTupleRepresentation::wrap));
-                handler.handle(Future.succeededFuture(lots));
+            logicSpace.writeAll(tuples).thenAcceptAsync(ts -> {
+                handler.handle(Future.succeededFuture(ts));
             });
         } else {
-            logicSpace.write(tuples.getItems().get(0)).thenAcceptAsync(t -> {
-                var lots = new ListOfLogicTupleRepresentation(List.of(LogicTupleRepresentation.wrap(t)));
-                handler.handle(Future.succeededFuture(lots));
+            if (tuples.isEmpty()) {
+                throw new BadContentError();
+            }
+
+            logicSpace.write(tuples.stream().findFirst().get()).thenAcceptAsync(t -> {
+                handler.handle(Future.succeededFuture(List.of(t)));
             });
         }
     }
 
     @Override
-    public void observeTuples(String tupleSpaceName, boolean bulk, boolean predicative, boolean negated, LogicTemplateRepresentation template, Handler<AsyncResult<ListRepresentation<? extends MatchRepresentation<LogicTupleRepresentation, LogicTemplateRepresentation, String, Term>>>> handler) {
+    public void observeTuples(String tupleSpaceName, boolean bulk, boolean predicative, boolean negated, LogicTemplate template, Handler<AsyncResult<Collection<? extends LogicMatch>>> handler) {
         final var logicSpace = TupleSpaces.getLogicSpace(tupleSpaceName);
 
         final Consumer<Match<LogicTuple, LogicTemplate, String, Term>> singleMatchHandler = t -> {
-            final ListRepresentation<MatchRepresentation<LogicTupleRepresentation, LogicTemplateRepresentation, String, Term>> result = new ListOfLogicMatchRepresentation(
-                    LogicMatchRepresentation.wrap(t)
-            );
-            handler.handle(Future.succeededFuture(result));
+            handler.handle(Future.succeededFuture(List.of(LogicMatch.wrap(t))));
         };
 
         if (bulk && predicative) throw new BadContentError();
@@ -64,8 +66,9 @@ class LogicTupleSpaceApiImpl extends AbstractApi implements LogicTupleSpaceApi {
         } else {
             if (bulk) {
                 logicSpace.readAll(template).thenAcceptAsync(ts -> {
-                    var lots = new ListOfLogicMatchRepresentation(ts.stream().map(LogicMatchRepresentation::wrap));
-                    handler.handle(Future.succeededFuture(lots));
+                    handler.handle(Future.succeededFuture(
+                            ts.stream().map(LogicMatch::wrap).collect(Collectors.toList())
+                    ));
                 });
             } else if (predicative) {
                 logicSpace.tryRead(template).thenAcceptAsync(singleMatchHandler);
@@ -76,22 +79,20 @@ class LogicTupleSpaceApiImpl extends AbstractApi implements LogicTupleSpaceApi {
     }
 
     @Override
-    public void consumeTuples(String tupleSpaceName, boolean bulk, boolean predicative, LogicTemplateRepresentation template, Handler<? extends AsyncResult<? super ListRepresentation<? extends MatchRepresentation<LogicTupleRepresentation, LogicTemplateRepresentation, String, Term>>>> handler) {
+    public void consumeTuples(String tupleSpaceName, boolean bulk, boolean predicative, LogicTemplate template, Handler<AsyncResult<Collection<? extends LogicMatch>>> handler) {
         final var logicSpace = TupleSpaces.getLogicSpace(tupleSpaceName);
 
         final Consumer<Match<LogicTuple, LogicTemplate, String, Term>> singleMatchHandler = t -> {
-            final var result = new ListOfLogicMatchRepresentation(
-                    LogicMatchRepresentation.wrap(t)
-            );
-            handler.handle(Future.succeededFuture(result));
+            handler.handle(Future.succeededFuture(List.of(LogicMatch.wrap(t))));
         };
 
         if (bulk && predicative) throw new BadContentError();
 
         if (bulk) {
             logicSpace.takeAll(template).thenAcceptAsync(ts -> {
-                var lots = new ListOfLogicMatchRepresentation(ts.stream().map(LogicMatchRepresentation::wrap));
-                handler.handle(Future.succeededFuture(lots));
+                handler.handle(Future.succeededFuture(
+                        ts.stream().map(LogicMatch::wrap).collect(Collectors.toList())
+                ));
             });
         } else if (predicative) {
             logicSpace.take(template).thenAcceptAsync(singleMatchHandler);
@@ -99,6 +100,5 @@ class LogicTupleSpaceApiImpl extends AbstractApi implements LogicTupleSpaceApi {
             logicSpace.tryTake(template).thenAcceptAsync(singleMatchHandler);
         }
     }
-
 
 }

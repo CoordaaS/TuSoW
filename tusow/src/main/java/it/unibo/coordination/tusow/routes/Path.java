@@ -14,8 +14,10 @@ import io.vertx.ext.web.handler.ErrorHandler;
 import io.vertx.ext.web.handler.LoggerHandler;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
+import it.unibo.coordination.tusow.presentation.MIMETypes;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -56,11 +58,15 @@ public abstract class Path {
 		return getPath() + "/" + subResource;
 	}
 
-    protected  <X extends Representation> Handler<AsyncResult<X>> responseHandler(RoutingContext routingContext) {
+    protected <X> Handler<AsyncResult<X>> responseHandler(RoutingContext routingContext) {
 	    return responseHandler(routingContext, Function.identity());
     }
 
-	protected  <X extends Representation> Handler<AsyncResult<X>> responseHandler(RoutingContext routingContext, Function<X, X> cleaner) {
+    protected abstract <X> String serialize(MIMETypes type, X object);
+
+	protected abstract <X> String serialize(MIMETypes type, List<X> objects);
+
+	protected <X> Handler<AsyncResult<X>> responseHandler(RoutingContext routingContext, Function<X, X> cleaner) {
 		return x -> {
 			if (x.failed() && x.cause() instanceof HttpError) {
 				final HttpError exception = (HttpError) x.cause();
@@ -77,7 +83,7 @@ public abstract class Path {
                     final X cleanResult = cleaner.apply(x.result());
                     final String result = cleanResult.toMIMETypeString(routingContext.getAcceptableContentType());
 
-                    final int statusCode = cleanResult instanceof ListRepresentation && ((ListRepresentation) cleanResult).isEmpty() ? 204 : 200;
+                    final int statusCode = cleanResult instanceof List<> && ((ListRepresentation) cleanResult).isEmpty() ? 204 : 200;
 
                     routingContext.response()
                             .putHeader(HttpHeaders.CONTENT_TYPE, routingContext.getAcceptableContentType())
