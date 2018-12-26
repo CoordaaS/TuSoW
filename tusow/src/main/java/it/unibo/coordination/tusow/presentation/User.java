@@ -7,13 +7,18 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
 
-import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @JacksonXmlRootElement(localName = "user")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class User extends AbstractRepresentation implements Representation {
+public class User  {
+
+    static {
+        Presentation.registerSimpleMarshallers(User.class);
+        Presentation.registerSimpleUnmarshallers(User.class);
+    }
 
     private UUID id = null;
     private String username = null;
@@ -52,7 +57,7 @@ public class User extends AbstractRepresentation implements Representation {
         this.username = clone.username;
         this.fullName = clone.fullName;
         this.email = clone.email;
-        this.link = ifNonNull(clone.link, Link::new);
+        this.link = Optional.ofNullable(clone.link).orElseGet(Link::new);
         this.role = clone.role;
     }
 
@@ -153,17 +158,6 @@ public class User extends AbstractRepresentation implements Representation {
         return this;
     }
 
-    public User setPropertiesToNonNullsOf(User other) {
-        assignIfNonNull(other::getId, this::setId);
-        assignIfNonNull(other::getEmail, this::setEmail);
-        assignIfNonNull(other::getFullName, this::setFullName);
-        assignIfNonNull(other::getLink, this::setLink);
-        assignIfNonNull(other::getPassword, this::setPassword);
-        assignIfNonNull(other::getRole, this::setRole);
-        assignIfNonNull(other::getUsername, this::setUsername);
-        return this;
-    }
-
     public boolean sameUserOf(User user) {
         return user != null && (
                 Objects.equals(id, user.id)
@@ -215,22 +209,6 @@ public class User extends AbstractRepresentation implements Representation {
                 ", link='" + link + '\'' +
                 ", role=" + role +
                 '}';
-    }
-
-    public static User fromJSON(String representation) throws IOException {
-        return AbstractRepresentation.fromJSON(representation, User.class);
-    }
-
-    public static User fromYAML(String representation) throws IOException {
-        return AbstractRepresentation.fromYAML(representation, User.class);
-    }
-
-    public static User fromXML(String representation) throws IOException {
-        return AbstractRepresentation.fromXML(representation, User.class);
-    }
-
-    public static User parse(String mimeType, String payload) throws IOException {
-        return parse(mimeType, payload, User.class);
     }
 
 }

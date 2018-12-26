@@ -24,6 +24,7 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.8")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8")
+    implementation("org.jooq:jool:0.9.14")
 
     // Use JUnit test framework
     testImplementation("io.vertx:vertx-unit:3.5.1")

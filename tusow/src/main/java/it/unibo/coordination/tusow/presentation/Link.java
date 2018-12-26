@@ -5,12 +5,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
-import java.io.IOException;
 import java.util.Objects;
 
 @JacksonXmlRootElement(localName = "link")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Link extends AbstractRepresentation implements Representation {
+public class Link {
+
+    static {
+        Presentation.registerSimpleMarshallers(Link.class);
+        Presentation.registerSimpleUnmarshallers(Link.class);
+    }
 
     private String url = null;
 
@@ -55,22 +59,6 @@ public class Link extends AbstractRepresentation implements Representation {
         return "Link{" +
                 "url='" + url + '\'' +
                 '}';
-    }
-
-    public static Link fromJSON(String representation) throws IOException {
-        return AbstractRepresentation.fromJSON(representation, Link.class);
-    }
-
-    public static Link fromYAML(String representation) throws IOException {
-        return AbstractRepresentation.fromYAML(representation, Link.class);
-    }
-
-    public static Link fromXML(String representation) throws IOException {
-        return AbstractRepresentation.fromXML(representation, Link.class);
-    }
-
-    public static Link parse(String mimeType, String payload) throws IOException {
-        return parse(mimeType, payload, Link.class);
     }
 
 }

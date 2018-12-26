@@ -12,11 +12,8 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.ErrorHandler;
 import io.vertx.ext.web.handler.LoggerHandler;
-import it.unibo.coordination.tusow.Service;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
-import it.unibo.coordination.tusow.presentation.ListRepresentation;
-import it.unibo.coordination.tusow.presentation.Representation;
 
 import java.util.Collection;
 import java.util.Objects;

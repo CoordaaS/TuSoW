@@ -3,10 +3,6 @@ package it.unibo.coordination.tusow.routes;
 import io.vertx.ext.web.RoutingContext;
 import it.unibo.coordination.tusow.api.LogicTupleSpaceApi;
 import it.unibo.coordination.tusow.api.TupleSpaceApi;
-import it.unibo.coordination.tusow.presentation.ListOfLogicTupleRepresentation;
-import it.unibo.coordination.tusow.presentation.ListRepresentation;
-import it.unibo.coordination.tusow.presentation.LogicTemplateRepresentation;
-import it.unibo.coordination.tusow.presentation.LogicTupleRepresentation;
 
 import java.io.IOException;
 

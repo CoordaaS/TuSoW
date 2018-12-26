@@ -2,22 +2,19 @@ package it.unibo.coordination.tusow.api;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import it.unibo.coordination.tusow.presentation.ListRepresentation;
-import it.unibo.coordination.tusow.presentation.MatchRepresentation;
-import it.unibo.coordination.tusow.presentation.TemplateRepresentation;
-import it.unibo.coordination.tusow.presentation.TupleRepresentation;
+import it.unibo.coordination.linda.core.Match;
+import it.unibo.coordination.linda.core.Template;
+import it.unibo.coordination.linda.core.Tuple;
 
-public interface TupleSpaceApi<T extends TupleRepresentation,
-        TT extends TemplateRepresentation, K, V,
-        M extends MatchRepresentation<T, TT, K, V>,
-        LT extends ListRepresentation<T>,
-        LM extends ListRepresentation<M>> extends Api {
+import java.util.Collection;
 
-    void createNewTuples(String tupleSpaceName, boolean bulk, LT tuples, Handler<AsyncResult<LT>> handler);
+public interface TupleSpaceApi<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>> extends Api {
 
-    void observeTuples(String tupleSpaceName, boolean bulk, boolean predicative, boolean negated, TT template, Handler<AsyncResult<LM>> handler);
+    void createNewTuples(String tupleSpaceName, boolean bulk, Collection<? extends T> tuples, Handler<AsyncResult<Collection<? extends T>>> handler);
 
-    void consumeTuples(String tupleSpaceName, boolean bulk, boolean predicative, TT template, Handler<AsyncResult<LM>> handler);
+    void observeTuples(String tupleSpaceName, boolean bulk, boolean predicative, boolean negated, TT template, Handler<AsyncResult<Collection<? extends M>>> handler);
+
+    void consumeTuples(String tupleSpaceName, boolean bulk, boolean predicative, TT template, Handler<AsyncResult<Collection<? extends M>>> handler);
 
 }
 

@@ -7,7 +7,6 @@ import it.unibo.coordination.tusow.api.UsersApi;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
 import it.unibo.coordination.tusow.presentation.Link;
-import it.unibo.coordination.tusow.presentation.ListOfUsers;
 import it.unibo.coordination.tusow.presentation.User;
 
 import java.io.IOException;
