@@ -1,8 +1,6 @@
 package it.unibo.coordination.tusow.presentation;
 
 import it.unibo.coordination.linda.core.Match;
-import it.unibo.coordination.linda.core.Template;
-import it.unibo.coordination.linda.core.Tuple;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public abstract class AbstractMatchRepresentation<T extends Tuple, TT extends Template, K, V> extends AbstractRepresentation implements MatchRepresentation<T, TT, K, V> {
+public abstract class AbstractMatchRepresentation<T extends TupleRepresentation, TT extends TemplateRepresentation, K, V> extends AbstractRepresentation implements MatchRepresentation<T, TT, K, V> {
 
     private final Match<T, TT, K, V> match;
 
@@ -57,8 +55,8 @@ public abstract class AbstractMatchRepresentation<T extends Tuple, TT extends Te
                     entry -> valueToDynamicObject(entry.getValue())
                 ));
         dynamicObject.put("match", isMatching());
-        dynamicObject.put("tuple", getTuple().map(TupleRepresentation::wrap).map(TupleRepresentation::toObject).orElse(null));
-        dynamicObject.put("template", TemplateRepresentation.wrap(getTemplate()));
+        dynamicObject.put("tuple", getTuple().map(TupleRepresentation::toObject).orElse(null));
+        dynamicObject.put("template", getTemplate().toObject());
         dynamicObject.put("map", map);
 
         return dynamicObject;

@@ -1,20 +1,63 @@
 package it.unibo.coordination.tusow.presentation;
 
-public final class MIMETypes {
+import java.util.stream.Stream;
 
-    public static String APPLICATION_JSON = "application/json";
+public enum MIMETypes {
 
-    public static String APPLICATION_YAML = "application/yaml";
+    APPLICATION_JSON("application", "json"),
 
-    public static String APPLICATION_XML = "application/xml";
+    APPLICATION_YAML("application", "yaml"),
 
-    public static String APPLICATION_PROLOG = "application/prolog";
+    APPLICATION_XML("application", "xml"),
 
-    public static String TEXT_HTML = "text/html";
+    APPLICATION_PROLOG("application", "prolog"),
 
-    public static String TEXT_PLAIN = "text/plain";
+    TEXT_HTML("text", "html"),
 
-    public static String ANY = "*/*";
+    TEXT_PLAIN("text", "plain"),
 
-    public static String APPLICATION_ANY = "application/*";
+    ANY("*", "*"),
+
+    APPLICATION_ANY("application", "*");
+
+    private final String type, subtype;
+
+    MIMETypes(String type, String subtype) {
+        this.type = type;
+        this.subtype = subtype;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getSubtype() {
+        return subtype;
+    }
+
+    @Override
+    public String toString() {
+        return type + "/" + subtype;
+    }
+
+    public boolean matches(String other) {
+        return match(this, other);
+    }
+
+    public static boolean match(MIMETypes mime, String other) {
+        if (other == null || !other.contains("/")) return false;
+
+        final var parts = other.split("/");
+
+        if (parts.length != 2) return false;
+
+        return match(mime, parts[0], parts[1]);
+    }
+
+    private static boolean match(MIMETypes mime, String type, String subtype) {
+        return (Stream.of(mime.getType(), type).anyMatch("*"::equals)
+                || mime.getType().equalsIgnoreCase(type))
+                && (Stream.of(mime.getSubtype(), subtype).anyMatch("*"::equals)
+                        || mime.getSubtype().equalsIgnoreCase(subtype));
+    }
 }

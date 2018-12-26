@@ -3,8 +3,6 @@ package it.unibo.coordination.tusow.presentation;
 import alice.tuprolog.Term;
 import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.logic.LogicMatch;
-import it.unibo.coordination.linda.logic.LogicTemplate;
-import it.unibo.coordination.linda.logic.LogicTuple;
 import it.unibo.coordination.prologx.PrologUtils;
 
 import java.io.IOException;
@@ -12,13 +10,14 @@ import java.util.Map;
 
 import static it.unibo.coordination.tusow.presentation.MIMETypes.*;
 
-public class LogicMatchRepresentation extends AbstractMatchRepresentation<LogicTuple, LogicTemplate, String, Term> {
+public class LogicMatchRepresentation extends AbstractMatchRepresentation<LogicTupleRepresentation, LogicTemplateRepresentation, String, Term>
+    implements LogicMatch {
 
-    private LogicMatchRepresentation(Match<LogicTuple, LogicTemplate, String, Term> match) {
+    private LogicMatchRepresentation(Match<LogicTupleRepresentation, LogicTemplateRepresentation, String, Term> match) {
         super(match);
     }
 
-    public static LogicMatchRepresentation wrap(Match<LogicTuple, LogicTemplate, String, Term> match) {
+    public static LogicMatchRepresentation wrap(Match<LogicTupleRepresentation, LogicTemplateRepresentation, String, Term> match) {
         if (match instanceof LogicMatchRepresentation) {
             return (LogicMatchRepresentation) match;
         } else {

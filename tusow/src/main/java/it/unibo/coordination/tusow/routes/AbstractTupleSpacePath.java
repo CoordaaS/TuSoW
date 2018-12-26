@@ -8,6 +8,7 @@ import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
 import it.unibo.coordination.tusow.exceptions.InternalServerError;
 import it.unibo.coordination.tusow.presentation.ListRepresentation;
+import it.unibo.coordination.tusow.presentation.MatchRepresentation;
 import it.unibo.coordination.tusow.presentation.TemplateRepresentation;
 import it.unibo.coordination.tusow.presentation.TupleRepresentation;
 import it.unibo.coordination.utils.Tuple;
@@ -22,7 +23,7 @@ import java.util.Optional;
 import static it.unibo.coordination.tusow.presentation.MIMETypes.APPLICATION_JSON;
 import static it.unibo.coordination.tusow.presentation.MIMETypes.APPLICATION_YAML;
 
-public abstract class AbstractTupleSpacePath<T extends TupleRepresentation, TT extends TemplateRepresentation> extends Path {
+public abstract class AbstractTupleSpacePath<T extends TupleRepresentation, TT extends TemplateRepresentation, K, V> extends Path {
 
     public AbstractTupleSpacePath(String tupleSpaceType) {
         super("/" + Objects.requireNonNull(tupleSpaceType) + "/:tupleSpaceName");
@@ -55,7 +56,7 @@ public abstract class AbstractTupleSpacePath<T extends TupleRepresentation, TT e
                 .produces(APPLICATION_YAML);
     }
 
-    protected abstract TupleSpaceApi<T, TT> getTupleSpaceApi(RoutingContext routingContext);
+    protected abstract TupleSpaceApi<T, TT, K, V> getTupleSpaceApi(RoutingContext routingContext);
 
     public void post(RoutingContext routingContext) {
         final var api = getTupleSpaceApi(routingContext);
@@ -110,7 +111,7 @@ public abstract class AbstractTupleSpacePath<T extends TupleRepresentation, TT e
 
     public void delete(RoutingContext routingContext) {
         final var api = getTupleSpaceApi(routingContext);
-        final Future<ListRepresentation<T>> result = Future.future();
+        final Future<? super ListRepresentation<? extends MatchRepresentation<T, TT, K, V>>> result = Future.future();
 
         try {
             final String tupleSpaceName = routingContext.pathParam("tupleSpaceName");
@@ -122,7 +123,7 @@ public abstract class AbstractTupleSpacePath<T extends TupleRepresentation, TT e
 
             result.setHandler(responseHandler(routingContext, response -> validateOutputsForDelete(cleanInputs, response)));
 
-            api.consumeTuples(cleanInputs.getFirst(), cleanInputs.getSecond(), cleanInputs.getThird(), cleanInputs.getFourth(), result);
+            api.consumeTuples(cleanInputs.getFirst(), cleanInputs.getSecond(), cleanInputs.getThird(), cleanInputs.getFourth(), result.completer());
         } catch (HttpError e) {
             result.fail(e);
         } catch (IOException | IllegalArgumentException e) {
