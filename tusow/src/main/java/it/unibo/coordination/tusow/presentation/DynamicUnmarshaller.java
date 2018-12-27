@@ -20,7 +20,7 @@ public abstract class DynamicUnmarshaller<T> extends SimpleUnmarshaller<T> {
     }
 
     @Override
-    public List<? super T> readList(Reader reader) {
+    public List<T> readList(Reader reader) {
         return listFromDynamicObject(readImpl(reader, Object.class));
     }
 }

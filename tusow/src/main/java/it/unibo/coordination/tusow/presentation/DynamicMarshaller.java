@@ -3,7 +3,7 @@ package it.unibo.coordination.tusow.presentation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.Writer;
-import java.util.List;
+import java.util.Collection;
 
 public abstract class DynamicMarshaller<T> extends SimpleMarshaller<T> {
 
@@ -21,7 +21,7 @@ public abstract class DynamicMarshaller<T> extends SimpleMarshaller<T> {
     }
 
     @Override
-    public void write(List<? extends T> objects, Writer writer) {
+    public void write(Collection<? extends T> objects, Writer writer) {
         writeImpl(toDynamicObject(objects), writer);
     }
 }

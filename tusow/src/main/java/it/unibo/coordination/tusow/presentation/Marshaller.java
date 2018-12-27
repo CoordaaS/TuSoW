@@ -1,6 +1,7 @@
 package it.unibo.coordination.tusow.presentation;
 
 import java.io.Writer;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,15 +11,15 @@ public interface Marshaller<T> {
 
     Object toDynamicObject(T object);
 
-    default List<Object> toDynamicObject(List<? extends T> objects) {
+    default List<Object> toDynamicObject(Collection<? extends T> objects) {
         return objects.stream().map(this::toDynamicObject).collect(Collectors.toList());
     }
 
     String toString(T object);
 
-    String toString(List<? extends T> objects);
+    String toString(Collection<? extends T> objects);
 
     void write(T object, Writer writer);
 
-    void write(List<? extends T>  objects, Writer writer);
+    void write(Collection<? extends T>  objects, Writer writer);
 }

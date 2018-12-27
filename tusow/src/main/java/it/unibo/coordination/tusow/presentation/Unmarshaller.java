@@ -6,13 +6,13 @@ import java.util.stream.Collectors;
 
 public interface Unmarshaller<T> {
 
-    Class<T> getSupportedClass();
+    Class<T> getSupportedType();
 
     MIMETypes getSupportedMIMEType();
 
     T fromDynamicObject(Object dynamicObject);
 
-    default List<? super T> listFromDynamicObject(Object dynamicObject) {
+    default List<T> listFromDynamicObject(Object dynamicObject) {
         if (!(dynamicObject instanceof List)) {
             throw new IllegalArgumentException();
         }
@@ -24,9 +24,9 @@ public interface Unmarshaller<T> {
 
     T fromString(String string);
 
-    List<? super T>  listFromString(String string);
+    List<T>  listFromString(String string);
 
     T read(Reader reader);
 
-    List<? super T>  readList(Reader reader);
+    List<T>  readList(Reader reader);
 }

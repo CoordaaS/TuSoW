@@ -9,13 +9,14 @@ import it.unibo.coordination.tusow.api.TupleSpaceApi;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
 import it.unibo.coordination.tusow.exceptions.InternalServerError;
+import it.unibo.coordination.tusow.presentation.MIMETypes;
+import it.unibo.coordination.tusow.presentation.Marshaller;
+import it.unibo.coordination.tusow.presentation.Unmarshaller;
 import org.jooq.lambda.tuple.Tuple;
 import org.jooq.lambda.tuple.Tuple3;
 import org.jooq.lambda.tuple.Tuple4;
 import org.jooq.lambda.tuple.Tuple5;
 
-
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -65,21 +66,24 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
         try {
             final String tupleSpaceName = routingContext.pathParam("tupleSpaceName");
             final Optional<Boolean> bulk = Optional.ofNullable(routingContext.queryParams().get("bulk")).map(Boolean::parseBoolean);
-            final List<T> tuples = parseTuples(routingContext.parsedHeaders().contentType().value(), routingContext.getBodyAsString());
+            final MIMETypes mimeType = MIMETypes.parse(routingContext.parsedHeaders().contentType().value());
+            final List<T> tuples = getTuplesUnmarshaller(mimeType).listFromString(routingContext.getBodyAsString());
 
             final Tuple3<String, Boolean, List<T>> cleanInputs = validateInputsForPost(tupleSpaceName, bulk, tuples);
 
-            result.setHandler(responseHandler(routingContext, response -> validateOutputsForPost(cleanInputs, response)));
+            result.setHandler(responseHandlerWithManyContents(routingContext, this::getTuplesMarshaller, response -> validateOutputsForPost(cleanInputs, response)));
 
             api.createNewTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), result.completer());
         } catch (HttpError e) {
             result.fail(e);
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             result.fail(new BadContentError(e));
         }
     }
 
-    protected abstract List<T> parseTuples(String mimeType, String payload) throws IOException;
+    private Collection<? extends T> validateOutputsForPost(Tuple3<String, Boolean, List<T>> inputs, Collection<? extends T> output) {
+        return validateOutputsForPost(inputs.v1(), inputs.v2(), inputs.v3(), output);
+    }
 
     private Tuple3<String, Boolean, List<T>> validateInputsForPost(String tupleSpaceName, Optional<Boolean> bulk, List<T> tuples) {
         final var bulkValue = bulk.orElse(false);
@@ -95,10 +99,6 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
                 bulkValue,
                 tuples
             );
-    }
-
-    private Collection<? extends T> validateOutputsForPost(Tuple3<String, Boolean, List<T>> inputs, Collection<? extends T> output) {
-        return validateOutputsForPost(inputs.v1(), inputs.v2(), inputs.v3(), output);
     }
 
     private Collection<? extends T> validateOutputsForPost(String tupleSpaceName, boolean bulk, List<T> input, Collection<? extends T> output) {
@@ -117,21 +117,29 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
             final String tupleSpaceName = routingContext.pathParam("tupleSpaceName");
             final Optional<Boolean> bulk = Optional.ofNullable(routingContext.queryParams().get("bulk")).map(Boolean::parseBoolean);
             final Optional<Boolean> predicative = Optional.ofNullable(routingContext.queryParams().get("predicative")).map(Boolean::parseBoolean);
-            final TT template = parseTemplate(routingContext.parsedHeaders().contentType().value(), routingContext.getBodyAsString());
+
+            final MIMETypes mimeType = MIMETypes.parse(routingContext.parsedHeaders().contentType().value());
+            final TT template = getTemplatesUnmarshaller(mimeType).fromString(routingContext.getBodyAsString());
 
             final Tuple4<String, Boolean, Boolean, TT> cleanInputs = validateInputsForDelete(tupleSpaceName, bulk, predicative, template);
 
-            result.setHandler(responseHandler(routingContext, response -> validateOutputsForDelete(cleanInputs, response)));
+            result.setHandler(responseHandlerWithManyContents(routingContext, this::getMatchMarshaller, response -> validateOutputsForDelete(cleanInputs, response)));
 
             api.consumeTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), cleanInputs.v4(), result.completer());
         } catch (HttpError e) {
             result.fail(e);
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             result.fail(new BadContentError(e));
         }
     }
 
-    protected abstract TT parseTemplate(String mimeType, String payload) throws IOException;
+    protected abstract Marshaller<T> getTuplesMarshaller(MIMETypes mimeType);
+    protected abstract Marshaller<TT> getTemplatesMarshaller(MIMETypes mimeType);
+    protected abstract Marshaller<M> getMatchMarshaller(MIMETypes mimeType);
+
+    protected abstract Unmarshaller<T> getTuplesUnmarshaller(MIMETypes mimeType);
+    protected abstract Unmarshaller<TT> getTemplatesUnmarshaller(MIMETypes mimeType);
+    protected abstract Unmarshaller<M> getMatchUnmarshaller(MIMETypes mimeType);
 
     private Tuple4<String, Boolean, Boolean, TT> validateInputsForDelete(String tupleSpaceName, Optional<Boolean> bulk, Optional<Boolean> predicative, TT template) {
         return Tuple.tuple(
@@ -164,16 +172,18 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
             final var bulk = Optional.ofNullable(routingContext.queryParams().get("bulk")).map(Boolean::parseBoolean);
             final var predicative = Optional.ofNullable(routingContext.queryParams().get("predicative")).map(Boolean::parseBoolean);
             final var negated = Optional.ofNullable(routingContext.queryParams().get("negated")).map(Boolean::parseBoolean);
-            final var template = parseTemplate(routingContext.parsedHeaders().contentType().value(), routingContext.getBodyAsString());
+
+            final MIMETypes mimeType = MIMETypes.parse(routingContext.parsedHeaders().contentType().value());
+            final TT template = getTemplatesUnmarshaller(mimeType).fromString(routingContext.getBodyAsString());
 
             final var cleanInputs = validateInputsForGet(tupleSpaceName, bulk, predicative, negated, template);
 
-            result.setHandler(responseHandler(routingContext, response -> validateOutputsForGet(cleanInputs, response)));
+            result.setHandler(responseHandlerWithManyContents(routingContext, this::getMatchMarshaller, response -> validateOutputsForGet(cleanInputs, response)));
 
             api.observeTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), cleanInputs.v4(), cleanInputs.v5(), result);
         } catch (HttpError e) {
             result.fail(e);
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             result.fail(new BadContentError(e));
         }
     }

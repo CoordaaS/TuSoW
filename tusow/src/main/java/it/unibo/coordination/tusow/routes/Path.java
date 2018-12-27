@@ -15,9 +15,9 @@ import io.vertx.ext.web.handler.LoggerHandler;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
 import it.unibo.coordination.tusow.presentation.MIMETypes;
+import it.unibo.coordination.tusow.presentation.Marshaller;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -58,15 +58,15 @@ public abstract class Path {
 		return getPath() + "/" + subResource;
 	}
 
-    protected <X> Handler<AsyncResult<X>> responseHandler(RoutingContext routingContext) {
-	    return responseHandler(routingContext, Function.identity());
+    protected <X> Handler<AsyncResult<X>> responseHandler(RoutingContext routingContext, Function<MIMETypes, Marshaller<X>> marshaller) {
+	    return responseHandler(routingContext, marshaller, Function.identity());
     }
 
-    protected abstract <X> String serialize(MIMETypes type, X object);
+	protected <X> Handler<AsyncResult<Collection<? extends X>>> responseHandlerWithManyContents(RoutingContext routingContext, Function<MIMETypes, Marshaller<X>> marshaller) {
+		return responseHandlerWithManyContents(routingContext, marshaller, Function.identity());
+	}
 
-	protected abstract <X> String serialize(MIMETypes type, List<X> objects);
-
-	protected <X> Handler<AsyncResult<X>> responseHandler(RoutingContext routingContext, Function<X, X> cleaner) {
+	protected <X> Handler<AsyncResult<X>> responseHandler(RoutingContext routingContext, Function<MIMETypes, Marshaller<X>> marshaller, Function<X, X> cleaner) {
 		return x -> {
 			if (x.failed() && x.cause() instanceof HttpError) {
 				final HttpError exception = (HttpError) x.cause();
@@ -81,13 +81,18 @@ public abstract class Path {
 			} else {
 			    try {
                     final X cleanResult = cleaner.apply(x.result());
-                    final String result = cleanResult.toMIMETypeString(routingContext.getAcceptableContentType());
+                    final MIMETypes mimeType = MIMETypes.parse(routingContext.getAcceptableContentType());
+					final String result;
 
-                    final int statusCode = cleanResult instanceof List<> && ((ListRepresentation) cleanResult).isEmpty() ? 204 : 200;
+                    if (cleanResult instanceof Collection) {
+                    	throw new UnsupportedOperationException();
+					}
+
+					result = marshaller.apply(mimeType).toString(cleanResult);
 
                     routingContext.response()
-                            .putHeader(HttpHeaders.CONTENT_TYPE, routingContext.getAcceptableContentType())
-                            .setStatusCode(statusCode)
+                            .putHeader(HttpHeaders.CONTENT_TYPE, mimeType.toString())
+                            .setStatusCode(200)
                             .end(result);
                 } catch (HttpError e)  {
 					routingContext.response()
@@ -98,6 +103,43 @@ public abstract class Path {
                             .setStatusCode(500)
                             .end("Internal Server Error");
                 }
+			}
+		};
+	}
+
+	protected <X> Handler<AsyncResult<Collection<? extends X>>> responseHandlerWithManyContents(RoutingContext routingContext, Function<MIMETypes, Marshaller<X>> marshaller, Function<Collection<? extends X>, Collection<? extends X>> cleaner) {
+		return x -> {
+			if (x.failed() && x.cause() instanceof HttpError) {
+				final HttpError exception = (HttpError) x.cause();
+				routingContext.response()
+						.setStatusCode(exception.getStatusCode())
+						.end(exception.getMessage());
+			} else if (x.failed()) {
+				routingContext.response()
+						.setStatusCode(500)
+						.end("Internal Server Error");
+
+			} else {
+				try {
+					final Collection<? extends X> cleanResult = cleaner.apply(x.result());
+					final MIMETypes mimeType = MIMETypes.parse(routingContext.getAcceptableContentType());
+					final String result;
+
+					result = marshaller.apply(mimeType).toString(cleanResult);
+
+					routingContext.response()
+							.putHeader(HttpHeaders.CONTENT_TYPE, mimeType.toString())
+							.setStatusCode(cleanResult.isEmpty() ? 204 : 200)
+							.end(result);
+				} catch (HttpError e)  {
+					routingContext.response()
+							.setStatusCode(e.getStatusCode())
+							.end(e.getMessage());
+				} catch (Exception e) {
+					routingContext.response()
+							.setStatusCode(500)
+							.end("Internal Server Error");
+				}
 			}
 		};
 	}

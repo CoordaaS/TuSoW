@@ -22,7 +22,7 @@ public class SimpleUnmarshaller<T> implements Unmarshaller<T> {
     }
 
     @Override
-    public Class<T> getSupportedClass() {
+    public Class<T> getSupportedType() {
         return clazz;
     }
 
@@ -42,20 +42,20 @@ public class SimpleUnmarshaller<T> implements Unmarshaller<T> {
     }
 
     @Override
-    public List<? super T> listFromString(String string) {
+    public List<T> listFromString(String string) {
         return readList(new StringReader(string));
     }
 
     @Override
     public T read(Reader reader) {
-        return readImpl(reader, getSupportedClass());
+        return readImpl(reader, getSupportedType());
     }
 
     protected final <X> X readImpl(Reader reader, Class<X> clazz) {
         try {
             return mapper.readValue(reader, clazz);
         } catch (IOException e) {
-            throw new IllegalStateException("Cannot read " + mimeType, e);
+            throw new IllegalArgumentException("Cannot read " + mimeType, e);
         }
     }
 
@@ -63,16 +63,16 @@ public class SimpleUnmarshaller<T> implements Unmarshaller<T> {
         try {
             return mapper.readValue(reader, clazz);
         } catch (IOException e) {
-            throw new IllegalStateException("Cannot read " + mimeType, e);
+            throw new IllegalArgumentException("Cannot read " + mimeType, e);
         }
     }
 
     @Override
-    public List<? super T> readList(Reader reader) {
+    public List<T> readList(Reader reader) {
         return readImpl(reader, new TypeReference<List<T>>() {});
     }
 
-    protected final ObjectMapper getMapper() {
-        return mapper;
+    protected final <X> Unmarshaller<X> getUnmarshaller(Class<X> klass) {
+        return Presentation.getUnmarshaller(klass, getSupportedMIMEType());
     }
 }

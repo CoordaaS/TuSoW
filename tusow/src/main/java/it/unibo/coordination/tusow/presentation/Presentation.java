@@ -4,6 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import it.unibo.coordination.linda.logic.LogicMatch;
+import it.unibo.coordination.linda.logic.LogicTemplate;
+import it.unibo.coordination.linda.logic.LogicTuple;
+import it.unibo.coordination.prologx.PrologUtils;
+import org.jooq.lambda.function.Function2;
 import org.jooq.lambda.function.Function3;
 import org.jooq.lambda.tuple.Tuple2;
 
@@ -38,20 +43,20 @@ public class Presentation {
         }
     }
 
-    public static <T> Marshaller<? super T> getMarshaller(Class<T> type, MIMETypes mimeType) {
+    public static <T> Marshaller<T> getMarshaller(Class<T> type, MIMETypes mimeType) {
         var result = marshallers.get(tuple(type, mimeType));
         if (result == null) {
             throw new IllegalArgumentException("Class-MIMEType combo not supported: " + type.getName() + " --> " + mimeType);
         }
-        return (Marshaller<? super T>) result;
+        return (Marshaller<T>) result;
     }
 
-    public static <T> Unmarshaller<? extends T> getUnmarshaller(Class<T> type, MIMETypes mimeType) {
+    public static <T> Unmarshaller<T> getUnmarshaller(Class<T> type, MIMETypes mimeType) {
         var result = unmarshallers.get(tuple(type, mimeType));
         if (result == null) {
             throw new IllegalArgumentException("Class-MIMEType combo not supported: " + type.getName() + " <-- " + mimeType);
         }
-        return (Unmarshaller<? extends T>) result;
+        return (Unmarshaller<T>) result;
     }
 
     public static <T> void register(Class<T> type, Marshaller<? super T> marshaller) {
@@ -91,6 +96,18 @@ public class Presentation {
         }
     }
 
+    public static <T> void registerDynamicMarshallers(Class<T> type, Function2<MIMETypes, ObjectMapper, DynamicMarshaller<T>> f) {
+        registerDynamicMarshallers(type, EnumSet.of(MIMETypes.APPLICATION_JSON, MIMETypes.APPLICATION_YAML, MIMETypes.APPLICATION_XML), f);
+    }
+
+    public static <T> void registerDynamicMarshallers(Class<T> type, EnumSet<MIMETypes> types, Function2<MIMETypes, ObjectMapper, DynamicMarshaller<T>> f) {
+        for (var t : types) {
+            final var mapper = mappers.get(t);
+            if (mapper == null) throw new IllegalArgumentException("No mapper for MIMEType " + t);
+            register(type, f.apply(t, mapper));
+        }
+    }
+
     public static <T> void register(Class<T> type, Unmarshaller<? extends T> unmarshaller) {
         final Tuple2<Class<?>, MIMETypes> key = tuple(type, unmarshaller.getSupportedMIMEType());
         if (unmarshallers.containsKey(key)) {
@@ -127,5 +144,31 @@ public class Presentation {
                 }
             });
         }
+    }
+
+    public static <T> void registerDynamicUnmarshallers(Class<T> type, Function2<MIMETypes, ObjectMapper, DynamicUnmarshaller<T>> f) {
+        registerDynamicUnmarshallers(type, EnumSet.of(MIMETypes.APPLICATION_JSON, MIMETypes.APPLICATION_YAML, MIMETypes.APPLICATION_XML), f);
+    }
+
+    public static <T> void registerDynamicUnmarshallers(Class<T> type, EnumSet<MIMETypes> types, Function2<MIMETypes, ObjectMapper, DynamicUnmarshaller<T>> f) {
+        for (var t : types) {
+            final var mapper = mappers.get(t);
+            if (mapper == null) throw new IllegalArgumentException("No mapper for MIMEType " + t);
+            register(type, f.apply(t, mapper));
+        }
+    }
+
+    static {
+        registerDynamicMarshallers(LogicTemplate.class, (klass, targetType, template) ->
+                PrologUtils.termToDynamicObject(template.getTemplate()));
+        registerDynamicMarshallers(LogicTuple.class, (klass, targetType, tuple) ->
+                PrologUtils.termToDynamicObject(tuple.getTuple()));
+        registerDynamicMarshallers(LogicMatch.class, LogicMatchMarshaller::new);
+
+        registerDynamicUnmarshallers(LogicTemplate.class, (klass, targetType, obj) ->
+                LogicTemplate.of(PrologUtils.dynamicObjectToTerm(obj)));
+        registerDynamicUnmarshallers(LogicTuple.class, (klass, targetType, obj) ->
+                LogicTuple.of(PrologUtils.dynamicObjectToTerm(obj)));
+        registerDynamicUnmarshallers(LogicMatch.class, LogicMatchUnmarshaller::new);
     }
 }

@@ -60,4 +60,10 @@ public enum MIMETypes {
                 && (Stream.of(mime.getSubtype(), subtype).anyMatch("*"::equals)
                         || mime.getSubtype().equalsIgnoreCase(subtype));
     }
+
+    public static MIMETypes parse(String string) {
+        return Stream.of(values()).filter(it -> it.toString().equalsIgnoreCase(string)).findAny().orElseGet(() -> {
+           throw new IllegalArgumentException(string);
+        });
+    }
 }

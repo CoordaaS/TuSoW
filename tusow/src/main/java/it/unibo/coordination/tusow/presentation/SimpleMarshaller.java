@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 
 public class SimpleMarshaller<T> implements Marshaller<T> {
@@ -37,7 +37,7 @@ public class SimpleMarshaller<T> implements Marshaller<T> {
     }
 
     @Override
-    public String toString(List<? extends T> objects) {
+    public String toString(Collection<? extends T> objects) {
         final StringWriter sw = new StringWriter();
         write(objects, sw);
         return sw.toString();
@@ -59,11 +59,15 @@ public class SimpleMarshaller<T> implements Marshaller<T> {
     }
 
     @Override
-    public void write(List<? extends T> objects, Writer writer) {
+    public void write(Collection<? extends T> objects, Writer writer) {
         writeImpl(objects, writer);
     }
 
     protected final ObjectMapper getMapper() {
         return mapper;
+    }
+
+    protected final <X> Marshaller<X> getMarshaller(Class<X> klass) {
+        return Presentation.getMarshaller(klass, mimeType);
     }
 }

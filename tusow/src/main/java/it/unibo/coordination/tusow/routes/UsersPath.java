@@ -6,12 +6,12 @@ import io.vertx.ext.web.RoutingContext;
 import it.unibo.coordination.tusow.api.UsersApi;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
-import it.unibo.coordination.tusow.presentation.Link;
-import it.unibo.coordination.tusow.presentation.User;
+import it.unibo.coordination.tusow.presentation.*;
 
-import java.io.IOException;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static it.unibo.coordination.tusow.presentation.MIMETypes.*;
 
@@ -25,44 +25,61 @@ public class UsersPath extends Path {
 	@Override
 	protected void setupRoutes() {
         addRoute(HttpMethod.POST, this::post)
-                .consumes(APPLICATION_JSON)
-                .consumes(APPLICATION_XML)
-                .consumes(APPLICATION_YAML)
-                .produces(APPLICATION_JSON)
-                .produces(APPLICATION_XML)
-                .produces(APPLICATION_YAML);
+                .consumes(APPLICATION_JSON.toString())
+                .consumes(APPLICATION_XML.toString())
+                .consumes(APPLICATION_YAML.toString())
+                .produces(APPLICATION_JSON.toString())
+                .produces(APPLICATION_XML.toString())
+                .produces(APPLICATION_YAML.toString().toString());
 
         addRoute(HttpMethod.GET, this::get)
-                .produces(APPLICATION_JSON)
-                .produces(APPLICATION_XML)
-                .produces(APPLICATION_YAML);
+                .produces(APPLICATION_JSON.toString())
+                .produces(APPLICATION_XML.toString())
+                .produces(APPLICATION_YAML.toString());
 
         addRoute(HttpMethod.GET, "/:identifier", this::getUser)
-                .produces(APPLICATION_JSON)
-                .produces(APPLICATION_XML)
-                .produces(APPLICATION_YAML);
+                .produces(APPLICATION_JSON.toString())
+                .produces(APPLICATION_XML.toString())
+                .produces(APPLICATION_YAML.toString());
 
         addRoute(HttpMethod.PUT, "/:identifier", this::putUser)
-                .consumes(APPLICATION_JSON)
-                .consumes(APPLICATION_XML)
-                .consumes(APPLICATION_YAML)
-                .produces(APPLICATION_JSON)
-                .produces(APPLICATION_XML)
-                .produces(APPLICATION_YAML);
+                .consumes(APPLICATION_JSON.toString())
+                .consumes(APPLICATION_XML.toString())
+                .consumes(APPLICATION_YAML.toString())
+                .produces(APPLICATION_JSON.toString())
+                .produces(APPLICATION_XML.toString())
+                .produces(APPLICATION_YAML.toString());
 	}
 
-	private void post(RoutingContext routingContext) {
+    private Marshaller<User> getUsersMarshaller(MIMETypes mimeType) {
+        return Presentation.getMarshaller(User.class, mimeType);
+    }
+
+    private Unmarshaller<User> getUsersUnmarshaller(MIMETypes mimeType) {
+        return Presentation.getUnmarshaller(User.class, mimeType);
+    }
+
+    private Marshaller<Link> getLinkMarshaller(MIMETypes mimeType) {
+        return Presentation.getMarshaller(Link.class, mimeType);
+    }
+
+    private Unmarshaller<Link> getLinkUnmarshaller(MIMETypes mimeType) {
+        return Presentation.getUnmarshaller(Link.class, mimeType);
+    }
+
+    private void post(RoutingContext routingContext) {
 		final UsersApi api = UsersApi.get(routingContext);
         final Future<Link> result = Future.future();
-        result.setHandler(responseHandler(routingContext));
+        final MIMETypes mimeType = MIMETypes.parse(routingContext.parsedHeaders().contentType().value());
+        result.setHandler(responseHandler(routingContext, this::getLinkMarshaller));
 
 		try {
-			final User user = User.parse(routingContext.parsedHeaders().contentType().value(), routingContext.getBodyAsString());
+			final User user = getUsersUnmarshaller(mimeType).fromString(routingContext.getBodyAsString());
             validateUserForPost(user);
 			api.createUser(user, result.completer());
 		} catch(HttpError e) {
             result.fail(e);
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (/*IOException | */IllegalArgumentException e) {
 			result.fail(new BadContentError(e));
 		}
 	}
@@ -77,8 +94,9 @@ public class UsersPath extends Path {
 
     private void get(RoutingContext routingContext) {
         final UsersApi api = UsersApi.get(routingContext);
-        final Future<ListOfUsers> result = Future.future();
-        result.setHandler(responseHandler(routingContext, this::cleanUsers));
+        final Future<Collection<? extends User>> result = Future.future();
+
+        result.setHandler(responseHandlerWithManyContents(routingContext, this::getUsersMarshaller, x -> cleanUsers(x)));
 
         try {
             final Optional<Integer> skip = Optional.ofNullable(routingContext.queryParams().get("skip")).map(Integer::parseInt);
@@ -93,17 +111,15 @@ public class UsersPath extends Path {
         }
 	}
 
-    private ListOfUsers cleanUsers(ListOfUsers list) {
-        return new ListOfUsers(
-                list.stream().map(this::cleanUser)
-        );
+    private Collection<? extends User> cleanUsers(Collection<? extends User> list) {
+        return list.stream().map(this::cleanUser).collect(Collectors.toList());
     }
 
 
     private void getUser(RoutingContext routingContext) {
         final UsersApi api = UsersApi.get(routingContext);
         final Future<User> result = Future.future();
-        result.setHandler(responseHandler(routingContext, this::cleanUser));
+        result.setHandler(responseHandler(routingContext, this::getUsersMarshaller, this::cleanUser));
 
         try {
             final String identifier = routingContext.pathParam("identifier");
@@ -117,17 +133,18 @@ public class UsersPath extends Path {
 
     private void putUser(RoutingContext routingContext) {
         final UsersApi api = UsersApi.get(routingContext);
+        final MIMETypes mimeType = MIMETypes.parse(routingContext.parsedHeaders().contentType().value());
         final Future<User> result = Future.future();
-        result.setHandler(responseHandler(routingContext, this::cleanUser));
+        result.setHandler(responseHandler(routingContext, this::getUsersMarshaller, this::cleanUser));
 
         try {
-            final User user = User.parse(routingContext.parsedHeaders().contentType().value(), routingContext.getBodyAsString());
+            final User user = getUsersUnmarshaller(mimeType).fromString(routingContext.getBodyAsString()); // = User.parse(routingContext.parsedHeaders().contentType().value(), routingContext.getBodyAsString());
             validateUserForPutUser(user);
 
             api.updateUser(routingContext.pathParam("identifier"), user, result.completer());
         } catch(HttpError e) {
             result.fail(e);
-        } catch (IllegalArgumentException | IOException e) {
+        } catch (IllegalArgumentException /*| IOException */ e) {
             result.fail(new BadContentError(e));
         }
     }
