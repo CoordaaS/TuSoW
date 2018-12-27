@@ -68,17 +68,7 @@ public abstract class Path {
 
 	protected <X> Handler<AsyncResult<X>> responseHandler(RoutingContext routingContext, Function<MIMETypes, Marshaller<X>> marshaller, Function<X, X> cleaner) {
 		return x -> {
-			if (x.failed() && x.cause() instanceof HttpError) {
-				final HttpError exception = (HttpError) x.cause();
-				routingContext.response()
-						.setStatusCode(exception.getStatusCode())
-						.end(exception.getMessage());
-			} else if (x.failed()) {
-				routingContext.response()
-						.setStatusCode(500)
-						.end("Internal Server Error");
-
-			} else {
+            if (!handleException(routingContext, x)) {
 			    try {
                     final X cleanResult = cleaner.apply(x.result());
                     final MIMETypes mimeType = MIMETypes.parse(routingContext.getAcceptableContentType());
@@ -94,32 +84,39 @@ public abstract class Path {
                             .putHeader(HttpHeaders.CONTENT_TYPE, mimeType.toString())
                             .setStatusCode(200)
                             .end(result);
-                } catch (HttpError e)  {
-					routingContext.response()
-							.setStatusCode(e.getStatusCode())
-							.end(e.getMessage());
-				} catch (Exception e) {
-                    routingContext.response()
-                            .setStatusCode(500)
-                            .end("Internal Server Error");
+                } catch (Throwable e)  {
+                    handleException(routingContext, e);
                 }
 			}
 		};
 	}
 
+	private <X> boolean handleException(RoutingContext routingContext, AsyncResult<X> x) {
+        if (x.failed()) {
+            handleException(routingContext, x.cause());
+            return true;
+        }
+        return false;
+    }
+
+    private void handleException(RoutingContext routingContext, Throwable e) {
+	    LOGGER.debug(e.getMessage(), e);
+        if (e instanceof HttpError) {
+            final HttpError exception = (HttpError) e;
+            routingContext.response()
+                    .setStatusCode(exception.getStatusCode())
+                    .end(exception.getMessage());
+        } else {
+            routingContext.response()
+                    .setStatusCode(500)
+                    .end("Internal Server Error");
+
+        }
+    }
+
 	protected <X> Handler<AsyncResult<Collection<? extends X>>> responseHandlerWithManyContents(RoutingContext routingContext, Function<MIMETypes, Marshaller<X>> marshaller, Function<Collection<? extends X>, Collection<? extends X>> cleaner) {
 		return x -> {
-			if (x.failed() && x.cause() instanceof HttpError) {
-				final HttpError exception = (HttpError) x.cause();
-				routingContext.response()
-						.setStatusCode(exception.getStatusCode())
-						.end(exception.getMessage());
-			} else if (x.failed()) {
-				routingContext.response()
-						.setStatusCode(500)
-						.end("Internal Server Error");
-
-			} else {
+			if (!handleException(routingContext, x)) {
 				try {
 					final Collection<? extends X> cleanResult = cleaner.apply(x.result());
 					final MIMETypes mimeType = MIMETypes.parse(routingContext.getAcceptableContentType());
@@ -131,32 +128,16 @@ public abstract class Path {
 							.putHeader(HttpHeaders.CONTENT_TYPE, mimeType.toString())
 							.setStatusCode(cleanResult.isEmpty() ? 204 : 200)
 							.end(result);
-				} catch (HttpError e)  {
-					routingContext.response()
-							.setStatusCode(e.getStatusCode())
-							.end(e.getMessage());
-				} catch (Exception e) {
-					routingContext.response()
-							.setStatusCode(500)
-							.end("Internal Server Error");
+				} catch (Throwable e)  {
+				    handleException(routingContext, e);
 				}
 			}
 		};
 	}
 
-	protected Handler<AsyncResult<Void>> responseHandlerWithNoContent(RoutingContext routingContext) {
+	protected <X> Handler<AsyncResult<X>> responseHandlerWithNoContent(RoutingContext routingContext) {
 		return x -> {
-			if (x.failed() && x.cause() instanceof HttpError) {
-				final HttpError exception = (HttpError) x.cause();
-				routingContext.response()
-						.setStatusCode(exception.getStatusCode())
-						.end(exception.getMessage());
-			} else if (x.failed()) {
-				routingContext.response()
-						.setStatusCode(500)
-						.end("Internal Server Error");
-
-			} else {
+            if (!handleException(routingContext, x)) {
 				routingContext.response()
 						.setStatusCode(204)
 						.end();

@@ -19,6 +19,6 @@ public interface UsersApi extends Api {
     void updateUser(String identifier, User newUserData, Handler<AsyncResult<User>> handler);
 
     static UsersApi get(RoutingContext context) {
-        return null;
+        throw new UnsupportedOperationException("not implemented");
     }
 }

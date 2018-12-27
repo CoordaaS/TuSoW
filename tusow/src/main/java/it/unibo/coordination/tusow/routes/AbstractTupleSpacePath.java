@@ -62,6 +62,7 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
     public void post(RoutingContext routingContext) {
         final var api = getTupleSpaceApi(routingContext);
         final Future<Collection<? extends T>> result = Future.future();
+        result.setHandler(responseHandlerWithNoContent(routingContext));
 
         try {
             final String tupleSpaceName = routingContext.pathParam("tupleSpaceName");

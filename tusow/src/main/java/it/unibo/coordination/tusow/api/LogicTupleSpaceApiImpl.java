@@ -12,7 +12,6 @@ import it.unibo.coordination.linda.logic.LogicTuple;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.NotImplementedError;
 import it.unibo.coordination.tusow.linda.TupleSpaces;
-import it.unibo.coordination.tusow.presentation.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -95,9 +94,9 @@ class LogicTupleSpaceApiImpl extends AbstractApi implements LogicTupleSpaceApi {
                 ));
             });
         } else if (predicative) {
-            logicSpace.take(template).thenAcceptAsync(singleMatchHandler);
-        } else {
             logicSpace.tryTake(template).thenAcceptAsync(singleMatchHandler);
+        } else {
+            logicSpace.take(template).thenAcceptAsync(singleMatchHandler);
         }
     }
 

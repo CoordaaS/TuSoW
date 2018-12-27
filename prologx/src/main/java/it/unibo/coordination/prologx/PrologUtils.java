@@ -239,7 +239,7 @@ public class PrologUtils {
             if (struct.getArity() == 0) {
                 return struct.getName();
             } else {
-                return Map.of("fun", struct.getName(), "args", argumentsStream(struct).collect(Collectors.toList()));
+                return Map.of("fun", struct.getName(), "args", argumentsStream(struct).map(PrologUtils::termToDynamicObject).collect(Collectors.toList()));
             }
         }
         throw new IllegalStateException();
