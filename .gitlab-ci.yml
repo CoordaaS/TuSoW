@@ -1,4 +1,4 @@
-image: openjdk:11-jdk-slim
+image: gciatto/my-images:jdk11-gradlew5
 
 variables:
   GOPTS: "--no-daemon --console=plain"
