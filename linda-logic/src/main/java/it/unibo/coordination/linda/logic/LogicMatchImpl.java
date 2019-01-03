@@ -41,7 +41,7 @@ class LogicMatchImpl implements LogicMatch {
     @Override
     public Optional<Term> get(String variableName) {
         try {
-            if (solveInfo != null && solveInfo.isSuccess()) {
+            if (isMatching()) {
                 return Optional.ofNullable(solveInfo.getVarValue(variableName));
             } else {
                 return Optional.empty();
