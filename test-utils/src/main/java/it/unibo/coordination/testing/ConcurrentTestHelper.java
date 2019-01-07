@@ -6,6 +6,8 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ConcurrentTestHelper {
 
@@ -106,11 +108,13 @@ public class ConcurrentTestHelper {
 
     public <T> void assertOneOf(final Future<T> actualFuture, final T expected1,
             @SuppressWarnings("unchecked") final T... expected) {
+        assertOneOf(actualFuture, Stream.concat(Stream.of(expected1), Stream.of(expected)).collect(Collectors.toSet()));
+    }
+
+    public <T> void assertOneOf(final Future<T> actualFuture, final Collection<? extends T> expected) {
         try {
             final T actual = actualFuture.get(GET_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
-            final Set<T> set = new HashSet<>(Arrays.asList(expected));
-            set.add(expected1);
-            assertTrue(set.contains(actual));
+            assertTrue(expected.contains(actual));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             fail(e);
         }

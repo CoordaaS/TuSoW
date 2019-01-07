@@ -7,4 +7,5 @@ include 'utils'
 include 'prologx'
 include 'test-utils'
 include 'linda-strings'
+include 'linda-test'
 

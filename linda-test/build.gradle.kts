@@ -10,10 +10,11 @@ repositories {
 }
 
 dependencies {
-    api(project(":linda-core"))
-    implementation("com.github.tony19:named-regexp:0.2.5")
 
-    testImplementation("junit", "junit", "4.12") 
+    api("junit", "junit", "4.12")
+    api(project(":linda-core"))
+    implementation(project(":test-utils"))
+    implementation("org.javatuples:javatuples:1.2")
 }
 
 configure<JavaPluginConvention> {
