@@ -32,7 +32,7 @@ class RegularMatchImpl implements RegularMatch {
 
     @Override
     public boolean isMatching() {
-        if (matchingCache.isEmpty()) {
+        if (!matchingCache.isPresent()) {
             matchingCache = Optional.of(
                     matcher != null && getTuple().isPresent()
                         && matcher.matches()
@@ -70,7 +70,7 @@ class RegularMatchImpl implements RegularMatch {
 
     @Override
     public Map<Object, String> toMap() {
-        if (toMapCache.isEmpty()) {
+        if (!toMapCache.isPresent()) {
             if (isMatching()) {
                 final Map<Object, String> map = new HashMap<>();
                 for (int i = 0; i < matcher.groupCount(); i++) {

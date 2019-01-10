@@ -321,7 +321,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
     protected abstract T messageTuple(String recipient, String payload);
     protected abstract TT messageTemplate(String recipient);
-    protected abstract TT getGenaralMessageTemplate();
+    protected abstract TT getGeneralMessageTemplate();
 
 
     @Test
@@ -368,8 +368,8 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
                 test.assertEventuallyReturns(tupleSpace.write(tuple4Bob));
                 test.assertEventuallyReturns(tupleSpace.write(tuple4Carl));
 
-                test.assertOneOf(tupleSpace.takeTuple(getGenaralMessageTemplate()), tuple4Bob, tuple4Carl);
-                test.assertOneOf(tupleSpace.takeTuple(getGenaralMessageTemplate()), tuple4Bob, tuple4Carl);
+                test.assertOneOf(tupleSpace.takeTuple(getGeneralMessageTemplate()), tuple4Bob, tuple4Carl);
+                test.assertOneOf(tupleSpace.takeTuple(getGeneralMessageTemplate()), tuple4Bob, tuple4Carl);
 
                 stop();
             }
@@ -551,7 +551,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         final var someTuplesOfTwoSorts = getSomeTuplesOfTwoSorts();
 
-        final MultiSet<T> tuples = someTuplesOfTwoSorts.getValue0();
+        final MultiSet<T> tuples = new HashMultiSet<>(someTuplesOfTwoSorts.getValue0());
         tuples.addAll(someTuplesOfTwoSorts.getValue2());
 
         final TT template = someTuplesOfTwoSorts.getValue1();
@@ -653,7 +653,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         final var someTuplesOfTwoSorts = getSomeTuplesOfTwoSorts();
 
-        final MultiSet<T> tuples = someTuplesOfTwoSorts.getValue0();
+        final MultiSet<T> tuples = new HashMultiSet<>(someTuplesOfTwoSorts.getValue0());
         tuples.addAll(someTuplesOfTwoSorts.getValue2());
 
         final TT template = someTuplesOfTwoSorts.getValue1();

@@ -13,7 +13,8 @@ dependencies {
     api(project(":linda-core"))
     implementation("com.github.tony19:named-regexp:0.2.5")
 
-    testImplementation("junit", "junit", "4.12") 
+    testImplementation("junit", "junit", "4.12")
+    testImplementation(project(":linda-test"))
 }
 
 configure<JavaPluginConvention> {

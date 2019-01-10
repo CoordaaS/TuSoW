@@ -25,4 +25,6 @@ public interface StringTuple extends Tuple {
     static int hashCode(StringTuple t) {
         return Objects.hashCode(t.getTuple());
     }
+
+
 }

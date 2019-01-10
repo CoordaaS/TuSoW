@@ -12,7 +12,7 @@ class StringTupleImpl implements StringTuple {
 
     @Override
     public String getTuple() {
-        return null;
+        return tuple;
     }
 
     @Override
@@ -26,5 +26,10 @@ class StringTupleImpl implements StringTuple {
     @Override
     public int hashCode() {
         return StringTuple.hashCode(this);
+    }
+
+    @Override
+    public String toString() {
+        return "\"" + tuple + "\"";
     }
 }

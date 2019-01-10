@@ -25,7 +25,11 @@ class RegexTemplateImpl implements RegexTemplate {
 
     @Override
     public RegularMatch matchWith(Tuple tuple) {
-        return null;
+        if (tuple instanceof StringTuple) {
+            return new RegularMatchImpl(this, pattern.matcher(((StringTuple) tuple).getTuple()), tuple);
+        }
+
+        return RegularMatch.failed(this);
     }
 
     @Override
@@ -36,5 +40,10 @@ class RegexTemplateImpl implements RegexTemplate {
     @Override
     public int hashCode() {
         return 0;
+    }
+
+    @Override
+    public String toString() {
+        return "/" + pattern + "/";
     }
 }
