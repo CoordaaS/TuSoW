@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
-class DeterministicStringSpace extends AbstractTupleSpace<StringTuple, RegexTemplate, Object, String> implements StringSpace {
+class DeterministicStringSpace extends AbstractTupleSpace<StringTuple, RegexTemplate, Object, String> implements InspectableStringSpace {
 
     private final MultiSet<PendingRequest> pendingRequests = new HashMultiSet<>();
     private final MultiSet<StringTuple> tuples = new HashMultiSet<>();

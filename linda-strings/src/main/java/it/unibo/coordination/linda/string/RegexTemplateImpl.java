@@ -33,13 +33,16 @@ class RegexTemplateImpl implements RegexTemplate {
     }
 
     @Override
-    public boolean equals(Object other) {
-        return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RegexTemplate that = (RegexTemplate) o;
+        return RegexTemplate.equals(this, that);
     }
 
     @Override
     public int hashCode() {
-        return 0;
+        return RegexTemplate.hashCode(this);
     }
 
     @Override
