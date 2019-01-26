@@ -7,8 +7,6 @@ import it.unibo.coordination.testing.ActiveObject;
 import it.unibo.coordination.testing.ConcurrentTestHelper;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
-import org.javatuples.Pair;
-import org.javatuples.Quartet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,12 +16,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V, TS extends ExtendedTupleSpace<T, TT, K, V>> {
+public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V, TS extends ExtendedTupleSpace<T, TT, K, V>> extends TestBaseLinda<T, TT> {
 
     protected ExecutorService executor;
     protected ExtendedTupleSpace<T, TT, K, V> tupleSpace;
     protected ConcurrentTestHelper test;
     protected Random rand;
+
+    public TestTupleSpace(TupleTemplateFactory<T, TT> tupleTemplateFactory) {
+        super(tupleTemplateFactory);
+    }
 
     protected abstract TS getTupleSpace(ExecutorService executor);
 
@@ -57,8 +59,6 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
         test.await();
         alice.await();
     }
-
-    protected abstract TT getATemplate();
 
     @Test
     public void testReadSuspensiveSemantics() throws Exception {
@@ -108,8 +108,6 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
         alice.await();
     }
 
-    protected abstract T getATuple();
-
     @Test
     public void testWriteGenerativeSemantics() throws Exception {
         test.setThreadCount(1);
@@ -136,8 +134,6 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
         test.await();
         alice.await();
     }
-
-    protected abstract Pair<T, TT> getATupleAndATemplateMatchingIt();
 
     @Test
     public void testReadIsIdempotent1() throws Exception {
@@ -319,23 +315,18 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
         bob.await();
     }
 
-    protected abstract T messageTuple(String recipient, String payload);
-    protected abstract TT messageTemplate(String recipient);
-    protected abstract TT getGenaralMessageTemplate();
-
-
     @Test
     public void testAssociativeAccess() throws Exception {
         test.setThreadCount(3);
 
-        final T tuple4Bob = messageTuple("Bob", "hi Bob");
-        final T tuple4Carl = messageTuple("Carl", "hi Carl");
+        final T tuple4Bob = getMessageTuple("Bob", "hi Bob");
+        final T tuple4Carl = getMessageTuple("Carl", "hi Carl");
 
         final ActiveObject carl = new ActiveObject("Carl") {
 
             @Override
             protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.readTuple(messageTemplate("Carl")), tuple4Carl);
+                test.assertEquals(tupleSpace.readTuple(getMessageTemplate("Carl")), tuple4Carl);
                 stop();
             }
 
@@ -350,7 +341,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
             @Override
             protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.readTuple(messageTemplate("Bob")), tuple4Bob);
+                test.assertEquals(tupleSpace.readTuple(getMessageTemplate("Bob")), tuple4Bob);
                 stop();
             }
 
@@ -368,8 +359,8 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
                 test.assertEventuallyReturns(tupleSpace.write(tuple4Bob));
                 test.assertEventuallyReturns(tupleSpace.write(tuple4Carl));
 
-                test.assertOneOf(tupleSpace.takeTuple(getGenaralMessageTemplate()), tuple4Bob, tuple4Carl);
-                test.assertOneOf(tupleSpace.takeTuple(getGenaralMessageTemplate()), tuple4Bob, tuple4Carl);
+                test.assertOneOf(tupleSpace.takeTuple(getGeneralMessageTemplate()), tuple4Bob, tuple4Carl);
+                test.assertOneOf(tupleSpace.takeTuple(getGeneralMessageTemplate()), tuple4Bob, tuple4Carl);
 
                 stop();
             }
@@ -421,8 +412,6 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
         test.await();
         alice.await();
     }
-
-    protected abstract MultiSet<T> getSomeTuples();
 
     @Test
     public void testGetAll() throws Exception {
@@ -486,8 +475,6 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
         alice.await();
     }
 
-    protected abstract Quartet<MultiSet<T>, TT, MultiSet<T>, TT> getSomeTuplesOfTwoSorts();
-
     @Test
     public void testWriteAllResumesSuspendedOperations() throws Exception {
         test.setThreadCount(2);
@@ -543,15 +530,13 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
         bob.await();
     }
 
-    protected abstract Pair<MultiSet<T>, TT> getSomeTuplesOfOneSort();
-
     @Test
     public void testReadAll() throws Exception {
         test.setThreadCount(1);
 
         final var someTuplesOfTwoSorts = getSomeTuplesOfTwoSorts();
 
-        final MultiSet<T> tuples = someTuplesOfTwoSorts.getValue0();
+        final MultiSet<T> tuples = new HashMultiSet<>(someTuplesOfTwoSorts.getValue0());
         tuples.addAll(someTuplesOfTwoSorts.getValue2());
 
         final TT template = someTuplesOfTwoSorts.getValue1();
@@ -653,7 +638,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         final var someTuplesOfTwoSorts = getSomeTuplesOfTwoSorts();
 
-        final MultiSet<T> tuples = someTuplesOfTwoSorts.getValue0();
+        final MultiSet<T> tuples = new HashMultiSet<>(someTuplesOfTwoSorts.getValue0());
         tuples.addAll(someTuplesOfTwoSorts.getValue2());
 
         final TT template = someTuplesOfTwoSorts.getValue1();

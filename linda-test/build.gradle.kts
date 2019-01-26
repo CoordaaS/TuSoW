@@ -13,8 +13,8 @@ dependencies {
 
     api("junit", "junit", "4.12")
     api(project(":linda-core"))
-    implementation(project(":test-utils"))
-    implementation("org.javatuples:javatuples:1.2")
+    api(project(":test-utils"))
+    api("org.javatuples:javatuples:1.2")
 }
 
 configure<JavaPluginConvention> {

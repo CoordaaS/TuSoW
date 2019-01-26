@@ -16,7 +16,7 @@ dependencies {
     implementation(project(":prologx"))
 
     testImplementation("junit", "junit", "4.12")
-    testImplementation(project(":test-utils"))
+    testImplementation(project(":linda-test"))
 }
 
 configure<JavaPluginConvention> {

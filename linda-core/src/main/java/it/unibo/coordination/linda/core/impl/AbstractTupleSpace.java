@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K, V> implements ExtendedTupleSpace<T, TT, K, V>, InspectableTupleSpace<T, TT, K, V> {
+public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K, V> implements InspectableExtendedTupleSpace<T, TT, K, V> {
 
     private static final boolean DEBUG = true;
 

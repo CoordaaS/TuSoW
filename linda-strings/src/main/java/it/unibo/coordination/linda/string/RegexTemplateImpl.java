@@ -25,16 +25,28 @@ class RegexTemplateImpl implements RegexTemplate {
 
     @Override
     public RegularMatch matchWith(Tuple tuple) {
-        return null;
+        if (tuple instanceof StringTuple) {
+            return new RegularMatchImpl(this, pattern.matcher(((StringTuple) tuple).getTuple()), tuple);
+        }
+
+        return RegularMatch.failed(this);
     }
 
     @Override
-    public boolean equals(Object other) {
-        return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RegexTemplate that = (RegexTemplate) o;
+        return RegexTemplate.equals(this, that);
     }
 
     @Override
     public int hashCode() {
-        return 0;
+        return RegexTemplate.hashCode(this);
+    }
+
+    @Override
+    public String toString() {
+        return "/" + pattern + "/";
     }
 }
