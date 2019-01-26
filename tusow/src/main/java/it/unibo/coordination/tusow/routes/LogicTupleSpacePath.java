@@ -5,12 +5,12 @@ import io.vertx.ext.web.RoutingContext;
 import it.unibo.coordination.linda.logic.LogicMatch;
 import it.unibo.coordination.linda.logic.LogicTemplate;
 import it.unibo.coordination.linda.logic.LogicTuple;
+import it.unibo.coordination.linda.presentation.Deserializer;
+import it.unibo.coordination.linda.presentation.MIMETypes;
+import it.unibo.coordination.linda.presentation.Presentation;
+import it.unibo.coordination.linda.presentation.Serializer;
 import it.unibo.coordination.tusow.api.LogicTupleSpaceApi;
 import it.unibo.coordination.tusow.api.TupleSpaceApi;
-import it.unibo.coordination.tusow.presentation.MIMETypes;
-import it.unibo.coordination.tusow.presentation.Marshaller;
-import it.unibo.coordination.tusow.presentation.Presentation;
-import it.unibo.coordination.tusow.presentation.Unmarshaller;
 
 public class LogicTupleSpacePath extends AbstractTupleSpacePath<LogicTuple, LogicTemplate, String, Term, LogicMatch> {
 
@@ -24,33 +24,33 @@ public class LogicTupleSpacePath extends AbstractTupleSpacePath<LogicTuple, Logi
     }
 
     @Override
-    protected Marshaller<LogicTuple> getTuplesMarshaller(MIMETypes mimeType) {
-        return Presentation.getMarshaller(LogicTuple.class, mimeType);
+    protected Serializer<LogicTuple> getTuplesMarshaller(MIMETypes mimeType) {
+        return Presentation.getSerializer(LogicTuple.class, mimeType);
     }
 
     @Override
-    protected Marshaller<LogicTemplate> getTemplatesMarshaller(MIMETypes mimeType) {
-        return Presentation.getMarshaller(LogicTemplate.class, mimeType);
+    protected Serializer<LogicTemplate> getTemplatesMarshaller(MIMETypes mimeType) {
+        return Presentation.getSerializer(LogicTemplate.class, mimeType);
     }
 
     @Override
-    protected Marshaller<LogicMatch> getMatchMarshaller(MIMETypes mimeType) {
-        return Presentation.getMarshaller(LogicMatch.class, mimeType);
+    protected Serializer<LogicMatch> getMatchMarshaller(MIMETypes mimeType) {
+        return Presentation.getSerializer(LogicMatch.class, mimeType);
     }
 
     @Override
-    protected Unmarshaller<LogicTuple> getTuplesUnmarshaller(MIMETypes mimeType) {
-        return Presentation.getUnmarshaller(LogicTuple.class, mimeType);
+    protected Deserializer<LogicTuple> getTuplesUnmarshaller(MIMETypes mimeType) {
+        return Presentation.getDeserializer(LogicTuple.class, mimeType);
     }
 
     @Override
-    protected Unmarshaller<LogicTemplate> getTemplatesUnmarshaller(MIMETypes mimeType) {
-        return Presentation.getUnmarshaller(LogicTemplate.class, mimeType);
+    protected Deserializer<LogicTemplate> getTemplatesUnmarshaller(MIMETypes mimeType) {
+        return Presentation.getDeserializer(LogicTemplate.class, mimeType);
     }
 
     @Override
-    protected Unmarshaller<LogicMatch> getMatchUnmarshaller(MIMETypes mimeType) {
-        return Presentation.getUnmarshaller(LogicMatch.class, mimeType);
+    protected Deserializer<LogicMatch> getMatchUnmarshaller(MIMETypes mimeType) {
+        return Presentation.getDeserializer(LogicMatch.class, mimeType);
     }
 
 

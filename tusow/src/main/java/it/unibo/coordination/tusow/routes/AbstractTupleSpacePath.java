@@ -5,13 +5,13 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.Template;
+import it.unibo.coordination.linda.presentation.Deserializer;
+import it.unibo.coordination.linda.presentation.MIMETypes;
+import it.unibo.coordination.linda.presentation.Serializer;
 import it.unibo.coordination.tusow.api.TupleSpaceApi;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
 import it.unibo.coordination.tusow.exceptions.InternalServerError;
-import it.unibo.coordination.tusow.presentation.MIMETypes;
-import it.unibo.coordination.tusow.presentation.Marshaller;
-import it.unibo.coordination.tusow.presentation.Unmarshaller;
 import org.jooq.lambda.tuple.Tuple;
 import org.jooq.lambda.tuple.Tuple3;
 import org.jooq.lambda.tuple.Tuple4;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static it.unibo.coordination.tusow.presentation.MIMETypes.*;
+import static it.unibo.coordination.linda.presentation.MIMETypes.*;
 
 public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.linda.core.Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>> extends Path {
 
@@ -134,13 +134,13 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
         }
     }
 
-    protected abstract Marshaller<T> getTuplesMarshaller(MIMETypes mimeType);
-    protected abstract Marshaller<TT> getTemplatesMarshaller(MIMETypes mimeType);
-    protected abstract Marshaller<M> getMatchMarshaller(MIMETypes mimeType);
+    protected abstract Serializer<T> getTuplesMarshaller(MIMETypes mimeType);
+    protected abstract Serializer<TT> getTemplatesMarshaller(MIMETypes mimeType);
+    protected abstract Serializer<M> getMatchMarshaller(MIMETypes mimeType);
 
-    protected abstract Unmarshaller<T> getTuplesUnmarshaller(MIMETypes mimeType);
-    protected abstract Unmarshaller<TT> getTemplatesUnmarshaller(MIMETypes mimeType);
-    protected abstract Unmarshaller<M> getMatchUnmarshaller(MIMETypes mimeType);
+    protected abstract Deserializer<T> getTuplesUnmarshaller(MIMETypes mimeType);
+    protected abstract Deserializer<TT> getTemplatesUnmarshaller(MIMETypes mimeType);
+    protected abstract Deserializer<M> getMatchUnmarshaller(MIMETypes mimeType);
 
     private Tuple4<String, Boolean, Boolean, TT> validateInputsForDelete(String tupleSpaceName, Optional<Boolean> bulk, Optional<Boolean> predicative, TT template) {
         return Tuple.tuple(

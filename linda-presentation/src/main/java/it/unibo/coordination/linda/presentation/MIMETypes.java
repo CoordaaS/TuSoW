@@ -1,4 +1,4 @@
-package it.unibo.coordination.tusow.presentation;
+package it.unibo.coordination.linda.presentation;
 
 import java.util.stream.Stream;
 

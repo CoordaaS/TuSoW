@@ -1,4 +1,4 @@
-package it.unibo.coordination.tusow.presentation;
+package it.unibo.coordination.linda.presentation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,12 +9,12 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.Objects;
 
-public class SimpleMarshaller<T> implements Marshaller<T> {
+public class SimpleSerializer<T> implements Serializer<T> {
 
     private final MIMETypes mimeType;
     private final ObjectMapper mapper;
 
-    public SimpleMarshaller(MIMETypes mimeType, ObjectMapper mapper) {
+    public SimpleSerializer(MIMETypes mimeType, ObjectMapper mapper) {
         this.mimeType = Objects.requireNonNull(mimeType);
         this.mapper = Objects.requireNonNull(mapper);
     }
@@ -67,7 +67,7 @@ public class SimpleMarshaller<T> implements Marshaller<T> {
         return mapper;
     }
 
-    protected final <X> Marshaller<X> getMarshaller(Class<X> klass) {
-        return Presentation.getMarshaller(klass, mimeType);
+    public final <X> Serializer<X> getMarshaller(Class<X> klass) {
+        return Presentation.getSerializer(klass, mimeType);
     }
 }

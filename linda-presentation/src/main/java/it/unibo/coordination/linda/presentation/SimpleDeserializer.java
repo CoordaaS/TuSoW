@@ -1,4 +1,4 @@
-package it.unibo.coordination.tusow.presentation;
+package it.unibo.coordination.linda.presentation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,13 +9,13 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.Objects;
 
-public class SimpleUnmarshaller<T> implements Unmarshaller<T> {
+public class SimpleDeserializer<T> implements Deserializer<T> {
 
     private final Class<T> clazz;
     private final MIMETypes mimeType;
     private final ObjectMapper mapper;
 
-    public SimpleUnmarshaller(Class<T> clazz, MIMETypes mimeType, ObjectMapper mapper) {
+    public SimpleDeserializer(Class<T> clazz, MIMETypes mimeType, ObjectMapper mapper) {
         this.clazz = Objects.requireNonNull(clazz);
         this.mimeType = Objects.requireNonNull(mimeType);
         this.mapper = Objects.requireNonNull(mapper);
@@ -72,7 +72,7 @@ public class SimpleUnmarshaller<T> implements Unmarshaller<T> {
         return readImpl(reader, new TypeReference<List<T>>() {});
     }
 
-    protected final <X> Unmarshaller<X> getUnmarshaller(Class<X> klass) {
-        return Presentation.getUnmarshaller(klass, getSupportedMIMEType());
+    public final <X> Deserializer<X> getUnmarshaller(Class<X> klass) {
+        return Presentation.getDeserializer(klass, getSupportedMIMEType());
     }
 }

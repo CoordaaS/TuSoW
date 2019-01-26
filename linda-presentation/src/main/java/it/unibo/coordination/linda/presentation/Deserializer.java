@@ -1,10 +1,10 @@
-package it.unibo.coordination.tusow.presentation;
+package it.unibo.coordination.linda.presentation;
 
 import java.io.Reader;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public interface Unmarshaller<T> {
+public interface Deserializer<T> {
 
     Class<T> getSupportedType();
 

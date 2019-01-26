@@ -12,10 +12,10 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.ErrorHandler;
 import io.vertx.ext.web.handler.LoggerHandler;
+import it.unibo.coordination.linda.presentation.MIMETypes;
+import it.unibo.coordination.linda.presentation.Serializer;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
-import it.unibo.coordination.tusow.presentation.MIMETypes;
-import it.unibo.coordination.tusow.presentation.Marshaller;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -58,15 +58,15 @@ public abstract class Path {
 		return getPath() + "/" + subResource;
 	}
 
-    protected <X> Handler<AsyncResult<X>> responseHandler(RoutingContext routingContext, Function<MIMETypes, Marshaller<X>> marshaller) {
+    protected <X> Handler<AsyncResult<X>> responseHandler(RoutingContext routingContext, Function<MIMETypes, Serializer<X>> marshaller) {
 	    return responseHandler(routingContext, marshaller, Function.identity());
     }
 
-	protected <X> Handler<AsyncResult<Collection<? extends X>>> responseHandlerWithManyContents(RoutingContext routingContext, Function<MIMETypes, Marshaller<X>> marshaller) {
+	protected <X> Handler<AsyncResult<Collection<? extends X>>> responseHandlerWithManyContents(RoutingContext routingContext, Function<MIMETypes, Serializer<X>> marshaller) {
 		return responseHandlerWithManyContents(routingContext, marshaller, Function.identity());
 	}
 
-	protected <X> Handler<AsyncResult<X>> responseHandler(RoutingContext routingContext, Function<MIMETypes, Marshaller<X>> marshaller, Function<X, X> cleaner) {
+	protected <X> Handler<AsyncResult<X>> responseHandler(RoutingContext routingContext, Function<MIMETypes, Serializer<X>> marshaller, Function<X, X> cleaner) {
 		return x -> {
             if (!handleException(routingContext, x)) {
 			    try {
@@ -114,7 +114,7 @@ public abstract class Path {
         }
     }
 
-	protected <X> Handler<AsyncResult<Collection<? extends X>>> responseHandlerWithManyContents(RoutingContext routingContext, Function<MIMETypes, Marshaller<X>> marshaller, Function<Collection<? extends X>, Collection<? extends X>> cleaner) {
+	protected <X> Handler<AsyncResult<Collection<? extends X>>> responseHandlerWithManyContents(RoutingContext routingContext, Function<MIMETypes, Serializer<X>> marshaller, Function<Collection<? extends X>, Collection<? extends X>> cleaner) {
 		return x -> {
 			if (!handleException(routingContext, x)) {
 				try {

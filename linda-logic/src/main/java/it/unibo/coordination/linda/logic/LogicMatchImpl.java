@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 class LogicMatchImpl implements LogicMatch {
 
+//    private static final Prolog ENGINE = new Prolog();
+
     private final LogicTemplate logicTemplate;
     private final SolveInfo solveInfo;
     private final Tuple tuple;

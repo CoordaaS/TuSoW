@@ -1,4 +1,4 @@
-package it.unibo.coordination.tusow.presentation;
+package it.unibo.coordination.linda.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unibo.coordination.linda.logic.LogicMatch;
@@ -7,9 +7,9 @@ import it.unibo.coordination.linda.logic.LogicTuple;
 
 import java.util.Map;
 
-public class LogicMatchUnmarshaller extends DynamicUnmarshaller<LogicMatch> {
+public class LogicMatchDeserializer extends DynamicDeserializer<LogicMatch> {
 
-    public LogicMatchUnmarshaller(MIMETypes mimeType, ObjectMapper mapper) {
+    public LogicMatchDeserializer(MIMETypes mimeType, ObjectMapper mapper) {
         super(LogicMatch.class, mimeType, mapper);
     }
 

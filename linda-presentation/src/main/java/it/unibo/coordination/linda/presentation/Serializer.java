@@ -1,11 +1,11 @@
-package it.unibo.coordination.tusow.presentation;
+package it.unibo.coordination.linda.presentation;
 
 import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public interface Marshaller<T> {
+public interface Serializer<T> {
 
     MIMETypes getSupportedMIMEType();
 

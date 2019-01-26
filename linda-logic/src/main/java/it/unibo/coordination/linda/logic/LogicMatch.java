@@ -1,7 +1,10 @@
 package it.unibo.coordination.linda.logic;
 
+import alice.tuprolog.Struct;
 import alice.tuprolog.Term;
+import alice.tuprolog.Var;
 import it.unibo.coordination.linda.core.Match;
+import it.unibo.coordination.prologx.PrologUtils;
 
 import java.util.Map;
 import java.util.Optional;
@@ -41,7 +44,30 @@ public interface LogicMatch extends Match<LogicTuple, LogicTemplate, String, Ter
                 public Map<String, Term> toMap() {
                     return match.toMap();
                 }
+
             };
         }
+    }
+
+    static Struct getPattern() {
+        return new Struct("match",
+                new Struct("success", new Var("Success")),
+                LogicTemplate.getPattern(),
+                new Var("Tuple"),
+                new Struct("Mappings")
+        );
+    }
+
+    default Struct asTerm() {
+        return new Struct("match",
+                new Struct("success", isMatching() ? new Struct("yes") : new Struct("no")),
+                getTemplate().asTerm(),
+                getTuple().map(LogicTuple::asTerm).orElse(new Struct("empty")),
+                new Struct(
+                        toMap().entrySet().stream()
+                                .map(kv -> PrologUtils.unificationTerm(kv.getKey(), kv.getValue()))
+                                .toArray(Term[]::new)
+                )
+        );
     }
 }

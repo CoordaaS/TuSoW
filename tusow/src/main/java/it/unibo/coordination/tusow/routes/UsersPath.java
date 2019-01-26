@@ -3,17 +3,22 @@ package it.unibo.coordination.tusow.routes;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
+import it.unibo.coordination.linda.presentation.Deserializer;
+import it.unibo.coordination.linda.presentation.MIMETypes;
+import it.unibo.coordination.linda.presentation.Presentation;
+import it.unibo.coordination.linda.presentation.Serializer;
 import it.unibo.coordination.tusow.api.UsersApi;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
-import it.unibo.coordination.tusow.presentation.*;
+import it.unibo.coordination.tusow.presentation.Link;
+import it.unibo.coordination.tusow.presentation.User;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static it.unibo.coordination.tusow.presentation.MIMETypes.*;
+import static it.unibo.coordination.linda.presentation.MIMETypes.*;
 
 public class UsersPath extends Path {
 
@@ -51,20 +56,20 @@ public class UsersPath extends Path {
                 .produces(APPLICATION_YAML.toString());
 	}
 
-    private Marshaller<User> getUsersMarshaller(MIMETypes mimeType) {
-        return Presentation.getMarshaller(User.class, mimeType);
+    private Serializer<User> getUsersMarshaller(MIMETypes mimeType) {
+        return Presentation.getSerializer(User.class, mimeType);
     }
 
-    private Unmarshaller<User> getUsersUnmarshaller(MIMETypes mimeType) {
-        return Presentation.getUnmarshaller(User.class, mimeType);
+    private Deserializer<User> getUsersUnmarshaller(MIMETypes mimeType) {
+        return Presentation.getDeserializer(User.class, mimeType);
     }
 
-    private Marshaller<Link> getLinkMarshaller(MIMETypes mimeType) {
-        return Presentation.getMarshaller(Link.class, mimeType);
+    private Serializer<Link> getLinkMarshaller(MIMETypes mimeType) {
+        return Presentation.getSerializer(Link.class, mimeType);
     }
 
-    private Unmarshaller<Link> getLinkUnmarshaller(MIMETypes mimeType) {
-        return Presentation.getUnmarshaller(Link.class, mimeType);
+    private Deserializer<Link> getLinkUnmarshaller(MIMETypes mimeType) {
+        return Presentation.getDeserializer(Link.class, mimeType);
     }
 
     private void post(RoutingContext routingContext) {

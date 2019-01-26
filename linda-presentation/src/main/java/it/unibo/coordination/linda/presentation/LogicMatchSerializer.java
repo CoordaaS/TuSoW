@@ -1,4 +1,4 @@
-package it.unibo.coordination.tusow.presentation;
+package it.unibo.coordination.linda.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unibo.coordination.linda.logic.LogicMatch;
@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class LogicMatchMarshaller extends DynamicMarshaller<LogicMatch> {
+public class LogicMatchSerializer extends DynamicSerializer<LogicMatch> {
 
 
-    public LogicMatchMarshaller(MIMETypes mimeType, ObjectMapper mapper) {
+    public LogicMatchSerializer(MIMETypes mimeType, ObjectMapper mapper) {
         super(mimeType, mapper);
     }
 

@@ -1,14 +1,14 @@
-package it.unibo.coordination.tusow.presentation;
+package it.unibo.coordination.linda.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.Writer;
 import java.util.Collection;
 
-public abstract class DynamicMarshaller<T> extends SimpleMarshaller<T> {
+public abstract class DynamicSerializer<T> extends SimpleSerializer<T> {
 
 
-    public DynamicMarshaller(MIMETypes mimeType, ObjectMapper mapper) {
+    public DynamicSerializer(MIMETypes mimeType, ObjectMapper mapper) {
         super(mimeType, mapper);
     }
 

@@ -1,13 +1,13 @@
-package it.unibo.coordination.tusow.presentation;
+package it.unibo.coordination.linda.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.Reader;
 import java.util.List;
 
-public abstract class DynamicUnmarshaller<T> extends SimpleUnmarshaller<T> {
+public abstract class DynamicDeserializer<T> extends SimpleDeserializer<T> {
 
-    public DynamicUnmarshaller(Class<T> clazz, MIMETypes mimeType, ObjectMapper mapper) {
+    public DynamicDeserializer(Class<T> clazz, MIMETypes mimeType, ObjectMapper mapper) {
         super(clazz, mimeType, mapper);
     }
 
