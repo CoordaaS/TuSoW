@@ -2,6 +2,7 @@ package it.unibo.coordination.linda.presentation;
 
 import java.io.Reader;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public interface Deserializer<T> {
@@ -13,11 +14,11 @@ public interface Deserializer<T> {
     T fromDynamicObject(Object dynamicObject);
 
     default List<T> listFromDynamicObject(Object dynamicObject) {
-        if (!(dynamicObject instanceof List)) {
+        if (!(dynamicObject instanceof List) && !(dynamicObject instanceof Map)) {
             throw new IllegalArgumentException();
         }
 
-        var list = (List<?>) dynamicObject;
+        var list = (dynamicObject instanceof List) ? (List<?>) dynamicObject : List.of((Map<?, ?>) dynamicObject);
 
         return list.stream().map(this::fromDynamicObject).collect(Collectors.toList());
     }

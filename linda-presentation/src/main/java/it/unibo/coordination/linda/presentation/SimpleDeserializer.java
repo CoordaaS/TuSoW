@@ -72,7 +72,7 @@ public class SimpleDeserializer<T> implements Deserializer<T> {
         return readImpl(reader, new TypeReference<List<T>>() {});
     }
 
-    public final <X> Deserializer<X> getUnmarshaller(Class<X> klass) {
+    public final <X> Deserializer<X> getDeserializer(Class<X> klass) {
         return Presentation.getDeserializer(klass, getSupportedMIMEType());
     }
 }

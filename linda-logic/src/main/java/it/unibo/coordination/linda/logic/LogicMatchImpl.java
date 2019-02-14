@@ -76,7 +76,7 @@ class LogicMatchImpl implements LogicMatch {
     public String toString() {
         try {
             if (solveInfo != null && solveInfo.isSuccess()) {
-                return solveInfo.getBindingVars().stream()
+                return "yes: " + solveInfo.getBindingVars().stream()
                         .map(v -> String.format("%s/%s", v.getOriginalName(), v.getTerm()))
                         .collect(Collectors.joining("; "));
             } else {

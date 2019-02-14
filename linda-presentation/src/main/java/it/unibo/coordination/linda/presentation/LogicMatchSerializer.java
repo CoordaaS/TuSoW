@@ -21,9 +21,9 @@ public class LogicMatchSerializer extends DynamicSerializer<LogicMatch> {
     public Object toDynamicObject(LogicMatch object) {
         final var matchMap = new HashMap<String, Object>();
 
-        matchMap.put("tuple", object.getTuple().map(t -> getMarshaller(LogicTuple.class).toDynamicObject(t)).orElse(null));
+        matchMap.put("tuple", object.getTuple().map(t -> getSerializer(LogicTuple.class).toDynamicObject(t)).orElse(null));
 
-        matchMap.put("template", getMarshaller(LogicTemplate.class).toDynamicObject(object.getTemplate()));
+        matchMap.put("template", getSerializer(LogicTemplate.class).toDynamicObject(object.getTemplate()));
 
         matchMap.put("match", object.isMatching());
 

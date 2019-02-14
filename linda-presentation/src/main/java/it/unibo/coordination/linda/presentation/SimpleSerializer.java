@@ -67,7 +67,7 @@ public class SimpleSerializer<T> implements Serializer<T> {
         return mapper;
     }
 
-    public final <X> Serializer<X> getMarshaller(Class<X> klass) {
+    public final <X> Serializer<X> getSerializer(Class<X> klass) {
         return Presentation.getSerializer(klass, mimeType);
     }
 }
