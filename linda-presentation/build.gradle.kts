@@ -5,9 +5,9 @@ plugins {
 group = rootProject.group
 version = rootProject.version
 
-repositories {
-    mavenCentral()
-}
+val javaVersion: String by project
+val namedRegexpVersion: String by project
+val junitVersion: String by project
 
 dependencies {
     api(project(":linda-core"))
@@ -17,23 +17,17 @@ dependencies {
     implementation(project(":utils"))
     implementation(project(":prologx"))
 
-//    api("io.vertx:vertx-core:3.6.2")
-//    api("io.vertx:vertx-web:3.6.2")
-
     implementation("com.fasterxml.jackson.core:jackson-core:2.9.8")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.8")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8")
     implementation("org.jooq:jool:0.9.14")
 
-    // Use JUnit test framework
-//    testImplementation("io.vertx:vertx-unit:3.5.1")
-//    testImplementation("ch.qos.logback:logback-classic:1.2.3")
-
     testImplementation("junit", "junit", "4.12")
     testImplementation(project(":test-utils"))
 }
 
 configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_1_10
+    targetCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
+    sourceCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
 }

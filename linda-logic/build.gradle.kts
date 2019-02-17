@@ -5,6 +5,7 @@ plugins {
 group = rootProject.group
 version = rootProject.version
 
+val javaVersion: String by project
 val tuprologVersion: String by project
 val junitVersion: String by project
 
@@ -19,6 +20,6 @@ dependencies {
 }
 
 configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_1_10
-    targetCompatibility = JavaVersion.VERSION_1_10
+    targetCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
+    sourceCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
 }

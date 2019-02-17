@@ -5,18 +5,19 @@ plugins {
 group = rootProject.group
 version = rootProject.version
 
-repositories {
-    mavenCentral()
-}
+val javaVersion: String by project
+val namedRegexpVersion: String by project
+val junitVersion: String by project
 
 dependencies {
     api(project(":linda-core"))
-    implementation("com.github.tony19:named-regexp:0.2.5")
+    implementation("com.github.tony19", "named-regexp", namedRegexpVersion)
 
-    testImplementation("junit", "junit", "4.12")
+    testImplementation("junit", "junit", junitVersion)
     testImplementation(project(":linda-test"))
 }
 
 configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_1_10
+    targetCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
+    sourceCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
 }

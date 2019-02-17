@@ -5,18 +5,19 @@ plugins {
 group = rootProject.group
 version = rootProject.version
 
-repositories {
-    mavenCentral()
-}
+val javaVersion: String by project
+val javaTuplesVersion: String by project
+val junitVersion: String by project
 
 dependencies {
 
-    api("junit", "junit", "4.12")
+    api("junit", "junit", junitVersion)
     api(project(":linda-core"))
     api(project(":test-utils"))
-    api("org.javatuples:javatuples:1.2")
+    api("org.javatuples", "javatuples", javaTuplesVersion)
 }
 
 configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_1_10
+    targetCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
+    sourceCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
 }

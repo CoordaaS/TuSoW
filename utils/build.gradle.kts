@@ -5,15 +5,15 @@ plugins {
 group = rootProject.group
 version = rootProject.version
 
-repositories {
-    mavenCentral()
-}
+val javaVersion: String by project
+val junitVersion: String by project
 
 dependencies {
 
-    testImplementation("junit", "junit", "4.12")
+    testImplementation("junit", "junit", junitVersion)
 }
 
 configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_1_10
+    targetCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
+    sourceCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
 }
