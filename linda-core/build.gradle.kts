@@ -5,18 +5,18 @@ plugins {
 group = rootProject.group
 version = rootProject.version
 
-//repositories {
-//    mavenCentral()
-//}
+val tuprologVersion: String by project
+val apacheCommonsVersion: String by project
+val junitVersion: String by project
 
 dependencies {
-    api("it.unibo.alice.tuprolog", "tuprolog", "3.3.0")
-    api("org.apache.commons", "commons-collections4", "4.2")
+    api("it.unibo.alice.tuprolog", "tuprolog", tuprologVersion)
+    api("org.apache.commons", "commons-collections4", apacheCommonsVersion)
 
-    testImplementation("junit", "junit", "4.12")
+    testImplementation("junit", "junit", junitVersion)
 }
 
 configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_1_10
     targetCompatibility = JavaVersion.VERSION_1_10
+    sourceCompatibility = JavaVersion.VERSION_1_10
 }
