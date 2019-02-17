@@ -5,17 +5,16 @@ plugins {
 group = rootProject.group
 version = rootProject.version
 
-//repositories {
-//    mavenCentral()
-//}
+val tuprologVersion: String by project
+val junitVersion: String by project
 
 dependencies {
-    api("it.unibo.alice.tuprolog", "tuprolog", "3.3.0")
+    api("it.unibo.alice.tuprolog", "tuprolog", tuprologVersion)
     api(project(":linda-core"))
     implementation(project(":utils"))
     implementation(project(":prologx"))
 
-    testImplementation("junit", "junit", "4.12")
+    testImplementation("junit", "junit", junitVersion)
     testImplementation(project(":linda-test"))
 }
 
