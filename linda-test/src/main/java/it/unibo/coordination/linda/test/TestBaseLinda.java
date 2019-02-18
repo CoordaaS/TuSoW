@@ -1,18 +1,20 @@
 package it.unibo.coordination.linda.test;
 
+import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.Template;
 import it.unibo.coordination.linda.core.Tuple;
 import org.apache.commons.collections4.MultiSet;
 import org.javatuples.Pair;
 import org.javatuples.Quartet;
+import org.javatuples.Triplet;
 
 import java.util.Objects;
 
-public class TestBaseLinda<T extends Tuple, TT extends Template> implements TupleTemplateFactory<T, TT> {
+public class TestBaseLinda<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>> implements TupleTemplateFactory<T, TT, K, V, M> {
 
-    private final TupleTemplateFactory<T, TT> tupleTemplateFactory;
+    private final TupleTemplateFactory<T, TT, K, V, M> tupleTemplateFactory;
 
-    public TestBaseLinda(TupleTemplateFactory<T, TT> tupleTemplateFactory) {
+    public TestBaseLinda(TupleTemplateFactory<T, TT, K, V, M> tupleTemplateFactory) {
         this.tupleTemplateFactory = Objects.requireNonNull(tupleTemplateFactory);
     }
 
@@ -59,5 +61,20 @@ public class TestBaseLinda<T extends Tuple, TT extends Template> implements Tupl
     @Override
     public Pair<T, TT> getATupleAndATemplateMatchingIt() {
         return tupleTemplateFactory.getATupleAndATemplateMatchingIt();
+    }
+
+    @Override
+    public Triplet<T, TT, M> getSuccessfulMatch() {
+        return tupleTemplateFactory.getSuccessfulMatch();
+    }
+
+    @Override
+    public Triplet<T, TT, M> getFailedMatch() {
+        return tupleTemplateFactory.getFailedMatch();
+    }
+
+    @Override
+    public Pair<TT, M> getEmptyMatch() {
+        return tupleTemplateFactory.getEmptyMatch();
     }
 }

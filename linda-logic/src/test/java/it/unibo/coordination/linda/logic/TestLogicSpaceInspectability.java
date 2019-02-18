@@ -5,7 +5,7 @@ import it.unibo.coordination.linda.test.TestTupleSpaceInspectability;
 
 import java.util.concurrent.ExecutorService;
 
-public class TestLogicSpaceInspectability extends TestTupleSpaceInspectability<LogicTuple, LogicTemplate, String, Term, InspectableLogicSpace> {
+public class TestLogicSpaceInspectability extends TestTupleSpaceInspectability<LogicTuple, LogicTemplate, String, Term, LogicMatch, InspectableLogicSpace> {
 
     @Override
     protected InspectableLogicSpace getTupleSpace(ExecutorService executor) {

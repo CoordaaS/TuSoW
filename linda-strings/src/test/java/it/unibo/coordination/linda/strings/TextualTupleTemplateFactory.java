@@ -1,18 +1,20 @@
 package it.unibo.coordination.linda.strings;
 
 import it.unibo.coordination.linda.string.RegexTemplate;
+import it.unibo.coordination.linda.string.RegularMatch;
 import it.unibo.coordination.linda.string.StringTuple;
 import it.unibo.coordination.linda.test.TupleTemplateFactory;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 import org.javatuples.Pair;
 import org.javatuples.Quartet;
+import org.javatuples.Triplet;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class TextualTupleTemplateFactory implements TupleTemplateFactory<StringTuple, RegexTemplate> {
+public class TextualTupleTemplateFactory implements TupleTemplateFactory<StringTuple, RegexTemplate, Object, String, RegularMatch> {
     @Override
     public RegexTemplate getATemplate() {
         return RegexTemplate.of("[Ff][Oo]+\\s+[Bb][Aa][Rr]");
@@ -29,6 +31,25 @@ public class TextualTupleTemplateFactory implements TupleTemplateFactory<StringT
                 StringTuple.of("abba"),
                 RegexTemplate.of("ab+a")
         );
+    }
+
+    @Override
+    public Triplet<StringTuple, RegexTemplate, RegularMatch> getSuccessfulMatch() {
+        final var tuple = StringTuple.of("f(1, \"2\", '3', d, e(f), g(h, [4, i]), [x, y, Z])");
+        throw new IllegalStateException();
+//        final var template = RegexTemplate.of("f(1, A, B, C, D, g(E, [F | G]), H)");
+//
+//        return Triplet.with(tuple, template, template.matchWith(tuple));
+    }
+
+    @Override
+    public Triplet<StringTuple, RegexTemplate, RegularMatch> getFailedMatch() {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public Pair<RegexTemplate, RegularMatch> getEmptyMatch() {
+        throw new IllegalStateException();
     }
 
     private static String escape(String string) {

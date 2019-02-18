@@ -1,12 +1,14 @@
 package it.unibo.coordination.linda.test;
 
+import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.Template;
 import it.unibo.coordination.linda.core.Tuple;
 import org.apache.commons.collections4.MultiSet;
 import org.javatuples.Pair;
 import org.javatuples.Quartet;
+import org.javatuples.Triplet;
 
-public interface TupleTemplateFactory<T extends Tuple, TT extends Template> {
+public interface TupleTemplateFactory<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>> {
     TT getATemplate();
     T getATuple();
 
@@ -21,4 +23,10 @@ public interface TupleTemplateFactory<T extends Tuple, TT extends Template> {
     Pair<MultiSet<T>, TT> getSomeTuplesOfOneSort();
 
     Pair<T, TT> getATupleAndATemplateMatchingIt();
+
+    Triplet<T, TT, M> getSuccessfulMatch();
+    Triplet<T, TT, M> getFailedMatch();
+
+    Pair<TT, M> getEmptyMatch();
+
 }

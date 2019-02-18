@@ -2,12 +2,13 @@ package it.unibo.coordination.linda.strings;
 
 import it.unibo.coordination.linda.string.InspectableStringSpace;
 import it.unibo.coordination.linda.string.RegexTemplate;
+import it.unibo.coordination.linda.string.RegularMatch;
 import it.unibo.coordination.linda.string.StringTuple;
 import it.unibo.coordination.linda.test.TestTupleSpaceInspectability;
 
 import java.util.concurrent.ExecutorService;
 
-public class TestStringSpaceInspectability extends TestTupleSpaceInspectability<StringTuple, RegexTemplate, Object, String, InspectableStringSpace> {
+public class TestStringSpaceInspectability extends TestTupleSpaceInspectability<StringTuple, RegexTemplate, Object, String, RegularMatch, InspectableStringSpace> {
 
     public TestStringSpaceInspectability() {
         super(new TextualTupleTemplateFactory());

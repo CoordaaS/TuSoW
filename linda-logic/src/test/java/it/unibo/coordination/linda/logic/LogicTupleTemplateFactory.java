@@ -1,16 +1,18 @@
 package it.unibo.coordination.linda.logic;
 
+import alice.tuprolog.Term;
 import it.unibo.coordination.linda.test.TupleTemplateFactory;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 import org.javatuples.Pair;
 import org.javatuples.Quartet;
+import org.javatuples.Triplet;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class LogicTupleTemplateFactory implements TupleTemplateFactory<LogicTuple, LogicTemplate> {
+public class LogicTupleTemplateFactory implements TupleTemplateFactory<LogicTuple, LogicTemplate, String, Term, LogicMatch> {
 
     @Override
     public LogicTemplate getATemplate() {
@@ -26,6 +28,30 @@ public class LogicTupleTemplateFactory implements TupleTemplateFactory<LogicTupl
     public Pair<LogicTuple, LogicTemplate> getATupleAndATemplateMatchingIt() {
         return Pair.with(LogicTuple.of("a(1)"), LogicTemplate.of("a(X)"));
     }
+
+    @Override
+    public Triplet<LogicTuple, LogicTemplate, LogicMatch> getSuccessfulMatch() {
+        final var tuple = LogicTuple.of("f(1, \"2\", '3', d, e(f), g(h, [4, i]), [x, y, Z])");
+        final var template = LogicTemplate.of("f(1, A, B, C, D, g(E, [F | G]), H)");
+
+        return Triplet.with(tuple, template, template.matchWith(tuple));
+    }
+
+    @Override
+    public Triplet<LogicTuple, LogicTemplate, LogicMatch> getFailedMatch() {
+        final var tuple = LogicTuple.of("g(y)");
+        final var template = LogicTemplate.of("f(X)");
+
+        return Triplet.with(tuple, template, template.matchWith(tuple));
+    }
+
+    @Override
+    public Pair<LogicTemplate, LogicMatch> getEmptyMatch() {
+        final var template = LogicTemplate.of("f(X)");
+
+        return Pair.with(template, LogicMatch.failed(template));
+    }
+
 
     @Override
     public LogicTuple getMessageTuple(String recipient, String payload) {

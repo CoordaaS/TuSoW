@@ -1,9 +1,6 @@
 package it.unibo.coordination.linda.test;
 
-import it.unibo.coordination.linda.core.InspectableExtendedTupleSpace;
-import it.unibo.coordination.linda.core.OperationType;
-import it.unibo.coordination.linda.core.Template;
-import it.unibo.coordination.linda.core.Tuple;
+import it.unibo.coordination.linda.core.*;
 import it.unibo.coordination.linda.core.events.OperationEvent;
 import it.unibo.coordination.linda.core.events.TupleEvent;
 import it.unibo.coordination.linda.core.events.TupleSpaceEvent;
@@ -20,14 +17,14 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.*;
 
-public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends Template, K, V, TS extends InspectableExtendedTupleSpace<T, TT, K, V>> extends TestBaseLinda<T, TT> {
+public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>,  TS extends InspectableExtendedTupleSpace<T, TT, K, V>> extends TestBaseLinda<T, TT, K, V, M> {
 
     protected ExecutorService executor;
     protected InspectableExtendedTupleSpace<T, TT, K, V> tupleSpace;
     protected ConcurrentTestHelper test;
     protected Random rand;
 
-    public TestTupleSpaceInspectability(TupleTemplateFactory<T, TT> tupleTemplateFactory) {
+    public TestTupleSpaceInspectability(TupleTemplateFactory<T, TT, K, V, M> tupleTemplateFactory) {
         super(tupleTemplateFactory);
     }
 
