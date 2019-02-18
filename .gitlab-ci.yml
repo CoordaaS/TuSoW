@@ -22,3 +22,13 @@ test:
   stage: test
   script: ./gradlew check $GOPTS
 
+deploy_artifacts:
+  stage: deploy
+  script:
+    - ./gradlew bintrayUpload
+  environment:
+    name: Bintray
+    url: https://bintray.com/gciatto-unibo/pika-lab
+  when: on_success
+  only:
+    - /main/
