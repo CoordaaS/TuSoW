@@ -61,12 +61,13 @@ public interface RegularMatch extends Match<StringTuple, RegexTemplate, Object, 
     }
 
     static String toString(RegularMatch match) {
-        return "match: " + match.isMatching()
-                + "\ntemplate: " + match.getTemplate()
-                + "\ntuple: " + match.getTuple().map(StringTuple::toString).orElse("null")
-                + "\nmap:"
+        return "{ match: " + match.isMatching()
+                + ", template: " + match.getTemplate()
+                + ", tuple: " + match.getTuple().map(StringTuple::toString).orElse("null")
+                + ", map: "
                 + match.toMap().entrySet().stream()
                     .map(kv -> String.format("%s: %s", kv.getKey(), kv.getValue()))
-                    .collect(Collectors.joining("\n  ", "\n  ", ""));
+                    .collect(Collectors.joining(", ", "{ ", " }"))
+                + " }";
     }
 }

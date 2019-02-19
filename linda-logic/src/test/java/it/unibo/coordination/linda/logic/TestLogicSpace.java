@@ -11,17 +11,17 @@ import java.util.stream.IntStream;
 @RunWith(Parameterized.class)
 public class TestLogicSpace extends TestTupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch, LogicSpace> {
 
+    public TestLogicSpace(Integer i) {
+        super(new LogicTupleTemplateFactory());
+    }
+
     @Override
     protected LogicSpace getTupleSpace(ExecutorService executor) {
         return LogicSpace.deterministic(executor);
     }
 
-    public TestLogicSpace(Integer i) {
-        super(new LogicTupleTemplateFactory());
-    }
-
     @Parameterized.Parameters
     public static Object[][] getParams() {
-        return IntStream.range(0, 30).mapToObj(i -> new Object[] { i }).toArray(Object[][]::new);
+        return IntStream.range(0, 5).mapToObj(i -> new Object[] { i }).toArray(Object[][]::new);
     }
 }
