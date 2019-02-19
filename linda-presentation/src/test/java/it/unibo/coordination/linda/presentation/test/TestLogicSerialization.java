@@ -9,15 +9,11 @@ import it.unibo.coordination.linda.logic.LogicTuple;
 import it.unibo.coordination.linda.presentation.MIMETypes;
 import it.unibo.coordination.linda.presentation.Presentation;
 import it.unibo.coordination.linda.test.TestBaseLinda;
-import it.unibo.coordination.linda.test.TestMatch;
-import it.unibo.coordination.linda.test.TupleTemplateFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -115,6 +111,97 @@ public class TestLogicSerialization extends TestBaseLinda<LogicTuple, LogicTempl
         final var result = jsonMapper.readTree(resultString);
 
         final var serialised = Presentation.getSerializer(LogicTuple.class, MIMETypes.APPLICATION_JSON).toString(tuples);
+        final var deserialised = jsonMapper.readTree(serialised);
+
+        Assert.assertEquals(result, deserialised);
+
+    }
+
+    @Test
+    public void testLogicTemplateSerialisationToYAML() throws IOException {
+        final var template = LogicTemplate.of("f(1, A, B, C, D, g(E, [F | G]), H)");
+        final var resultString =
+                "fun: \"f\"\n" +
+                "args:\n" +
+                "- 1\n" +
+                "- var: \"A\"\n" +
+                "  val: null\n" +
+                "- var: \"B\"\n" +
+                "  val: null\n" +
+                "- var: \"C\"\n" +
+                "  val: null\n" +
+                "- var: \"D\"\n" +
+                "  val: null\n" +
+                "- fun: \"g\"\n" +
+                "  args:\n" +
+                "  - var: \"E\"\n" +
+                "    val: null\n" +
+                "  - fun: \".\"\n" +
+                "    args:\n" +
+                "    - var: \"F\"\n" +
+                "      val: null\n" +
+                "    - var: \"G\"\n" +
+                "      val: null\n" +
+                "- var: \"H\"\n" +
+                "  val: null";
+
+        final var result = yamlMapper.readTree(resultString);
+
+        final var serialised = Presentation.getSerializer(LogicTemplate.class, MIMETypes.APPLICATION_YAML).toString(template);
+        final var deserialised = yamlMapper.readTree(serialised);
+
+        Assert.assertEquals(result, deserialised);
+
+    }
+
+    @Test
+    public void testLogicTemplateSerialisationToJSON() throws IOException {
+        final var template = LogicTemplate.of("f(1, A, B, C, D, g(E, [F | G]), H)");
+        final var resultString = "{\"fun\":\"f\",\"args\":[1,{\"var\":\"A\",\"val\":null},{\"var\":\"B\",\"val\":null},{\"var\":\"C\",\"val\":null},{\"var\":\"D\",\"val\":null},{\"fun\":\"g\",\"args\":[{\"var\":\"E\",\"val\":null},{\"fun\":\".\",\"args\":[{\"var\":\"F\",\"val\":null},{\"var\":\"G\",\"val\":null}]}]},{\"var\":\"H\",\"val\":null}]}";
+
+        final var result = jsonMapper.readTree(resultString);
+
+        final var serialised = Presentation.getSerializer(LogicTemplate.class, MIMETypes.APPLICATION_JSON).toString(template);
+        final var deserialised = jsonMapper.readTree(serialised);
+
+        Assert.assertEquals(result, deserialised);
+
+    }
+
+    @Test
+    public void testLogicTemplatesSerialisationToYAML() throws IOException {
+        final var templates = Stream.of("a(A)", "b(B)", "c(C)").map(LogicTemplate::of).collect(Collectors.toList());
+        final var resultString =
+                "- fun: \"a\"\n" +
+                "  args:\n" +
+                "  - var: A\n" +
+                "    val: null\n" +
+                "- fun: \"b\"\n" +
+                "  args:\n" +
+                "  - var: B\n" +
+                "    val: null\n" +
+                "- fun: \"c\"\n" +
+                "  args:\n" +
+                "  - var: C\n" +
+                "    val: null\n";
+
+        final var result = yamlMapper.readTree(resultString);
+
+        final var serialised = Presentation.getSerializer(LogicTemplate.class, MIMETypes.APPLICATION_YAML).toString(templates);
+        final var deserialised = yamlMapper.readTree(serialised);
+
+        Assert.assertEquals(result, deserialised);
+
+    }
+
+    @Test
+    public void testLogicTemplatesSerialisationToJSON() throws IOException {
+        final var templates = Stream.of("a(A)", "b(B)", "c(C)").map(LogicTemplate::of).collect(Collectors.toList());
+        final var resultString = "[{\"fun\":\"a\",\"args\":[{\"var\":\"A\",\"val\":null}]},{\"fun\":\"b\",\"args\":[{\"var\":\"B\",\"val\":null}]},{\"fun\":\"c\",\"args\":[{\"var\":\"C\",\"val\":null}]}]";
+
+        final var result = jsonMapper.readTree(resultString);
+
+        final var serialised = Presentation.getSerializer(LogicTemplate.class, MIMETypes.APPLICATION_JSON).toString(templates);
         final var deserialised = jsonMapper.readTree(serialised);
 
         Assert.assertEquals(result, deserialised);
