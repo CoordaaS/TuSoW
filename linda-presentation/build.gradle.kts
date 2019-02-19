@@ -26,6 +26,7 @@ dependencies {
 
     testImplementation("junit", "junit", junitVersion)
     testImplementation(project(":test-utils"))
+    testImplementation(project(":linda-test"))
 }
 
 configure<JavaPluginConvention> {

@@ -33,7 +33,7 @@ public class Presentation {
         MIMETypes.APPLICATION_XML, createMapper(XmlMapper.class)
     );
 
-    private static <OM extends ObjectMapper> OM createMapper(Class<OM> mapperClass) {
+    public static <OM extends ObjectMapper> OM createMapper(Class<OM> mapperClass) {
         try {
             final OM mapper = mapperClass.getConstructor().newInstance();
             mapper.registerModule(new JavaTimeModule());
