@@ -4,6 +4,7 @@ import it.unibo.coordination.linda.core.Match;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public interface RegularMatch extends Match<StringTuple, RegexTemplate, Object, String> {
 
@@ -40,7 +41,32 @@ public interface RegularMatch extends Match<StringTuple, RegexTemplate, Object, 
                 public Map<Object, String> toMap() {
                     return match.toMap();
                 }
+
+                @Override
+                public boolean equals(Object o) {
+                    return o instanceof RegularMatch && Match.equals(this, (RegularMatch) o);
+                }
+
+                @Override
+                public int hashCode() {
+                    return Match.hashCode(this);
+                }
+
+                @Override
+                public String toString() {
+                    return RegularMatch.toString(this);
+                }
             };
         }
+    }
+
+    static String toString(RegularMatch match) {
+        return "match: " + match.isMatching()
+                + "\ntemplate: " + match.getTemplate()
+                + "\ntuple: " + match.getTuple().map(StringTuple::toString).orElse("null")
+                + "\nmap:"
+                + match.toMap().entrySet().stream()
+                    .map(kv -> String.format("%s: %s", kv.getKey(), kv.getValue()))
+                    .collect(Collectors.joining("\n  ", "\n  ", ""));
     }
 }

@@ -35,21 +35,25 @@ public class TextualTupleTemplateFactory implements TupleTemplateFactory<StringT
 
     @Override
     public Triplet<StringTuple, RegexTemplate, RegularMatch> getSuccessfulMatch() {
-        final var tuple = StringTuple.of("f(1, \"2\", '3', d, e(f), g(h, [4, i]), [x, y, Z])");
-        throw new IllegalStateException();
-//        final var template = RegexTemplate.of("f(1, A, B, C, D, g(E, [F | G]), H)");
-//
-//        return Triplet.with(tuple, template, template.matchWith(tuple));
+        final var tuple = StringTuple.of("name: Giovanni, surname: Ciatto");
+        final var template = RegexTemplate.of("name: ([A-Za-z]+), surname: (?<surname>[A-Za-z]+)");
+
+        return Triplet.with(tuple, template, template.matchWith(tuple));
     }
 
     @Override
     public Triplet<StringTuple, RegexTemplate, RegularMatch> getFailedMatch() {
-        throw new IllegalStateException();
+        final var tuple = StringTuple.of("name: G10v4nn1, surname: C14tt0");
+        final var template = RegexTemplate.of("name: ([A-Za-z]+), surname: (?<surname>[A-Za-z]+)");
+
+        return Triplet.with(tuple, template, template.matchWith(tuple));
     }
 
     @Override
     public Pair<RegexTemplate, RegularMatch> getEmptyMatch() {
-        throw new IllegalStateException();
+        final var template = RegexTemplate.of("name: ([A-Za-z]+), surname: (?<surname>[A-Za-z]+)");
+
+        return Pair.with(template, RegularMatch.failed(template));
     }
 
     private static String escape(String string) {

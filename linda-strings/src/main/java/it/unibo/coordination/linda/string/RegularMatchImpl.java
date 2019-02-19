@@ -1,6 +1,7 @@
 package it.unibo.coordination.linda.string;
 
 import com.google.code.regexp.Matcher;
+import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.Tuple;
 
 import java.util.*;
@@ -10,6 +11,12 @@ class RegularMatchImpl implements RegularMatch {
     private final RegexTemplate template;
     private final Matcher matcher;
     private final Tuple tuple;
+    private Optional<Boolean> matchingCache = Optional.empty();
+    private Map<Object, String> getCache = new HashMap<>();
+    private Optional<Map<Object, String>> toMapCache = Optional.empty();
+
+
+
 
     RegularMatchImpl(RegexTemplate template, Matcher matcher, Tuple tuple) {
         this.template = Objects.requireNonNull(template);
@@ -28,8 +35,6 @@ class RegularMatchImpl implements RegularMatch {
         return template;
     }
 
-    private Optional<Boolean> matchingCache = Optional.empty();
-
     @Override
     public boolean isMatching() {
         if (!matchingCache.isPresent()) {
@@ -42,8 +47,6 @@ class RegularMatchImpl implements RegularMatch {
         }
         return matchingCache.get();
     }
-
-    private Map<Object, String> getCache = new HashMap<>();
 
     @Override
     public Optional<String> get(Object key) {
@@ -66,8 +69,6 @@ class RegularMatchImpl implements RegularMatch {
         return result;
     }
 
-    private Optional<Map<Object, String>> toMapCache = Optional.empty();
-
     @Override
     public Map<Object, String> toMap() {
         if (!toMapCache.isPresent()) {
@@ -85,5 +86,20 @@ class RegularMatchImpl implements RegularMatch {
             }
         }
         return toMapCache.get();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof RegularMatch && Match.equals(this, (RegularMatch) o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Match.hashCode(this);
+    }
+
+    @Override
+    public String toString() {
+        return RegularMatch.toString(this);
     }
 }
