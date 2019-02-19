@@ -1,7 +1,6 @@
 rootProject.name = 'parent'
 include 'linda-core'
 include 'linda-logic'
-include 'linda-objects'
 include 'tusow'
 include 'utils'
 include 'prologx'

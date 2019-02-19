@@ -13,7 +13,7 @@ val jacksonVersion: String by project
 dependencies {
     api(project(":linda-core"))
     api(project(":linda-logic"))
-    api(project(":linda-objects"))
+    api(project(":linda-strings"))
 
     implementation(project(":utils"))
     implementation(project(":prologx"))
