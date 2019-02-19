@@ -37,15 +37,12 @@ final class LogicTemplateImpl implements LogicTemplate {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LogicTemplate that = (LogicTemplate) o;
-        return Objects.equals(term, that.asTerm());
+        return o instanceof LogicTemplate && LogicTemplate.equals(this, (LogicTemplate) o);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(term.toString());
+        return LogicTemplate.hashCode(this);
     }
 
     @Override

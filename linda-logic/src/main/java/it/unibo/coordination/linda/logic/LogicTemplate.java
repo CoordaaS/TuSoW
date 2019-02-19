@@ -7,6 +7,7 @@ import it.unibo.coordination.linda.core.Template;
 import it.unibo.coordination.linda.core.Tuple;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public interface LogicTemplate extends Template {
 
@@ -37,12 +38,6 @@ public interface LogicTemplate extends Template {
         return LogicTuple.of(getTemplate());
     }
 
-    @Override
-    boolean equals(Object o);
-
-    @Override
-    int hashCode();
-
     static boolean equals(LogicTemplate t1, LogicTemplate t2) {
         if (t1 == t2) return true;
         if (t1 == null || t2 == null) return false;
@@ -51,5 +46,9 @@ public interface LogicTemplate extends Template {
 
     static int hashCode(LogicTemplate t) {
         return Objects.hashCode(t.asTerm().toString());
+    }
+
+    static String toString(LogicTemplate template) {
+        return Optional.ofNullable(template).map(LogicTemplate::getTemplate).map(Term::toString).orElse("null");
     }
 }

@@ -45,6 +45,21 @@ public interface LogicMatch extends Match<LogicTuple, LogicTemplate, String, Ter
                     return match.toMap();
                 }
 
+                @Override
+                public String toString() {
+                    return LogicMatch.toString(this);
+                }
+
+                @Override
+                public boolean equals(Object o) {
+                    return o instanceof LogicMatch && Match.equals(this, (LogicMatch) o);
+                }
+
+                @Override
+                public int hashCode() {
+                    return Match.hashCode(this);
+                }
+
             };
         }
     }
@@ -56,6 +71,10 @@ public interface LogicMatch extends Match<LogicTuple, LogicTemplate, String, Ter
                 new Var("Tuple"),
                 new Struct("Mappings")
         );
+    }
+
+    static String toString(LogicMatch match) {
+        return match.asTerm().toString();
     }
 
     default Struct asTerm() {

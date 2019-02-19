@@ -4,6 +4,7 @@ import alice.tuprolog.NoSolutionException;
 import alice.tuprolog.SolveInfo;
 import alice.tuprolog.Term;
 import alice.tuprolog.Var;
+import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.Tuple;
 
 import java.util.Map;
@@ -13,11 +14,11 @@ import java.util.stream.Collectors;
 
 class LogicMatchImpl implements LogicMatch {
 
-//    private static final Prolog ENGINE = new Prolog();
-
     private final LogicTemplate logicTemplate;
     private final SolveInfo solveInfo;
     private final Tuple tuple;
+    private Map<String, Term> cache = null;
+
 
     LogicMatchImpl(LogicTemplate logicTemplate, SolveInfo solveInfo, Tuple tuple) {
         this.logicTemplate = Objects.requireNonNull(logicTemplate);
@@ -42,28 +43,20 @@ class LogicMatchImpl implements LogicMatch {
 
     @Override
     public Optional<Term> get(String variableName) {
-        try {
-            if (isMatching()) {
-                return Optional.ofNullable(solveInfo.getVarValue(variableName));
-            } else {
-                return Optional.empty();
-            }
-        } catch (NoSolutionException e) {
-            return Optional.empty();
-        }
+        return Optional.ofNullable(toMap().get(variableName));
     }
 
-    @Override
-    public Map<String, Term> toMap() {
+    private Map<String, Term> generateMap() {
         if (solveInfo != null && solveInfo.isSuccess()) {
             try {
                 return solveInfo.getBindingVars().stream()
+                        .filter(v -> v.getLink() != null)
                         .collect(
                                 Collectors.toUnmodifiableMap(
                                         Var::getOriginalName,
                                         Var::getLink
                                 )
-                            );
+                        );
             } catch (NoSolutionException e) {
                 return Map.of();
             }
@@ -73,17 +66,25 @@ class LogicMatchImpl implements LogicMatch {
     }
 
     @Override
-    public String toString() {
-        try {
-            if (solveInfo != null && solveInfo.isSuccess()) {
-                return "yes: " + solveInfo.getBindingVars().stream()
-                        .map(v -> String.format("%s/%s", v.getOriginalName(), v.getTerm()))
-                        .collect(Collectors.joining("; "));
-            } else {
-                return "no";
-            }
-        } catch (NoSolutionException e) {
-            return "no";
+    public Map<String, Term> toMap() {
+        if (cache == null) {
+            cache = generateMap();
         }
+        return cache;
+    }
+
+    @Override
+    public String toString() {
+        return LogicMatch.toString(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof LogicMatch && Match.equals(this, (LogicMatch) o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Match.hashCode(this);
     }
 }
