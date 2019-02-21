@@ -9,5 +9,7 @@ public interface Activity<A, C, R> {
 
     R onEnd(C context, Optional<Exception> exception) throws Exception;
 
-    Continuation<C> onError(C context, Exception exception);
+    default Continuation<C> onError(C context, Exception exception) {
+        return Continuation.stop(context);
+    }
 }
