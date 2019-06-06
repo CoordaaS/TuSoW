@@ -191,9 +191,9 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
     private void handleWrite(final T tuple, final CompletableFuture<T> promise) {
         getLock().lock();
         try {
+            onWritten(tuple);
             resumePendingAccessRequests(tuple).ifPresent(this::insertTuple);
             promise.complete(tuple);
-            onWritten(tuple);
         } finally {
             getLock().unlock();
         }
@@ -248,6 +248,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         getLock().lock();
         try {
             final MultiSet<T> result = getAllTuples().collect(Collectors.toCollection(HashMultiSet::new));
+            result.stream().forEach(this::onRead);
             promise.complete(result);
         } finally {
             getLock().unlock();
@@ -349,9 +350,9 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         try {
             for (final T tuple : tuples) {
                 result.add(tuple);
+                onWritten(tuple);
                 resumePendingAccessRequests(tuple).ifPresent(this::insertTuple);
             }
-            result.forEach(this::onWritten);
             promise.complete(result);
         } finally {
             getLock().unlock();

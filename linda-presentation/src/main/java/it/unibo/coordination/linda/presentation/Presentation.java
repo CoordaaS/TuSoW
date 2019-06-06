@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import it.unibo.coordination.linda.core.TupleSpace;
+import it.unibo.coordination.linda.core.events.TupleSpaceEvent;
+import it.unibo.coordination.linda.logic.InspectableLogicSpace;
 import it.unibo.coordination.linda.logic.LogicMatch;
 import it.unibo.coordination.linda.logic.LogicTemplate;
 import it.unibo.coordination.linda.logic.LogicTuple;
@@ -166,6 +169,7 @@ public class Presentation {
         registerDynamicSerializers(LogicMatch.class, LogicMatchSerializer::new);
         registerDynamicSerializers(Term.class, (klass, targetType, term) ->
                 PrologUtils.termToDynamicObject(term));
+        registerDynamicSerializers(TupleSpaceEvent.class, (mimeType, mapper) -> new TupleSpaceEventSerializer(mimeType, mapper, LogicTuple.class, LogicTemplate.class));
 
         registerDynamicDeserializers(LogicTemplate.class, (klass, targetType, obj) ->
                 LogicTemplate.of(PrologUtils.dynamicObjectToTerm(obj)));
@@ -174,5 +178,11 @@ public class Presentation {
         registerDynamicDeserializers(LogicMatch.class, LogicMatchDeserializer::new);
         registerDynamicDeserializers(Term.class, (klass, targetType, obj) ->
                 PrologUtils.dynamicObjectToTerm(obj));
+        registerDynamicDeserializers(TupleSpaceEvent.class, (mimeType, mapper) -> new TupleSpaceEventDeserializer(mimeType, mapper, LogicTuple.class, LogicTemplate.class) {
+            @Override
+            protected TupleSpace getSpace(String tupleSpaceName) {
+                return InspectableLogicSpace.create(tupleSpaceName);
+            }
+        });
     }
 }

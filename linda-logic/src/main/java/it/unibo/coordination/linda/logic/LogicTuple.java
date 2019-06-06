@@ -29,6 +29,12 @@ public interface LogicTuple extends Tuple, Comparable<LogicTuple> {
 
     Term getTuple();
 
+    @Override
+    boolean equals(Object o);
+
+    @Override
+    int hashCode();
+
     default int compareTo(LogicTuple o) {
         return getTuple().toString().compareTo(o.getTuple().toString());
     }

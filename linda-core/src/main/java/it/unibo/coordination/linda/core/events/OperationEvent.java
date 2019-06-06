@@ -18,6 +18,8 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
     private final List<T> resultTuples;
     private final List<TT> resultTemplates;
 
+
+
     private OperationEvent(TupleSpace<T, TT, ?, ?> tupleSpace, OperationType operationType, OperationPhase operationPhase,
                            Stream<? extends T> argumentTuples, Stream<? extends TT> argumentTemplates, Stream<? extends T> resultTuples, Stream<? extends TT> resultTemplates) {
         super(tupleSpace);
@@ -27,6 +29,18 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
         this.argumentTemplates = argumentTemplates.collect(Collectors.toList());
         this.resultTuples = resultTuples.collect(Collectors.toList());
         this.resultTemplates = resultTemplates.collect(Collectors.toList());
+    }
+
+    public static <X extends Tuple, Y extends Template> Invocation<X, Y> invocation(TupleSpace<X, Y, ?, ?> tupleSpace, OperationType operationType, Stream<? extends X> argumentTuples, Stream<? extends Y> argumentTemplates) {
+        return new Invocation<>(
+                tupleSpace, operationType, argumentTuples, argumentTemplates
+        );
+    }
+
+    public static <X extends Tuple, Y extends Template> Completion<X, Y> completion(TupleSpace<X, Y, ?, ?> tupleSpace, OperationType operationType, Stream<? extends X> argumentTuples, Stream<? extends Y> argumentTemplates, Stream<? extends X> resultTuples, Stream<? extends Y> resultTemplates) {
+        return new Completion<>(
+                tupleSpace, operationType, argumentTuples, argumentTemplates, resultTuples, resultTemplates
+        );
     }
 
     public static <X extends Tuple, Y extends Template> Invocation<X, Y> nothingAcceptingInvocation(TupleSpace<X, Y, ?, ?> tupleSpace, OperationType operationType) {
@@ -195,9 +209,17 @@ public abstract class OperationEvent<T extends Tuple, TT extends Template> exten
 
             return new Completion<>(this, Stream.empty(), templates.stream());
         }
+
+        public Completion<T, TT> toCompletion(Stream<? extends T> resultTuples, Stream<? extends TT> resultTemplates) {
+            return new Completion<>(this, resultTuples, resultTemplates);
+        }
     }
 
     public static final class Completion<T extends Tuple, TT extends Template> extends OperationEvent<T, TT> {
+
+        private Completion(TupleSpace<T, TT, ?, ?> tupleSpace, OperationType operationType, Stream<? extends T> argumentTuples, Stream<? extends TT> argumentTemplates, Stream<? extends T> resultTuples, Stream<? extends TT> resultTemplates) {
+            super(tupleSpace, operationType, OperationPhase.COMPLETION, argumentTuples, argumentTemplates, resultTuples, resultTemplates);
+        }
 
         private Completion(Invocation<T, TT> invocation, Stream<? extends T> resultTuples, Stream<? extends TT> resultTemplates) {
             super(

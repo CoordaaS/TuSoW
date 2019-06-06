@@ -31,4 +31,4 @@ deploy_artifacts:
     url: https://bintray.com/gciatto-unibo/pika-lab
   when: on_success
   only:
-    - /master/
+    - /main/

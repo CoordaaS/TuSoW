@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class TupleEvent<T extends Tuple, TT extends Template> extends TupleSpaceEvent<T, TT> {
 
-    public enum Effect { WRITTEN, READ, TAKEN, ABSENT };
+    public enum Effect { WRITTEN, READ, TAKEN, ABSENT }
 
     private final Effect effect;
     private final boolean before;
@@ -21,6 +21,10 @@ public class TupleEvent<T extends Tuple, TT extends Template> extends TupleSpace
         this.effect = Objects.requireNonNull(effect);
         this.tuple = tuple;
         this.template = template;
+    }
+
+    public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> of(TupleSpace<X, Y, ?, ?> tupleSpace, boolean before, Effect effect, X tuple, Y template) {
+        return new TupleEvent<>(tupleSpace, before, effect, tuple, template);
     }
 
     public static <X extends Tuple, Y extends Template> TupleEvent<X, Y> beforeWriting(TupleSpace<X, Y, ?, ?> tupleSpace, X tuple) {
