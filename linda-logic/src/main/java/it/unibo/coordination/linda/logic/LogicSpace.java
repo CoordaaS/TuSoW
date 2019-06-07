@@ -39,12 +39,12 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
     }
 
 
-    default CompletableFuture<LogicTuple> write(String template) {
-        return write(LogicTuple.of(template));
+    default CompletableFuture<LogicTuple> write(String tuple) {
+        return write(LogicTuple.of(tuple));
     }
 
-    default CompletableFuture<LogicTuple> write(Term template) {
-        return write(LogicTuple.of(template));
+    default CompletableFuture<LogicTuple> write(Term tuple) {
+        return write(LogicTuple.of(tuple));
     }
 
     default CompletableFuture<LogicTuple> readTuple(String template) {

@@ -9,6 +9,7 @@ val javaVersion: String by project
 val joolVersion: String by project
 val junitVersion: String by project
 val jacksonVersion: String by project
+val logbackVersion: String by project
 val vertxVersion: String by project
 val commonsCliVersion: String by project
 
@@ -33,7 +34,7 @@ dependencies {
 
     // Use JUnit test framework
     testImplementation("io.vertx", "vertx-unit", vertxVersion)
-    testImplementation("ch.qos.logback", "logback-classic", vertxVersion)
+    testImplementation("ch.qos.logback", "logback-classic", logbackVersion)
 
     testImplementation("junit", "junit", junitVersion)
     testImplementation(project(":test-utils"))

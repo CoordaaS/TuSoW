@@ -19,13 +19,13 @@ dependencies {
 
     implementation(project(":utils"))
     implementation(project(":prologx"))
-    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("stdlib"))
 
     api("io.vertx", "vertx-web-client", vertxVersion)
 
     // Use JUnit test framework
 //    testImplementation("io.vertx", "vertx-unit", vertxVersion)
-    testImplementation("ch.qos.logback", "logback-classic", vertxVersion)
+//    testImplementation("ch.qos.logback", "logback-classic", vertxVersion)
 
     testImplementation("junit", "junit", junitVersion)
     testImplementation(project(":test-utils"))
