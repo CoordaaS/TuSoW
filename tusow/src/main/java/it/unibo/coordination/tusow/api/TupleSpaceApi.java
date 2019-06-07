@@ -16,5 +16,9 @@ public interface TupleSpaceApi<T extends Tuple, TT extends Template, K, V, M ext
 
     void consumeTuples(String tupleSpaceName, boolean bulk, boolean predicative, TT template, Handler<AsyncResult<Collection<? extends M>>> handler);
 
+    void getAllTuples(String tupleSpaceName, Handler<AsyncResult<Collection<? extends T>>> handler);
+
+    void countTuples(String tupleSpaceName, Handler<AsyncResult<Integer>> handler);
+
 }
 

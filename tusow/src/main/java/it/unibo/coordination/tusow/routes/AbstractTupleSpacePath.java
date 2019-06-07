@@ -15,7 +15,7 @@ import it.unibo.coordination.tusow.exceptions.InternalServerError;
 import org.jooq.lambda.tuple.Tuple;
 import org.jooq.lambda.tuple.Tuple3;
 import org.jooq.lambda.tuple.Tuple4;
-import org.jooq.lambda.tuple.Tuple5;
+import org.jooq.lambda.tuple.Tuple6;
 
 import java.util.Collection;
 import java.util.List;
@@ -82,6 +82,22 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
         }
     }
 
+    public void head(RoutingContext routingContext) {
+        final var api = getTupleSpaceApi(routingContext);
+        final Future<Integer> result = Future.future();
+        result.setHandler(responseHandlerWithNumericContent(routingContext));
+
+        try {
+            final String tupleSpaceName = routingContext.pathParam("tupleSpaceName");
+
+            api.countTuples(tupleSpaceName, result);
+        } catch (HttpError e) {
+            result.fail(e);
+        } catch (IllegalArgumentException e) {
+            result.fail(new BadContentError(e));
+        }
+    }
+
     private Collection<? extends T> validateOutputsForPost(Tuple3<String, Boolean, List<T>> inputs, Collection<? extends T> output) {
         return validateOutputsForPost(inputs.v1(), inputs.v2(), inputs.v3(), output);
     }
@@ -113,6 +129,7 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
     public void delete(RoutingContext routingContext) {
         final var api = getTupleSpaceApi(routingContext);
         final Future<Collection<? extends M>> result = Future.future();
+        result.setHandler(responseHandlerWithNoContent(routingContext));
 
         try {
             final String tupleSpaceName = routingContext.pathParam("tupleSpaceName");
@@ -166,22 +183,35 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
 
     public void get(RoutingContext routingContext) {
         final var api = getTupleSpaceApi(routingContext);
-        final Future<Collection<? extends M>> result = Future.future();
+        Future<?> result = Future.future();
+        result.setHandler(responseHandlerWithNoContent(routingContext));
 
         try {
             final var tupleSpaceName = routingContext.pathParam("tupleSpaceName");
             final var bulk = Optional.ofNullable(routingContext.queryParams().get("bulk")).map(Boolean::parseBoolean);
             final var predicative = Optional.ofNullable(routingContext.queryParams().get("predicative")).map(Boolean::parseBoolean);
             final var negated = Optional.ofNullable(routingContext.queryParams().get("negated")).map(Boolean::parseBoolean);
+            final var all = Optional.ofNullable(routingContext.queryParams().get("all")).map(Boolean::parseBoolean);
 
             final MIMETypes mimeType = MIMETypes.parse(routingContext.parsedHeaders().contentType().value());
             final TT template = getTemplatesUnmarshaller(mimeType).fromString(routingContext.getBodyAsString());
 
-            final var cleanInputs = validateInputsForGet(tupleSpaceName, bulk, predicative, negated, template);
+            final var cleanInputs = validateInputsForGet(tupleSpaceName, bulk, predicative, negated, all, template);
 
-            result.setHandler(responseHandlerWithManyContents(routingContext, this::getMatchMarshaller, response -> validateOutputsForGet(cleanInputs, response)));
+            if (cleanInputs.v5()) {
+                final Future<Collection<? extends T>> res = Future.future();
+                res.setHandler(responseHandlerWithManyContents(routingContext, this::getTuplesMarshaller, response -> validateOutputsForGetAll(cleanInputs, response)));
 
-            api.observeTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), cleanInputs.v4(), cleanInputs.v5(), result);
+                api.getAllTuples(cleanInputs.v1(), res);
+                result = res;
+            } else {
+                final Future<Collection<? extends M>> res = Future.future();
+                res.setHandler(responseHandlerWithManyContents(routingContext, this::getMatchMarshaller, response -> validateOutputsForGet(cleanInputs, response)));
+
+                api.observeTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), cleanInputs.v4(), cleanInputs.v6(), res);
+                result = res;
+            }
+
         } catch (HttpError e) {
             result.fail(e);
         } catch (IllegalArgumentException e) {
@@ -189,23 +219,37 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
         }
     }
 
-    private Tuple5<String, Boolean, Boolean, Boolean, TT> validateInputsForGet(String tupleSpaceName, Optional<Boolean> bulk, Optional<Boolean> predicative, Optional<Boolean> negated, TT template) {
+    private Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT> validateInputsForGet(String tupleSpaceName, Optional<Boolean> bulk, Optional<Boolean> predicative, Optional<Boolean> negated, Optional<Boolean> all, TT template) {
         return Tuple.tuple(
                 Objects.requireNonNull(tupleSpaceName),
                 bulk.orElse(false),
                 predicative.orElse(false),
                 negated.orElse(false),
+                all.orElse(false),
                 template
         );
     }
 
-    private <TL extends Collection<? extends M>> TL validateOutputsForGet(Tuple5<String, Boolean, Boolean, Boolean, TT> inputs, TL output) {
-        return validateOutputsForDelete(inputs.v1(), inputs.v2(), inputs.v3(), inputs.v4(), inputs.v5(), output);
+    private <TL extends Collection<? extends M>> TL validateOutputsForGet(Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT> inputs, TL output) {
+        return validateOutputsForGet(inputs.v1(), inputs.v2(), inputs.v3(), inputs.v4(), inputs.v5(), inputs.v6(), output);
     }
 
-    private <TL extends Collection<? extends M>> TL validateOutputsForDelete(String tupleSpaceName, boolean bulk, boolean predicative, boolean negated, TT template, TL output) {
+    private <TL extends Collection<? extends M>> TL validateOutputsForGet(String tupleSpaceName, boolean bulk, boolean predicative, boolean negated, boolean all, TT template, TL output) {
 
-        if (!bulk && output.size() > 1) {
+        if (!bulk && !all && output.size() > 1) {
+            throw new InternalServerError();
+        }
+
+        return output;
+    }
+
+    private <TL extends Collection<? extends T>> TL validateOutputsForGetAll(Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT> inputs, TL output) {
+        return validateOutputsForGetAll(inputs.v1(), inputs.v2(), inputs.v3(), inputs.v4(), inputs.v5(), inputs.v6(), output);
+    }
+
+    private <TL extends Collection<? extends T>> TL validateOutputsForGetAll(String tupleSpaceName, boolean bulk, boolean predicative, boolean negated, boolean all, TT template, TL output) {
+
+        if (!bulk && !all && output.size() > 1) {
             throw new InternalServerError();
         }
 

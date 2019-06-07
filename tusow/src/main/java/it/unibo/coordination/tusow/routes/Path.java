@@ -145,6 +145,27 @@ public abstract class Path {
 		};
 	}
 
+	protected <X extends Number> Handler<AsyncResult<X>> responseHandlerWithNumericContent(RoutingContext routingContext) {
+		return x -> {
+			if (!handleException(routingContext, x)) {
+				try {
+					final MIMETypes mimeType = MIMETypes.parse(routingContext.getAcceptableContentType());
+//					final String result = MIMETypes.APPLICATION_XML == mimeType
+//							? String.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<number value=\"%s\"/>", x)
+//							: x.toString();
+
+					routingContext.response()
+							.putHeader(HttpHeaders.CONTENT_TYPE, mimeType.toString())
+							.setStatusCode(200)
+							.end(x.toString());
+//							.end(result);
+				} catch (Throwable e)  {
+					handleException(routingContext, e);
+				}
+			}
+		};
+	}
+
 	public void attach(Router router) {
         this.router = Objects.requireNonNull(router);
         setupRoutes();
