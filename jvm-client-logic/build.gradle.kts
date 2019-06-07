@@ -28,6 +28,8 @@ dependencies {
 //    testImplementation("ch.qos.logback", "logback-classic", vertxVersion)
 
     testImplementation("junit", "junit", junitVersion)
+    testImplementation(project(":tusow"))
+    testImplementation(project(":linda-test"))
     testImplementation(project(":test-utils"))
 }
 

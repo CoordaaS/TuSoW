@@ -27,7 +27,7 @@ public class Service extends AbstractVerticle {
     }
 
     @Override
-    public void start(Future<Void> startFuture) throws Exception {
+    public void start(Future<Void> startFuture) {
         Json.mapper.registerModule(new JavaTimeModule());
 
         attach(router, new TupleSpacesPath("1", "tuple-spaces"));
@@ -42,7 +42,7 @@ public class Service extends AbstractVerticle {
     }
 
     @Override
-    public void stop(Future<Void> stopFuture) throws Exception {
+    public void stop(Future<Void> stopFuture) {
         server.close(x -> {
             LOGGER.info("Service is not listening anymore");
             stopFuture.complete();
@@ -63,13 +63,19 @@ public class Service extends AbstractVerticle {
     }
 
     public static void main(String... args) throws ParseException {
+        start(args);
+    }
 
+    public static Service start(String... args) throws ParseException {
         try {
             final Vertx vertx = Vertx.vertx();
             final JsonObject config = parserArgs(args);
-            vertx.deployVerticle(Service.class.getName(), new DeploymentOptions(config));
+            final Service service = new Service();
+            vertx.deployVerticle(service, new DeploymentOptions(config));
+            return service;
         } catch (HelpRequestedException e) {
             e.printHelp();
+            return null;
         }
     }
 

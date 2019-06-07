@@ -157,7 +157,7 @@ public abstract class Path {
 					routingContext.response()
 							.putHeader(HttpHeaders.CONTENT_TYPE, mimeType.toString())
 							.setStatusCode(200)
-							.end(x.toString());
+							.end(x.result().toString());
 //							.end(result);
 				} catch (Throwable e)  {
 					handleException(routingContext, e);

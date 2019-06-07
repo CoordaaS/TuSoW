@@ -55,6 +55,12 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
                 .produces(APPLICATION_JSON.toString())
                 .produces(APPLICATION_XML.toString())
                 .produces(APPLICATION_YAML.toString());
+
+        addRoute(HttpMethod.HEAD, this::head)
+                .consumes(ANY.toString())
+                .produces(APPLICATION_JSON.toString())
+                .produces(APPLICATION_XML.toString())
+                .produces(APPLICATION_YAML.toString());
     }
 
     protected abstract TupleSpaceApi<T, TT, K, V, M> getTupleSpaceApi(RoutingContext routingContext);
