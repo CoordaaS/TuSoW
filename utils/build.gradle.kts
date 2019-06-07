@@ -14,6 +14,6 @@ dependencies {
 }
 
 configure<JavaPluginConvention> {
-    targetCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
-    sourceCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
+    targetCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
+    sourceCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
 }

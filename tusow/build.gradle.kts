@@ -10,6 +10,7 @@ val joolVersion: String by project
 val junitVersion: String by project
 val jacksonVersion: String by project
 val vertxVersion: String by project
+val commonsCliVersion: String by project
 
 dependencies {
     api(project(":linda-core"))
@@ -23,7 +24,7 @@ dependencies {
     api("io.vertx", "vertx-core", vertxVersion)
     api("io.vertx", "vertx-web", vertxVersion)
 
-    implementation("commons-cli", "commons-cli", "1.4")
+    implementation("commons-cli", "commons-cli", commonsCliVersion)
     implementation("com.fasterxml.jackson.core", "jackson-core", jacksonVersion)
     implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", jacksonVersion)
     implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-xml", jacksonVersion)
@@ -39,8 +40,8 @@ dependencies {
 }
 
 configure<JavaPluginConvention> {
-    targetCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
-    sourceCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
+    targetCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
+    sourceCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
 }
 
 task<JavaExec>("tusow") {
