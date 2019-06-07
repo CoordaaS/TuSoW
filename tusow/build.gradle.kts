@@ -23,6 +23,7 @@ dependencies {
     api("io.vertx", "vertx-core", vertxVersion)
     api("io.vertx", "vertx-web", vertxVersion)
 
+    implementation("commons-cli", "commons-cli", "1.4")
     implementation("com.fasterxml.jackson.core", "jackson-core", jacksonVersion)
     implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", jacksonVersion)
     implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-xml", jacksonVersion)
@@ -40,4 +41,19 @@ dependencies {
 configure<JavaPluginConvention> {
     targetCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
     sourceCompatibility = JavaVersion.valueOf("VERSION_$javaVersion")
+}
+
+task<JavaExec>("tusow") {
+    group = "run"
+    dependsOn("classes")
+    sourceSets {
+        main {
+            classpath = runtimeClasspath
+        }
+    }
+    main = "it.unibo.coordination.tusow.Service"
+    if (project.hasProperty("port")) {
+        args = listOf("-p", project.property("port").toString())
+    }
+    standardInput = System.`in`
 }
