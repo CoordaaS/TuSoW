@@ -7,7 +7,6 @@ import it.unibo.coordination.linda.logic.LogicTemplate;
 import it.unibo.coordination.linda.logic.LogicTuple;
 import it.unibo.coordination.linda.test.TestTupleSpace;
 import it.unibo.coordination.tusow.Service;
-import org.apache.commons.cli.ParseException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -31,7 +30,7 @@ public class TestRemoteLogicSpace extends TestTupleSpace<LogicTuple, LogicTempla
     }
 
     @BeforeClass
-    public static void setUpClass() throws ParseException {
+    public static void setUpClass() {
         service = Service.start("-p", "8080");
         testCaseIndex = 0;
     }

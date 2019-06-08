@@ -62,11 +62,11 @@ public class Service extends AbstractVerticle {
         path.attach(router);
     }
 
-    public static void main(String... args) throws ParseException {
+    public static void main(String... args) {
         start(args);
     }
 
-    public static Service start(String... args) throws ParseException {
+    public static Service start(String... args) {
         try {
             final Vertx vertx = Vertx.vertx();
             final JsonObject config = parserArgs(args);
@@ -76,6 +76,8 @@ public class Service extends AbstractVerticle {
         } catch (HelpRequestedException e) {
             e.printHelp();
             return null;
+        } catch (ParseException e) {
+            throw new IllegalArgumentException(e);
         }
     }
 
