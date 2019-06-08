@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -327,7 +328,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
             @Override
             protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.readTuple(getMessageTemplate("Carl")), tuple4Carl);
+                test.assertEquals(tupleSpace.readTuple(getMessageTemplate("Carl")), tuple4Carl, "The tuple read by Carl should be equal to " + tuple4Carl);
                 stop();
             }
 
@@ -342,7 +343,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
             @Override
             protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.readTuple(getMessageTemplate("Bob")), tuple4Bob);
+                test.assertEquals(tupleSpace.readTuple(getMessageTemplate("Bob")), tuple4Bob, "The tuple read by Bob should be equal to " + tuple4Bob);
                 stop();
             }
 
@@ -357,11 +358,13 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
             @Override
             protected void loop() throws Exception {
-                test.assertEventuallyReturns(tupleSpace.write(tuple4Bob));
-                test.assertEventuallyReturns(tupleSpace.write(tuple4Carl));
+                test.assertEventuallyReturns(tupleSpace.write(tuple4Bob), "Alice should eventually be able to insert " + tuple4Bob);
+                test.assertEventuallyReturns(tupleSpace.write(tuple4Carl), "Alice should eventually be able to insert " + tuple4Carl);
 
-                test.assertOneOf(tupleSpace.takeTuple(getGeneralMessageTemplate()), tuple4Bob, tuple4Carl);
-                test.assertOneOf(tupleSpace.takeTuple(getGeneralMessageTemplate()), tuple4Bob, tuple4Carl);
+                final Set<T> ts = Set.of(tuple4Bob, tuple4Carl);
+
+                test.assertOneOf(tupleSpace.takeTuple(getGeneralMessageTemplate()), ts, "The first tuple taken by Alice should be equal to any of" + ts);
+                test.assertOneOf(tupleSpace.takeTuple(getGeneralMessageTemplate()), ts, "The second tuple taken by Alice should be equal to any of" + ts);
 
                 stop();
             }
@@ -457,10 +460,10 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
             @Override
             protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.getSize(), 0);
-                test.assertEquals(tupleSpace.writeAll(tuples), tuples);
-                test.assertEquals(tupleSpace.getSize(), tuples.size());
-                test.assertEquals(tupleSpace.get(), tuples);
+                test.assertEquals(tupleSpace.getSize(), 0, "The tuple space should initially be empty");
+                test.assertEquals(tupleSpace.writeAll(tuples), tuples, "The write all operation should return all the inserted tuples");
+                test.assertEquals(tupleSpace.getSize(), tuples.size(), "The tuple space size should now be equal to the amount of inserted tuples");
+                test.assertEquals(tupleSpace.get(), tuples, "The get primitive should now retrieve all the tuples inserted so far");
 
                 stop();
             }

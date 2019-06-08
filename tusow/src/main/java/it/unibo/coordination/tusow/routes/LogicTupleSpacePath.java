@@ -24,6 +24,11 @@ public class LogicTupleSpacePath extends AbstractTupleSpacePath<LogicTuple, Logi
     }
 
     @Override
+    protected <N extends Number> LogicTuple numberToTuple(N x) {
+        return LogicTuple.of(x.toString());
+    }
+
+    @Override
     protected Serializer<LogicTuple> getTuplesMarshaller(MIMETypes mimeType) {
         return Presentation.getSerializer(LogicTuple.class, mimeType);
     }

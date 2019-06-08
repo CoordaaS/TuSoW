@@ -65,6 +65,8 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
 
     protected abstract TupleSpaceApi<T, TT, K, V, M> getTupleSpaceApi(RoutingContext routingContext);
 
+    protected abstract <N extends Number> T numberToTuple(N x);
+
     public void post(RoutingContext routingContext) {
         final var api = getTupleSpaceApi(routingContext);
         final Future<Collection<? extends T>> result = Future.future();
@@ -91,11 +93,11 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
     public void head(RoutingContext routingContext) {
         final var api = getTupleSpaceApi(routingContext);
         final Future<Integer> result = Future.future();
-        result.setHandler(responseHandlerWithNumericContent(routingContext));
+        result.setHandler(responseHandlerWithNumericContent(routingContext, "X-TUPLE-SPACE-SIZE"));
 
         try {
             final String tupleSpaceName = routingContext.pathParam("tupleSpaceName");
-
+            
             api.countTuples(tupleSpaceName, result);
         } catch (HttpError e) {
             result.fail(e);
@@ -200,7 +202,11 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
             final var all = Optional.ofNullable(routingContext.queryParams().get("all")).map(Boolean::parseBoolean);
 
             final MIMETypes mimeType = MIMETypes.parse(routingContext.parsedHeaders().contentType().value());
-            final TT template = getTemplatesUnmarshaller(mimeType).fromString(routingContext.getBodyAsString());
+
+            TT template = null;
+            if (routingContext.getBody().length() > 0) {
+                template = getTemplatesUnmarshaller(mimeType).fromString(routingContext.getBodyAsString());
+            }
 
             final var cleanInputs = validateInputsForGet(tupleSpaceName, bulk, predicative, negated, all, template);
 
@@ -226,6 +232,11 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
     }
 
     private Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT> validateInputsForGet(String tupleSpaceName, Optional<Boolean> bulk, Optional<Boolean> predicative, Optional<Boolean> negated, Optional<Boolean> all, TT template) {
+
+        if (template == null && !Optional.of(true).equals(all)) {
+            throw new BadContentError("The lack of body for GET is only supported in case query parameter `all` is true");
+        }
+
         return Tuple.tuple(
                 Objects.requireNonNull(tupleSpaceName),
                 bulk.orElse(false),

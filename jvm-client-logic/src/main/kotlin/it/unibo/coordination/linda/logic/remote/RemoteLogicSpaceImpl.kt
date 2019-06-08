@@ -27,7 +27,12 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
 
         @JvmStatic
         protected val webClient: HttpClient by lazy {
-            vertx.createHttpClient(HttpClientOptions().setKeepAlive(false))
+            vertx.createHttpClient(
+                    HttpClientOptions()
+                            .setKeepAlive(true)
+                            .setHttp2MaxPoolSize(1 shl 15)
+                            .setMaxPoolSize(1 shl 15)
+            )
         }
 
         @JvmStatic
@@ -142,9 +147,11 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
                 future = promise
         ) { req, res ->
             res.addExceptionHandler(promise)
-            if (res.statusCode() != 200) {
+            if (res.statusCode() == 204) {
+                promise.complete(emptyList())
+            } else if (res.statusCode() !in setOf(200, 204)) {
                 promise.completeExceptionally(RemoteException("$DELETE", req.absoluteURI(), res.statusCode()))
-            } else {
+            }  else {
                 res.bodyHandler {
                     val matches = it.toString("UTF-8").parseAsListOf(LogicMatch::class.java, mimeType)
                     promise.complete(matches)
@@ -213,16 +220,17 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
                 future = promise
         ) { req, res ->
             res.addExceptionHandler(promise)
-            if (res.statusCode() != 200) {
-                promise.completeExceptionally(RemoteException("$HEAD", req.absoluteURI(), res.statusCode()))
-            } else {
-                res.bodyHandler {
+            when {
+                res.statusCode() != 200 ->
+                    promise.completeExceptionally(RemoteException("$HEAD", req.absoluteURI(), res.statusCode()))
+                "X-TUPLE-SPACE-SIZE" in res.headers() ->
                     try {
-                      promise.complete(it.toString("UTF-8").toInt())
+                        promise.complete(res.getHeader("X-TUPLE-SPACE-SIZE").toInt())
                     } catch (e: NumberFormatException) {
                         promise.completeExceptionally(e)
                     }
-                }
+                else ->
+                    promise.completeExceptionally(IllegalStateException("Missing response header X-TUPLE-SPACE-SIZE"))
             }
         }
 
@@ -239,9 +247,11 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
                 future = promise
         ) { req, res ->
             res.addExceptionHandler(promise)
-            if (res.statusCode() != 200) {
-                promise.completeExceptionally(RemoteException("$GET", req.absoluteURI(), res.statusCode()))
-            } else {
+            if (res.statusCode() == 204) {
+                promise.complete(emptyList())
+            } else if (res.statusCode() != 200) {
+                promise.completeExceptionally(RemoteException("$DELETE", req.absoluteURI(), res.statusCode()))
+            }  else {
                 res.bodyHandler {
                     val matches = it.toString("UTF-8").parseAsListOf(LogicMatch::class.java, mimeType)
                     promise.complete(matches)

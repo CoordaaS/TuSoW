@@ -3,7 +3,10 @@ package it.unibo.coordination.testing;
 import org.junit.Assert;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -108,13 +111,20 @@ public class ConcurrentTestHelper {
 
     public <T> void assertOneOf(final Future<T> actualFuture, final T expected1,
             @SuppressWarnings("unchecked") final T... expected) {
-        assertOneOf(actualFuture, Stream.concat(Stream.of(expected1), Stream.of(expected)).collect(Collectors.toSet()));
+        assertOneOf(actualFuture, Stream.concat(Stream.of(expected1), Stream.of(expected)).collect(Collectors.toSet()), null);
     }
 
     public <T> void assertOneOf(final Future<T> actualFuture, final Collection<? extends T> expected) {
+        assertOneOf(actualFuture, expected, null);
+    }
+
+    public <T> void assertOneOf(final Future<T> actualFuture, final Collection<? extends T> expected, String message) {
         try {
             final T actual = actualFuture.get(GET_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
-            assertTrue(expected.contains(actual));
+            if (message == null)
+                assertTrue(expected.contains(actual));
+            else
+                assertTrue(expected.contains(actual), message);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             fail(e);
         }
