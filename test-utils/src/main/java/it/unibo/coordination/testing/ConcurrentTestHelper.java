@@ -85,7 +85,7 @@ public class ConcurrentTestHelper {
     public <T> void assertEquals(final Future<T> actualFuture, final T expected) {
         try {
             final T actual = actualFuture.get(GET_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
-            assertEquals(actual, expected);
+            assertEquals(actual, expected, String.format("Expected %s, found %s", expected, actual));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             fail(e);
         }
@@ -94,7 +94,7 @@ public class ConcurrentTestHelper {
     public <T> void assertTrue(final Future<T> actualFuture, final Predicate<T> p) {
         try {
             final T actual = actualFuture.get(GET_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
-            assertTrue(p.test(actual));
+            assertTrue(p.test(actual), "Expected true, got false instead");
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             fail(e);
         }
@@ -111,7 +111,7 @@ public class ConcurrentTestHelper {
 
     public <T> void assertOneOf(final Future<T> actualFuture, final T expected1,
             @SuppressWarnings("unchecked") final T... expected) {
-        assertOneOf(actualFuture, Stream.concat(Stream.of(expected1), Stream.of(expected)).collect(Collectors.toSet()), null);
+        assertOneOf(actualFuture, Stream.concat(Stream.of(expected1), Stream.of(expected)).collect(Collectors.toSet()));
     }
 
     public <T> void assertOneOf(final Future<T> actualFuture, final Collection<? extends T> expected) {
@@ -122,7 +122,7 @@ public class ConcurrentTestHelper {
         try {
             final T actual = actualFuture.get(GET_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
             if (message == null)
-                assertTrue(expected.contains(actual));
+                assertTrue(expected.contains(actual), String.format("Expecting %s is one of %s, but it is not", actual, expected));
             else
                 assertTrue(expected.contains(actual), message);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -133,7 +133,7 @@ public class ConcurrentTestHelper {
     public void assertBlocksIndefinitely(final Future<?> future, final String message) {
         try {
             future.get(BLOCKING_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
-            fail(message);
+            fail(message == null ? "Async. operation terminated while it was expected to block indefinitely" : message);
         } catch (InterruptedException | ExecutionException e) {
             fail(e);
         } catch (final TimeoutException e) {
@@ -142,14 +142,7 @@ public class ConcurrentTestHelper {
     }
 
     public void assertBlocksIndefinitely(final Future<?> future) {
-        try {
-            future.get(BLOCKING_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
-            fail();
-        } catch (InterruptedException | ExecutionException e) {
-            fail(e);
-        } catch (final TimeoutException e) {
-            success();
-        }
+        assertBlocksIndefinitely(future, null);
     }
 
     public void assertEventuallyReturns(final Future<?> future, final String message) {
@@ -159,19 +152,12 @@ public class ConcurrentTestHelper {
         } catch (InterruptedException | ExecutionException e) {
             fail(e);
         } catch (final TimeoutException e) {
-            fail(message);
+            fail(message == null ? "Async. operation should have returned a value in time, but it did not" : message);
         }
     }
 
     public void assertEventuallyReturns(final Future<?> future) {
-        try {
-            future.get(BLOCKING_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
-            success();
-        } catch (InterruptedException | ExecutionException e) {
-            fail(e);
-        } catch (final TimeoutException e) {
-            fail();
-        }
+        assertEventuallyReturns(future, null);
     }
 
 }
