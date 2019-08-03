@@ -65,11 +65,11 @@ public interface LogicMatch extends Match<LogicTuple, LogicTemplate, String, Ter
     }
 
     static Struct getPattern() {
-        return new Struct("match",
-                new Struct("success", new Var("Success")),
+        return Struct.of("match",
+                Struct.of("success", Var.of("Success")),
                 LogicTemplate.getPattern(),
-                new Var("Tuple"),
-                new Struct("Mappings")
+                Var.of("Tuple"),
+                Var.of("Mappings")
         );
     }
 
@@ -78,14 +78,13 @@ public interface LogicMatch extends Match<LogicTuple, LogicTemplate, String, Ter
     }
 
     default Struct asTerm() {
-        return new Struct("match",
-                new Struct("success", isMatching() ? new Struct("yes") : new Struct("no")),
+        return Struct.of("match",
+                Struct.of("success", isMatching() ? Struct.atom("yes") : Struct.atom("no")),
                 getTemplate().asTerm(),
-                getTuple().map(LogicTuple::asTerm).orElse(new Struct("empty")),
-                new Struct(
+                getTuple().map(LogicTuple::asTerm).orElse(Struct.atom("empty")),
+                Struct.list(
                         toMap().entrySet().stream()
                                 .map(kv -> PrologUtils.unificationTerm(kv.getKey(), kv.getValue()))
-                                .toArray(Term[]::new)
                 )
         );
     }

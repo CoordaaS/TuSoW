@@ -1,9 +1,9 @@
 package it.unibo.coordination.linda.logic;
 
-import alice.tuprolog.NoSolutionException;
 import alice.tuprolog.SolveInfo;
 import alice.tuprolog.Term;
 import alice.tuprolog.Var;
+import alice.tuprolog.exceptions.NoSolutionException;
 import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.Tuple;
 

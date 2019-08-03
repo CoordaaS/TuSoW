@@ -1,13 +1,14 @@
 package it.unibo.coordination.prologx;
 
-import alice.tuprolog.Double;
-import alice.tuprolog.Float;
-import alice.tuprolog.Long;
 import alice.tuprolog.*;
+import alice.tuprolog.exceptions.InvalidTermException;
 import alice.tuprolog.exceptions.NoMoreSolutionException;
 import alice.tuprolog.exceptions.NoSolutionException;
+import alice.tuprolog.presentation.TermUtils;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -81,15 +82,7 @@ public class PrologUtils {
         });
     }
 
-    public static Stream<Term> parseList(String string) {
-        try {
-            return listToStream(Term.createTerm(string));
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            return Stream.empty();
-        }
-    }
-
+    @Deprecated
     public static Stream<Term> listToStream(Term term) {
         if (term.isList()) {
             return listToStream((Struct) term);
@@ -98,6 +91,7 @@ public class PrologUtils {
         }
     }
 
+    @Deprecated
     public static Stream<Term> listToStream(Struct list) {
         final Iterator<? extends Term> i = list.listIterator();
         final Stream.Builder<Term> sb = Stream.builder();
@@ -109,27 +103,17 @@ public class PrologUtils {
         return sb.build();
     }
 
-    public static Struct streamToList(Stream<? extends Term> terms) {
-        final Term[] temp = terms.toArray(Term[]::new);
-        return new Struct(temp);
-    }
-
     public static Term streamToConjunction(Stream<? extends Term> terms) {
         final List<Term> termList = terms.collect(Collectors.toList());
         final int size = termList.size();
 
         if (termList.isEmpty()) {
-            return Struct.TRUE;
+            return Struct.truth(true);
         } else if (size == 1) {
             return termList.get(0);
         }
 
-        Struct conjunction = new Struct(",", termList.get(size - 2), termList.get(size - 1));
-        for (int i = size - 3; i >= 0; i--) {
-            conjunction = new Struct(",", termList.get(i), conjunction);
-        }
-
-        return conjunction;
+        return Struct.tuple(terms);
     }
 
     public static Stream<Term> conjunctionToStream(Term term) {
@@ -145,24 +129,24 @@ public class PrologUtils {
     }
 
     public static Struct unificationTerm(String var, Term term) {
-        return unificationTerm(new Var(var), term);
+        return unificationTerm(Var.of(var), term);
     }
 
     public static Struct unificationTerm(Term term1, Term term2) {
-        return new Struct("=", term1, term2);
+        return Struct.of("=", term1, term2);
     }
 
     public static Struct assertTerm(Term term) {
-        return new Struct("assert", term);
+        return Struct.of("assert", term);
     }
 
     public static Struct retractTerm(Term term) {
-        return new Struct("retract", term);
+        return Struct.of("retract", term);
     }
 
     public static Term anyToTerm(Object payload) {
         if (payload == null) {
-            return new Var();
+            return Var.anonymous();
         } else if (payload instanceof Term) {
             return (Term) payload;
         } else if (payload instanceof PrologSerializable) {
@@ -171,7 +155,7 @@ public class PrologUtils {
             try {
                 return Term.createTerm(payload.toString());
             } catch (InvalidTermException e) {
-                return new Struct(payload.toString());
+                return Struct.atom(payload.toString());
             }
         }
     }
@@ -179,72 +163,11 @@ public class PrologUtils {
     private static final Prolog HELPER = new Prolog();
 
     public static Term dynamicObjectToTerm(Object object) {
-        if (object instanceof java.lang.Double) {
-            return new Double((java.lang.Double) object);
-        } else if (object instanceof java.lang.Integer) {
-            return new Int((Integer) object);
-        } else if (object instanceof java.lang.Float) {
-            return new Float((java.lang.Float) object);
-        } else if (object instanceof java.lang.Long) {
-            return new Long((java.lang.Long) object);
-        } else if (object instanceof String) {
-            return new Struct(object.toString());
-        } else if (object instanceof List) {
-            var terms = ((List<?>) object).stream()
-                    .map(PrologUtils::dynamicObjectToTerm)
-                    .toArray(Term[]::new);
-            return new Struct(terms);
-        } else if (object instanceof Map) {
-            final Map<String, Object> objectMap = (Map<String, Object>) object;
-            if (objectMap.containsKey("var")) {
-                final var variable = new Var(objectMap.get("var").toString());
-                if (objectMap.get("val") != null) {
-                    variable.unify(HELPER, dynamicObjectToTerm(objectMap.get("val")));
-                }
-                return variable;
-            } else if (objectMap.containsKey("fun") && objectMap.containsKey("args")) {
-                final Term[] arguments = ((List<?>) objectMap.get("args"))
-                        .stream()
-                        .peek(it -> {
-                            if (it == null) throw new IllegalArgumentException();
-                        }).map(PrologUtils::dynamicObjectToTerm)
-                        .toArray(Term[]::new);
-
-                return new Struct(objectMap.get("fun").toString(), arguments);
-            }
-        }
-        throw new IllegalArgumentException();
+        return TermUtils.dynamicObjectToTerm(object);
     }
 
     public static Object termToDynamicObject(Term term) {
-        if (term instanceof Double) {
-            return ((Double) term).doubleValue();
-        } else if (term instanceof Int) {
-            return ((Int) term).intValue();
-        } else if (term instanceof Float) {
-            return ((Float) term).floatValue();
-        } else if (term instanceof Long) {
-            return ((Long) term).intValue();
-        } else if (term instanceof Var && ((Var) term).isBound()) {
-            return Map.of("var", ((Var) term).getOriginalName(), "val", termToDynamicObject(((Var) term).getLink()));
-        } else if (term instanceof Var) {
-            final Map<String, Object> varMap = new LinkedHashMap<>();
-            varMap.put("var", ((Var) term).getOriginalName());
-            varMap.put("val", null);
-            return Collections.unmodifiableMap(varMap);
-        } else if (term.isList()) {
-            return listToStream(term)
-                    .map(PrologUtils::termToDynamicObject)
-                    .collect(Collectors.toList());
-        } else if (term instanceof Struct) {
-            final Struct struct = (Struct) term;
-            if (struct.getArity() == 0) {
-                return struct.getName();
-            } else {
-                return Map.of("fun", struct.getName(), "args", argumentsStream(struct).map(PrologUtils::termToDynamicObject).collect(Collectors.toList()));
-            }
-        }
-        throw new IllegalStateException();
+        return TermUtils.termToDynamicObject(term);
     }
 
     public static Stream<Term> argumentsStream(Struct struct) {
