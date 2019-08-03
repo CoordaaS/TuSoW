@@ -10,7 +10,7 @@ val tuprologVersion: String by project
 val junitVersion: String by project
 
 dependencies {
-    api("it.unibo.alice.tuprolog", "tuprolog", tuprologVersion)
+    api("it.unibo.alice.tuprolog", "2p-core", tuprologVersion)
     api(project(":linda-core"))
     implementation(project(":utils"))
     implementation(project(":prologx"))

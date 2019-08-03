@@ -4,6 +4,8 @@ import alice.tuprolog.Double;
 import alice.tuprolog.Float;
 import alice.tuprolog.Long;
 import alice.tuprolog.*;
+import alice.tuprolog.exceptions.NoMoreSolutionException;
+import alice.tuprolog.exceptions.NoSolutionException;
 
 import java.util.*;
 import java.util.function.Supplier;
