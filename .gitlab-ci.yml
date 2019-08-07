@@ -1,31 +1,20 @@
-image: gciatto/my-images:jdk11-gradlew5
+image: gciatto/my-images:jdk12-alpine-gradle551
 
 variables:
   GOPTS: "--no-daemon --console=plain"
 
-before_script:
-  - chmod +x gradlew
-
-cache:
-  paths:
-     - /root/.gradle/
-     - gradle/
-     - build/
-     - .gradle/wrapper
-     - .gradle/caches
-
 build:
   stage: build
-  script: ./gradlew assemble $GOPTS
+  script: gradle assemble $GOPTS
 
 test:
   stage: test
-  script: ./gradlew check $GOPTS
+  script: gradle check $GOPTS
 
 deploy_artifacts:
   stage: deploy
   script:
-    - ./gradlew bintrayUpload
+    - gradle bintrayUpload
   environment:
     name: Bintray
     url: https://bintray.com/gciatto-unibo/pika-lab
