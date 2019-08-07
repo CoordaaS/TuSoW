@@ -1,4 +1,4 @@
-rootProject.name = 'parent'
+rootProject.name = 'coordination'
 include 'linda-core'
 include 'linda-logic'
 include 'tusow'

@@ -18,11 +18,11 @@ public interface LogicTuple extends Tuple, Comparable<LogicTuple> {
     }
 
     static Struct getPattern() {
-        return new Struct("tuple", new Var("T"));
+        return Struct.of("tuple", Var.of("T"));
     }
 
     static Struct getPattern(Term term) {
-        return new Struct("tuple", Objects.requireNonNull(term));
+        return Struct.of("tuple", Objects.requireNonNull(term));
     }
 
     Struct asTerm();

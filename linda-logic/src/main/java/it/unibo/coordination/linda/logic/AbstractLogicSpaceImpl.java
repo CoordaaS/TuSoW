@@ -21,10 +21,10 @@ abstract class AbstractLogicSpaceImpl extends AbstractTupleSpace<LogicTuple, Log
     @Override
     protected Stream<LogicMatch> lookForTuples(LogicTemplate template, int limit) {
         return PrologUtils.solutionsStream(engine, template.toTuple().asTerm())
-                .limit(limit)
                 .map(Struct.class::cast)
                 .map(LogicTuple::of)
-                .map(template::matchWith);
+                .map(template::matchWith)
+                .limit(limit);
     }
 
     @Override
@@ -35,11 +35,11 @@ abstract class AbstractLogicSpaceImpl extends AbstractTupleSpace<LogicTuple, Log
     @Override
     protected final Stream<LogicMatch> retrieveTuples(LogicTemplate template, int limit) {
         return PrologUtils.solutionsStream(engine, PrologUtils.retractTerm(template.toTuple().asTerm()))
-                .limit(limit)
                 .map(Struct.class::cast)
                 .map(s -> s.getArg(0))
                 .map(LogicTuple::of)
-                .map(template::matchWith);
+                .map(template::matchWith)
+                .limit(limit);
     }
 
     @Override

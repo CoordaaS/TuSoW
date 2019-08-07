@@ -42,14 +42,14 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         protected val mimeType = MIMETypes.APPLICATION_YAML
 
         @JvmStatic
-        private inline infix fun String.assignTo(any: Any) = Pair(this, any)
+        private infix fun String.assignTo(any: Any) = Pair(this, any)
 
         @JvmStatic
-        private inline fun Collection<LogicTuple>.convertTo(type: MIMETypes): String =
+        private fun Collection<LogicTuple>.convertTo(type: MIMETypes): String =
                 Presentation.getSerializer(LogicTuple::class.java, type).toString(this)
 
         @JvmStatic
-        private inline fun LogicTemplate.convertTo(type: MIMETypes): String =
+        private fun LogicTemplate.convertTo(type: MIMETypes): String =
                 Presentation.getSerializer(LogicTemplate::class.java, type).toString(this)
 
         @JvmStatic
@@ -63,14 +63,14 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         }
 
         @JvmStatic
-        private inline fun <T> HttpClientRequest.addExceptionHandler(future: CompletableFuture<T>) {
+        private fun <T> HttpClientRequest.addExceptionHandler(future: CompletableFuture<T>) {
             this.exceptionHandler {
                 future.completeExceptionally(it)
             }
         }
 
         @JvmStatic
-        private inline fun <T> HttpClientResponse.addExceptionHandler(future: CompletableFuture<T>) {
+        private fun <T> HttpClientResponse.addExceptionHandler(future: CompletableFuture<T>) {
             this.exceptionHandler {
                 future.completeExceptionally(it)
             }
@@ -137,8 +137,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun takeAll(template: LogicTemplate): CompletableFuture<Collection<out Match<LogicTuple, LogicTemplate, String, Term>>> {
-        val promise = CompletableFuture<Collection<out Match<LogicTuple, LogicTemplate, String, Term>>>()
+    override fun takeAll(template: LogicTemplate): CompletableFuture<Collection<Match<LogicTuple, LogicTemplate, String, Term>>> {
+        val promise = CompletableFuture<Collection<Match<LogicTuple, LogicTemplate, String, Term>>>()
 
         remoteOperation(
                 method = DELETE,
@@ -189,7 +189,7 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun writeAll(tuples: Collection<out LogicTuple>): CompletableFuture<MultiSet<LogicTuple>> {
+    override fun writeAll(tuples: Collection<LogicTuple>): CompletableFuture<MultiSet<LogicTuple>> {
         val promise = CompletableFuture<MultiSet<LogicTuple>>()
 
         remoteOperation(
@@ -237,8 +237,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun readAll(template: LogicTemplate): CompletableFuture<Collection<out Match<LogicTuple, LogicTemplate, String, Term>>> {
-        val promise = CompletableFuture<Collection<out Match<LogicTuple, LogicTemplate, String, Term>>>()
+    override fun readAll(template: LogicTemplate): CompletableFuture<Collection<Match<LogicTuple, LogicTemplate, String, Term>>> {
+        val promise = CompletableFuture<Collection<Match<LogicTuple, LogicTemplate, String, Term>>>()
 
         remoteOperation(
                 method = GET,

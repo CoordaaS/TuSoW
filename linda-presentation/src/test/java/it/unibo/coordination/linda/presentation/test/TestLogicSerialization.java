@@ -48,14 +48,13 @@ public class TestLogicSerialization extends TestBaseLinda<LogicTuple, LogicTempl
                 "- fun: \"g\"\n" +
                 "  args:\n" +
                 "  - \"h\"\n" +
-                "  - \n" +
+                "  - list: \n" +
                 "    - 4\n" +
                 "    - \"i\"\n" +
-                "- \n" +
+                "- list: \n" +
                 "  - \"x\"\n" +
                 "  - \"y\"\n" +
-                "  - var: \"Z\"\n" +
-                "    val: null";
+                "  - var: \"Z\"\n";
 
         final var result = yamlMapper.readTree(resultString);
 
@@ -69,7 +68,7 @@ public class TestLogicSerialization extends TestBaseLinda<LogicTuple, LogicTempl
     @Test
     public void testLogicTupleSerialisationToJSON() throws IOException {
         final var tuple = LogicTuple.of("f(1, \"2\", '3', d, e(f), g(h, [4, i]), [x, y, Z])");
-        final var resultString = "{\"fun\":\"f\",\"args\":[1,\"2\",\"3\",\"d\",{\"fun\":\"e\",\"args\":[\"f\"]},{\"fun\":\"g\",\"args\":[\"h\",[4,\"i\"]]},[\"x\",\"y\",{\"var\":\"Z\",\"val\":null}]]}";
+        final var resultString = "{\"fun\":\"f\",\"args\":[1,\"2\",\"3\",\"d\",{\"fun\":\"e\",\"args\":[\"f\"]},{\"fun\":\"g\",\"args\":[\"h\",{\"list\":[4,\"i\"]}]},{\"list\":[\"x\",\"y\",{\"var\":\"Z\"}]}]}";
 
         final var result = jsonMapper.readTree(resultString);
 
@@ -125,25 +124,17 @@ public class TestLogicSerialization extends TestBaseLinda<LogicTuple, LogicTempl
                 "args:\n" +
                 "- 1\n" +
                 "- var: \"A\"\n" +
-                "  val: null\n" +
                 "- var: \"B\"\n" +
-                "  val: null\n" +
                 "- var: \"C\"\n" +
-                "  val: null\n" +
                 "- var: \"D\"\n" +
-                "  val: null\n" +
                 "- fun: \"g\"\n" +
                 "  args:\n" +
                 "  - var: \"E\"\n" +
-                "    val: null\n" +
-                "  - fun: \".\"\n" +
-                "    args:\n" +
+                "  - list: \n" +
                 "    - var: \"F\"\n" +
-                "      val: null\n" +
-                "    - var: \"G\"\n" +
-                "      val: null\n" +
-                "- var: \"H\"\n" +
-                "  val: null";
+                "    - tail: \n" +
+                "        var: \"G\"\n" +
+                "- var: \"H\"\n";
 
         final var result = yamlMapper.readTree(resultString);
 
@@ -157,7 +148,7 @@ public class TestLogicSerialization extends TestBaseLinda<LogicTuple, LogicTempl
     @Test
     public void testLogicTemplateSerialisationToJSON() throws IOException {
         final var template = LogicTemplate.of("f(1, A, B, C, D, g(E, [F | G]), H)");
-        final var resultString = "{\"fun\":\"f\",\"args\":[1,{\"var\":\"A\",\"val\":null},{\"var\":\"B\",\"val\":null},{\"var\":\"C\",\"val\":null},{\"var\":\"D\",\"val\":null},{\"fun\":\"g\",\"args\":[{\"var\":\"E\",\"val\":null},{\"fun\":\".\",\"args\":[{\"var\":\"F\",\"val\":null},{\"var\":\"G\",\"val\":null}]}]},{\"var\":\"H\",\"val\":null}]}";
+        final var resultString = "{\"fun\":\"f\",\"args\":[1,{\"var\":\"A\"},{\"var\":\"B\"},{\"var\":\"C\"},{\"var\":\"D\"},{\"fun\":\"g\",\"args\":[{\"var\":\"E\"},{\"list\":[{\"var\":\"F\"},{\"tail\":{\"var\":\"G\"}}]}]},{\"var\":\"H\"}]}";
 
         final var result = jsonMapper.readTree(resultString);
 
@@ -175,15 +166,12 @@ public class TestLogicSerialization extends TestBaseLinda<LogicTuple, LogicTempl
                 "- fun: \"a\"\n" +
                 "  args:\n" +
                 "  - var: A\n" +
-                "    val: null\n" +
                 "- fun: \"b\"\n" +
                 "  args:\n" +
                 "  - var: B\n" +
-                "    val: null\n" +
                 "- fun: \"c\"\n" +
                 "  args:\n" +
-                "  - var: C\n" +
-                "    val: null\n";
+                "  - var: C\n";
 
         final var result = yamlMapper.readTree(resultString);
 
@@ -197,7 +185,7 @@ public class TestLogicSerialization extends TestBaseLinda<LogicTuple, LogicTempl
     @Test
     public void testLogicTemplatesSerialisationToJSON() throws IOException {
         final var templates = Stream.of("a(A)", "b(B)", "c(C)").map(LogicTemplate::of).collect(Collectors.toList());
-        final var resultString = "[{\"fun\":\"a\",\"args\":[{\"var\":\"A\",\"val\":null}]},{\"fun\":\"b\",\"args\":[{\"var\":\"B\",\"val\":null}]},{\"fun\":\"c\",\"args\":[{\"var\":\"C\",\"val\":null}]}]";
+        final var resultString = "[{\"fun\":\"a\",\"args\":[{\"var\":\"A\"}]},{\"fun\":\"b\",\"args\":[{\"var\":\"B\"}]},{\"fun\":\"c\",\"args\":[{\"var\":\"C\"}]}]";
 
         final var result = jsonMapper.readTree(resultString);
 

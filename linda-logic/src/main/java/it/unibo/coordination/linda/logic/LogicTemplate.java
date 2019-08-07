@@ -20,11 +20,11 @@ public interface LogicTemplate extends Template {
     }
 
     static Struct getPattern() {
-        return new Struct("template", new Var("T"));
+        return Struct.of("template", Var.of("T"));
     }
 
     static Struct getPattern(Term term) {
-        return new Struct("template", Objects.requireNonNull(term));
+        return Struct.of("template", Objects.requireNonNull(term));
     }
 
     @Override

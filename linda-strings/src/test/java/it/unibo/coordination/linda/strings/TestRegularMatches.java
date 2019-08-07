@@ -1,6 +1,5 @@
 package it.unibo.coordination.linda.strings;
 
-import alice.tuprolog.Term;
 import it.unibo.coordination.linda.string.RegexTemplate;
 import it.unibo.coordination.linda.string.RegularMatch;
 import it.unibo.coordination.linda.string.StringTuple;

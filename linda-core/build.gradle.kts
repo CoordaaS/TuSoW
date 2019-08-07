@@ -11,7 +11,6 @@ val apacheCommonsVersion: String by project
 val junitVersion: String by project
 
 dependencies {
-    api("it.unibo.alice.tuprolog", "tuprolog", tuprologVersion)
     api("org.apache.commons", "commons-collections4", apacheCommonsVersion)
 
     testImplementation("junit", "junit", junitVersion)
