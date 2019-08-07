@@ -15,7 +15,6 @@ buildscript {
 allprojects {
     // In this section you declare where to find the dependencies of all projects
     repositories {
-        jcenter()
         mavenCentral()
     }
 
