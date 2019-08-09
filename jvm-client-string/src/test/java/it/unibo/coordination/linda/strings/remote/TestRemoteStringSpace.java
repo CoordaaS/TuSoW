@@ -30,7 +30,7 @@ public class TestRemoteStringSpace extends TestTupleSpace<StringTuple, RegexTemp
 
     @BeforeClass
     public static void setUpClass() {
-        service = Service.start("-p", "8080");
+        service = Service.start("-p", "10002");
         testCaseIndex = 0;
     }
 

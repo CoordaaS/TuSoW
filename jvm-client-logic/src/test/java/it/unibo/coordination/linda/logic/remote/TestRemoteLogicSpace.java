@@ -31,7 +31,7 @@ public class TestRemoteLogicSpace extends TestTupleSpace<LogicTuple, LogicTempla
 
     @BeforeClass
     public static void setUpClass() {
-        service = Service.start("-p", "8080");
+        service = Service.start("-p", "10001");
         testCaseIndex = 0;
     }
 
