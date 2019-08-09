@@ -9,9 +9,11 @@ import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 
 import java.util.*;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -69,8 +71,20 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         getPendingRequests().add(request);
     }
 
+    protected void removePendingRequest(PendingRequest request) {
+        getPendingRequests().remove(request);
+    }
+
     protected Iterator<PendingRequest> getPendingRequestsIterator() {
         return getPendingRequests().iterator();
+    }
+
+    protected void interceptCancel(CompletableFuture<?> promise, Consumer<CancellationException> handler) {
+        promise.whenComplete((match, error) -> {
+            if (match == null && error instanceof CancellationException) {
+                handler.accept((CancellationException) error);
+            }
+        });
     }
 
     @Override
@@ -100,7 +114,9 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
                 promise.complete(read);
                 onRead(read.getTuple().get());
             } else {
-               addPendingRequest(newPendingAccessRequest(RequestTypes.READ, template, promise));
+                final var pendingRequest = newPendingAccessRequest(RequestTypes.READ, template, promise);
+                addPendingRequest(pendingRequest);
+                interceptCancel(promise, safelyRemovePendingRequest(pendingRequest));
             }
         } finally {
             getLock().unlock();
@@ -139,6 +155,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
             } else {
                 final PendingRequest pendingRequest = newPendingAccessRequest(RequestTypes.TAKE, template, promise);
                 addPendingRequest(pendingRequest);
+                interceptCancel(promise, safelyRemovePendingRequest(pendingRequest));
             }
         } finally {
             getLock().unlock();
@@ -181,10 +198,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         log("Invoked `write` operation for of: %s", tuple);
         final CompletableFuture<T> result = new CompletableFuture<>();
         executor.execute(() -> this.handleWrite(tuple, result));
-        return result.thenComposeAsync(t -> {
+        return result.thenApplyAsync(t -> {
             operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(t));
             log("Completed `write` operation on tuple '%s', result: %s", tuple, t);
-            return CompletableFuture.completedFuture(t);
+            return t;
         }, executor);
     }
 
@@ -432,12 +449,26 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
 
     protected abstract Match<T, TT, K, V> failedMatch(TT template);
 
+    private Consumer<CancellationException> safelyRemovePendingRequest(PendingRequest pendingRequest) {
+        return e -> {
+            getLock().lock();
+
+            try {
+               removePendingRequest(pendingRequest);
+            } finally {
+                getLock().unlock();
+            }
+        };
+    }
+
     private void handleAbsent(final TT template, final CompletableFuture<Match<T, TT, K, V>> promise) {
         getLock().lock();
         try {
             final Match<T, TT, K, V> read = lookForTuple(template);
             if (read.isMatching()) {
-                addPendingRequest(newPendingAbsentRequest(template, promise));
+                final var pendingRequest = newPendingAbsentRequest(template, promise);
+                addPendingRequest(pendingRequest);
+                interceptCancel(promise, safelyRemovePendingRequest(pendingRequest));
             } else {
                 onAbsent(template);
                 promise.complete(failedMatch(template));
