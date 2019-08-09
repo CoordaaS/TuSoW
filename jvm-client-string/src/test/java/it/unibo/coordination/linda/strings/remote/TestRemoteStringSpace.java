@@ -19,6 +19,8 @@ import java.util.stream.IntStream;
 @RunWith(Parameterized.class)
 public class TestRemoteStringSpace extends TestTupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch, RemoteStringSpace> {
 
+    private static final int PORT = 10002;
+
     private static Service service;
     private final int testIndex;
     private static int testCaseIndex = 0;
@@ -30,7 +32,7 @@ public class TestRemoteStringSpace extends TestTupleSpace<StringTuple, RegexTemp
 
     @BeforeClass
     public static void setUpClass() {
-        service = Service.start("-p", "10002");
+        service = Service.start("-p", Integer.toString(PORT));
         testCaseIndex = 0;
     }
 
@@ -54,7 +56,7 @@ public class TestRemoteStringSpace extends TestTupleSpace<StringTuple, RegexTemp
 
     @Override
     protected RemoteStringSpace getTupleSpace(ExecutorService executor) {
-        return RemoteStringSpace.of("localhost", 8080, TestRemoteStringSpace.class.getSimpleName() + "-" + testIndex + "-" + testCaseIndex);
+        return RemoteStringSpace.of("localhost", PORT, TestRemoteStringSpace.class.getSimpleName() + "-" + testIndex + "-" + testCaseIndex);
     }
 
     @Parameterized.Parameters

@@ -20,6 +20,8 @@ import java.util.stream.IntStream;
 @RunWith(Parameterized.class)
 public class TestRemoteLogicSpace extends TestTupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch, RemoteLogicSpace> {
 
+    private static final int PORT = 10001;
+
     private static Service service;
     private final int testIndex;
     private static int testCaseIndex = 0;
@@ -31,7 +33,7 @@ public class TestRemoteLogicSpace extends TestTupleSpace<LogicTuple, LogicTempla
 
     @BeforeClass
     public static void setUpClass() {
-        service = Service.start("-p", "10001");
+        service = Service.start("-p", Integer.toString(PORT));
         testCaseIndex = 0;
     }
 
@@ -55,7 +57,7 @@ public class TestRemoteLogicSpace extends TestTupleSpace<LogicTuple, LogicTempla
 
     @Override
     protected RemoteLogicSpace getTupleSpace(ExecutorService executor) {
-        return RemoteLogicSpace.of("localhost", 8080, TestRemoteLogicSpace.class.getSimpleName() + "-" + testIndex + "-" + testCaseIndex);
+        return RemoteLogicSpace.of("localhost", PORT, TestRemoteLogicSpace.class.getSimpleName() + "-" + testIndex + "-" + testCaseIndex);
     }
 
     @Parameterized.Parameters
