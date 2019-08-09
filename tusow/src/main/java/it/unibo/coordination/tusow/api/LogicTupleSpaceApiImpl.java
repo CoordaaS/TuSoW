@@ -26,5 +26,4 @@ class LogicTupleSpaceApiImpl extends AbstractTupleSpaceApiTupleSpaceApi<LogicTup
         return LogicMatch.wrap(match);
     }
 
-
 }
