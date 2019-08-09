@@ -16,8 +16,8 @@ class LogicMatchDeserializer extends DynamicDeserializer<LogicMatch> {
 
     @Override
     public LogicMatch fromDynamicObject(Object dynamicObject) {
-        if(dynamicObject instanceof List) {
-            if(((List) dynamicObject).size() == 1) {
+        if (dynamicObject instanceof List) {
+            if (((List) dynamicObject).size() == 1) {
                 dynamicObject = ((List) dynamicObject).get(0);
             }
         }

@@ -11,6 +11,9 @@ import it.unibo.coordination.linda.logic.InspectableLogicSpace;
 import it.unibo.coordination.linda.logic.LogicMatch;
 import it.unibo.coordination.linda.logic.LogicTemplate;
 import it.unibo.coordination.linda.logic.LogicTuple;
+import it.unibo.coordination.linda.string.RegexTemplate;
+import it.unibo.coordination.linda.string.RegularMatch;
+import it.unibo.coordination.linda.string.StringTuple;
 import it.unibo.coordination.prologx.PrologUtils;
 import org.jooq.lambda.function.Function2;
 import org.jooq.lambda.function.Function3;
@@ -184,5 +187,14 @@ public class Presentation {
                 return InspectableLogicSpace.create(tupleSpaceName);
             }
         });
+
+
+        registerDynamicSerializers(StringTuple.class, StringTupleSerializer::new);
+        registerDynamicSerializers(RegexTemplate.class, RegexTemplateSerializer::new);
+        registerDynamicSerializers(RegularMatch.class, RegularMatchSerializer::new);
+
+        registerDynamicDeserializers(StringTuple.class, StringTupleDeserializer::new);
+        registerDynamicDeserializers(RegexTemplate.class, RegexTemplateDeserializer::new);
+        registerDynamicDeserializers(RegularMatch.class, RegularMatchDeserializer::new);
     }
 }
