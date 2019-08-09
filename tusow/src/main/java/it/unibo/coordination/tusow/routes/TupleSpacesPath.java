@@ -9,5 +9,6 @@ public class TupleSpacesPath extends Path {
     @Override
     protected void setupRoutes() {
         append(new LogicTupleSpacePath());
+        append(new TextualTupleSpacePath());
     }
 }

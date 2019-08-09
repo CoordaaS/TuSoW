@@ -206,7 +206,7 @@ public abstract class Path {
     }
 
     protected static void requireSomeIsNonNull(Object x, Object... xs) {
-        if (!Stream.concat(Stream.of(x), Stream.of(xs)).anyMatch(Objects::nonNull)) {
+        if (Stream.concat(Stream.of(x), Stream.of(xs)).noneMatch(Objects::nonNull)) {
             throw new BadContentError();
         }
     }

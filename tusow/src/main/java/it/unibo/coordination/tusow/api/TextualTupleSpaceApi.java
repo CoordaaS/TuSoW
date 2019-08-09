@@ -7,6 +7,6 @@ import it.unibo.coordination.linda.string.StringTuple;
 
 public interface TextualTupleSpaceApi extends TupleSpaceApi<StringTuple, RegexTemplate, Object, String, RegularMatch> {
     static TextualTupleSpaceApi get(RoutingContext context) {
-        throw new IllegalStateException();
+        return new TextualTupleSpaceApiImpl(context);
     }
 }
