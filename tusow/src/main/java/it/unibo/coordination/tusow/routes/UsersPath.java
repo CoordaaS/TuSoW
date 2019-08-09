@@ -5,7 +5,6 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 import it.unibo.coordination.linda.presentation.Deserializer;
 import it.unibo.coordination.linda.presentation.MIMETypes;
-import it.unibo.coordination.linda.presentation.Presentation;
 import it.unibo.coordination.linda.presentation.Serializer;
 import it.unibo.coordination.tusow.api.UsersApi;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
@@ -57,19 +56,19 @@ public class UsersPath extends Path {
 	}
 
     private Serializer<User> getUsersMarshaller(MIMETypes mimeType) {
-        return Presentation.getSerializer(User.class, mimeType);
+        return Serializer.of(User.class, mimeType);
     }
 
     private Deserializer<User> getUsersUnmarshaller(MIMETypes mimeType) {
-        return Presentation.getDeserializer(User.class, mimeType);
+        return Deserializer.of(User.class, mimeType);
     }
 
     private Serializer<Link> getLinkMarshaller(MIMETypes mimeType) {
-        return Presentation.getSerializer(Link.class, mimeType);
+        return Serializer.of(Link.class, mimeType);
     }
 
     private Deserializer<Link> getLinkUnmarshaller(MIMETypes mimeType) {
-        return Presentation.getDeserializer(Link.class, mimeType);
+        return Deserializer.of(Link.class, mimeType);
     }
 
     private void post(RoutingContext routingContext) {

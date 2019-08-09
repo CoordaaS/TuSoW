@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public abstract class TupleSpaceEventDeserializer<T extends Tuple, TT extends Template> extends DynamicDeserializer<TupleSpaceEvent> {
+abstract class TupleSpaceEventDeserializer<T extends Tuple, TT extends Template> extends DynamicDeserializer<TupleSpaceEvent> {
 
     private Class<T> tupleClass;
     private Class<TT> templateClass;

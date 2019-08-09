@@ -22,4 +22,8 @@ public interface Serializer<T> {
     void write(T object, Writer writer);
 
     void write(Collection<? extends T> objects, Writer writer);
+
+    static <X> Serializer<X> of(Class<X> klass, MIMETypes mimeType) {
+        return Presentation.getSerializer(klass, mimeType);
+    }
 }

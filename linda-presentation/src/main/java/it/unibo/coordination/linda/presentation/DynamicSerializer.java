@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Writer;
 import java.util.Collection;
 
-public abstract class DynamicSerializer<T> extends SimpleSerializer<T> {
+abstract class DynamicSerializer<T> extends SimpleSerializer<T> {
 
 
     public DynamicSerializer(MIMETypes mimeType, ObjectMapper mapper) {

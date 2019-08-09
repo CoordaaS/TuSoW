@@ -9,7 +9,7 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.Objects;
 
-public class SimpleSerializer<T> implements Serializer<T> {
+class SimpleSerializer<T> implements Serializer<T> {
 
     private final MIMETypes mimeType;
     private final ObjectMapper mapper;

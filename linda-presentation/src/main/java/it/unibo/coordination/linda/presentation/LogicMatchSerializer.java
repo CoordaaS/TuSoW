@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class LogicMatchSerializer extends DynamicSerializer<LogicMatch> {
+class LogicMatchSerializer extends DynamicSerializer<LogicMatch> {
 
 
     public LogicMatchSerializer(MIMETypes mimeType, ObjectMapper mapper) {

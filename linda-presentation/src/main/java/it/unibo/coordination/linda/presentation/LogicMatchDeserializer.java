@@ -8,7 +8,7 @@ import it.unibo.coordination.linda.logic.LogicTuple;
 import java.util.List;
 import java.util.Map;
 
-public class LogicMatchDeserializer extends DynamicDeserializer<LogicMatch> {
+class LogicMatchDeserializer extends DynamicDeserializer<LogicMatch> {
 
     public LogicMatchDeserializer(MIMETypes mimeType, ObjectMapper mapper) {
         super(LogicMatch.class, mimeType, mapper);

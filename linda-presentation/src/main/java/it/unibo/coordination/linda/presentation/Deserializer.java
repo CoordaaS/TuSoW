@@ -30,4 +30,8 @@ public interface Deserializer<T> {
     T read(Reader reader);
 
     List<T>  readList(Reader reader);
+
+    static <X> Deserializer<X> of(Class<X> klass, MIMETypes mimeType) {
+        return Presentation.getDeserializer(klass, mimeType);
+    }
 }

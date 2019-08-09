@@ -8,8 +8,9 @@ import it.unibo.coordination.linda.core.Match
 import it.unibo.coordination.linda.logic.LogicMatch
 import it.unibo.coordination.linda.logic.LogicTemplate
 import it.unibo.coordination.linda.logic.LogicTuple
+import it.unibo.coordination.linda.presentation.Deserializer
 import it.unibo.coordination.linda.presentation.MIMETypes
-import it.unibo.coordination.linda.presentation.Presentation
+import it.unibo.coordination.linda.presentation.Serializer
 import org.apache.commons.collections4.MultiSet
 import org.apache.commons.collections4.multiset.HashMultiSet
 import java.net.URL
@@ -46,20 +47,20 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
 
         @JvmStatic
         private fun Collection<LogicTuple>.convertTo(type: MIMETypes): String =
-                Presentation.getSerializer(LogicTuple::class.java, type).toString(this)
+                Serializer.of(LogicTuple::class.java, type).toString(this)
 
         @JvmStatic
         private fun LogicTemplate.convertTo(type: MIMETypes): String =
-                Presentation.getSerializer(LogicTemplate::class.java, type).toString(this)
+                Serializer.of(LogicTemplate::class.java, type).toString(this)
 
         @JvmStatic
         private fun <T> String.parseAs(clazz: Class<T>, type: MIMETypes): T {
-            return Presentation.getDeserializer(clazz, type).fromString(this)
+            return Deserializer.of(clazz, type).fromString(this)
         }
 
         @JvmStatic
         private fun <T> String.parseAsListOf(clazz: Class<T>, type: MIMETypes): List<T> {
-            return Presentation.getDeserializer(clazz, type).listFromString(this)
+            return Deserializer.of(clazz, type).listFromString(this)
         }
 
         @JvmStatic

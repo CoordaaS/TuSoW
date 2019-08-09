@@ -9,7 +9,7 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.Objects;
 
-public class SimpleDeserializer<T> implements Deserializer<T> {
+class SimpleDeserializer<T> implements Deserializer<T> {
 
     private final Class<T> clazz;
     private final MIMETypes mimeType;

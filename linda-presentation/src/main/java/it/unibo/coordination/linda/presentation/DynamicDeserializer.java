@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Reader;
 import java.util.List;
 
-public abstract class DynamicDeserializer<T> extends SimpleDeserializer<T> {
+abstract class DynamicDeserializer<T> extends SimpleDeserializer<T> {
 
     public DynamicDeserializer(Class<T> clazz, MIMETypes mimeType, ObjectMapper mapper) {
         super(clazz, mimeType, mapper);

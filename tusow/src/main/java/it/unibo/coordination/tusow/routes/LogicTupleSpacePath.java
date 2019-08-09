@@ -7,7 +7,6 @@ import it.unibo.coordination.linda.logic.LogicTemplate;
 import it.unibo.coordination.linda.logic.LogicTuple;
 import it.unibo.coordination.linda.presentation.Deserializer;
 import it.unibo.coordination.linda.presentation.MIMETypes;
-import it.unibo.coordination.linda.presentation.Presentation;
 import it.unibo.coordination.linda.presentation.Serializer;
 import it.unibo.coordination.tusow.api.LogicTupleSpaceApi;
 import it.unibo.coordination.tusow.api.TupleSpaceApi;
@@ -30,32 +29,32 @@ public class LogicTupleSpacePath extends AbstractTupleSpacePath<LogicTuple, Logi
 
     @Override
     protected Serializer<LogicTuple> getTuplesMarshaller(MIMETypes mimeType) {
-        return Presentation.getSerializer(LogicTuple.class, mimeType);
+        return Serializer.of(LogicTuple.class, mimeType);
     }
 
     @Override
     protected Serializer<LogicTemplate> getTemplatesMarshaller(MIMETypes mimeType) {
-        return Presentation.getSerializer(LogicTemplate.class, mimeType);
+        return Serializer.of(LogicTemplate.class, mimeType);
     }
 
     @Override
     protected Serializer<LogicMatch> getMatchMarshaller(MIMETypes mimeType) {
-        return Presentation.getSerializer(LogicMatch.class, mimeType);
+        return Serializer.of(LogicMatch.class, mimeType);
     }
 
     @Override
     protected Deserializer<LogicTuple> getTuplesUnmarshaller(MIMETypes mimeType) {
-        return Presentation.getDeserializer(LogicTuple.class, mimeType);
+        return Deserializer.of(LogicTuple.class, mimeType);
     }
 
     @Override
     protected Deserializer<LogicTemplate> getTemplatesUnmarshaller(MIMETypes mimeType) {
-        return Presentation.getDeserializer(LogicTemplate.class, mimeType);
+        return Deserializer.of(LogicTemplate.class, mimeType);
     }
 
     @Override
     protected Deserializer<LogicMatch> getMatchUnmarshaller(MIMETypes mimeType) {
-        return Presentation.getDeserializer(LogicMatch.class, mimeType);
+        return Deserializer.of(LogicMatch.class, mimeType);
     }
 
 
