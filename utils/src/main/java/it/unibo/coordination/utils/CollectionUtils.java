@@ -1,15 +1,20 @@
 package it.unibo.coordination.utils;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.PrimitiveIterator;
-import java.util.Random;
+import java.util.*;
 import java.util.function.IntPredicate;
 import java.util.function.IntUnaryOperator;
 
 public class CollectionUtils {
 
     private static final Random RAND = new Random();
+
+    public static <X> Collection<X> collectionOf(X first, X... others) {
+        return ListUtils.listOf(first, others);
+    }
+
+    public static <X> void requireNonEmpty(Collection<X> collection) {
+        ObjectUtils.require(collection, it -> it.size() > 0, "Collection %s cannot be empty", collection);
+    }
 
     public static <T> Iterator<T> randomIterator(List<T> list) {
         if (list.isEmpty()) {

@@ -4,11 +4,10 @@ import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import static it.unibo.coordination.utils.ListUtils.listOf;
 
 public interface BulkTupleSpace<T extends Tuple, TT extends Template, K, V> extends TupleSpace<T, TT, K, V> {
 
@@ -32,8 +31,7 @@ public interface BulkTupleSpace<T extends Tuple, TT extends Template, K, V> exte
 
     CompletableFuture<MultiSet<T>> writeAll(Collection<? extends T> tuples);
 
-    default Future<MultiSet<T>> writeAll(final T tuple1, final T... otherTuples) {
-        final List<T> tuples = Stream.concat(Stream.of(tuple1), Stream.of(otherTuples)).collect(Collectors.toList());
-        return writeAll(tuples);
+    default CompletableFuture<MultiSet<T>> writeAll(final T tuple1, final T... otherTuples) {
+        return writeAll(listOf(tuple1, otherTuples));
     }
 }

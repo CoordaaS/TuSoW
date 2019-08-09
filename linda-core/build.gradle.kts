@@ -12,6 +12,7 @@ val junitVersion: String by project
 
 dependencies {
     api("org.apache.commons", "commons-collections4", apacheCommonsVersion)
+    implementation(project(":utils"))
 
     testImplementation("junit", "junit", junitVersion)
 }
