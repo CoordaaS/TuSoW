@@ -3,6 +3,7 @@ package it.unibo.coordination.linda.core.impl;
 import it.unibo.coordination.linda.core.*;
 import it.unibo.coordination.linda.core.events.OperationEvent;
 import it.unibo.coordination.linda.core.events.TupleEvent;
+import it.unibo.coordination.utils.NumberUtils;
 import it.unibo.coordination.utils.events.EventSource;
 import it.unibo.coordination.utils.events.SyncEventEmitter;
 import org.apache.commons.collections4.MultiSet;
@@ -14,7 +15,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
+import java.util.function.IntPredicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K, V> implements InspectableExtendedTupleSpace<T, TT, K, V> {
@@ -228,7 +231,9 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
 
     private Optional<T> resumePendingAccessRequests(final T insertedTuple) {
         Optional<T> result = Optional.of(insertedTuple);
+
         final Iterator<PendingRequest> i = getPendingRequestsIterator();
+
         while (i.hasNext()) {
             final PendingRequest pendingRequest = i.next();
             final Match<T, TT, K, V> match = match(pendingRequest.getTemplate(), insertedTuple);
@@ -569,13 +574,25 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
 
     protected final class PendingRequest {
         private final RequestTypes requestType;
-        private final TT template;
-        private final CompletableFuture<Match<T, TT, K, V>> promise;
+        private final List<TT> templates;
+        private final int atLeast;
+        private final int[] count;
+        private final CompletableFuture<?> promise;
 
         private PendingRequest(final RequestTypes requestType, final TT template, final CompletableFuture<Match<T, TT, K, V>> promise) {
             this.requestType = Objects.requireNonNull(requestType);
-            this.template = Objects.requireNonNull(template);
+            this.templates = List.of(template);
             this.promise = Objects.requireNonNull(promise);
+            atLeast = 1;
+            count = new int[1];
+        }
+
+        private PendingRequest(final RequestTypes requestType, int atLeast, final Collection<? extends TT> templates, final CompletableFuture<Collection<? extends Match<T, TT, K, V>>> promise) {
+            this.requestType = Objects.requireNonNull(requestType);
+            this.templates = List.copyOf(templates);
+            this.promise = Objects.requireNonNull(promise);
+            this.atLeast = NumberUtils.requireInRange(atLeast, 1, templates.size());
+            this.count = new int[templates.size()];
         }
 
         public RequestTypes getRequestType() {
@@ -583,11 +600,66 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         }
 
         public TT getTemplate() {
-            return template;
+            return getTemplate(0);
+        }
+
+        public TT getTemplate(int index) {
+            return templates.get(index);
+        }
+
+        public List<TT> getTemplates() {
+            return templates;
+        }
+
+        public void notifyWrite(T tuple) {
+            for (int i = 0; i < getTemplates().size(); i++) {
+                if (match(getTemplate(i), tuple).isMatching()) {
+                    count[i]++;
+                }
+            }
+        }
+
+        public void notifyTake(T tuple) {
+            for (int i = 0; i < getTemplates().size(); i++) {
+                if (match(getTemplate(i), tuple).isMatching()) {
+                    count[i]--;
+                }
+            }
+        }
+
+        public boolean isSatisfiable() {
+            final IntPredicate satisfiableTemplate = getRequestType() == RequestTypes.ABSENT
+                    ? (i -> count[i] == 0)
+                    : (i -> count[i] > 0);
+
+            return IntStream.of(count).filter(satisfiableTemplate).count() >= atLeast;
+        }
+
+        public boolean satisfy(T tuple) {
+            return getPromise().complete(match(getTemplate(), tuple));
+        }
+
+        public boolean satisfy(Collection<? extends T> tuples) {
+            if (templates.size() != tuples.size())
+                return false;
+
+            final List<Match<T, TT, K, V>> result = new ArrayList<>(tuples.size());
+            final var i = getTemplates().iterator();
+            final var j = tuples.iterator();
+
+            while (i.hasNext()) {
+                result.add(match(i.next(), j.next()));
+            }
+
+            return getPromises().complete(result);
         }
 
         public CompletableFuture<Match<T, TT, K, V>> getPromise() {
-            return promise;
+            return (CompletableFuture<Match<T, TT, K, V>>) promise;
+        }
+
+        public CompletableFuture<Collection<? extends Match<T, TT, K, V>>> getPromises() {
+            return (CompletableFuture<Collection<? extends Match<T, TT, K, V>>>) promise;
         }
 
         @Override
@@ -596,20 +668,20 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
             if (o == null || getClass() != o.getClass()) return false;
             PendingRequest that = (PendingRequest) o;
             return requestType == that.requestType &&
-                    Objects.equals(template, that.template) &&
+                    Objects.equals(templates, that.templates) &&
                     Objects.equals(promise, that.promise);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(requestType, template, promise);
+            return Objects.hash(requestType, templates, promise);
         }
 
         @Override
         public String toString() {
             return "PendingRequest{" +
                     "requestType=" + requestType +
-                    ", template=" + template +
+                    ", templates=" + templates +
                     ", promiseTuple=" + promise +
                     '}';
         }
