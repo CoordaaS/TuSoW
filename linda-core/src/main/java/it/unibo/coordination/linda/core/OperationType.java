@@ -16,16 +16,19 @@ public enum OperationType {
 
     TRY_READ("rdp"),
     TRY_TAKE("inp"),
-    TRY_ABSENT("nop");
+    TRY_ABSENT("nop"),
+
+    READ_AT_LEAST("rd_atl"),
+    TAKE_AT_LEAST("in_atl");
 
     private static final EnumSet<OperationType> NOTHING_ACCEPTING = EnumSet.of(GET);
     private static final EnumSet<OperationType> TEMPLATE_ACCEPTING = EnumSet.of(READ, TAKE, TRY_TAKE, TRY_READ, ABSENT, TRY_ABSENT, READ_ALL, TAKE_ALL);
-    private static final EnumSet<OperationType> TEMPLATES_ACCEPTING = EnumSet.noneOf(OperationType.class);
+    private static final EnumSet<OperationType> TEMPLATES_ACCEPTING = EnumSet.of(READ_AT_LEAST, TAKE_AT_LEAST);
     private static final EnumSet<OperationType> TUPLE_ACCEPTING = EnumSet.of(WRITE);
     private static final EnumSet<OperationType> TUPLES_ACCEPTING = EnumSet.of(WRITE_ALL);
 
     private static final EnumSet<OperationType> TUPLE_RETURNING = EnumSet.of(WRITE, READ, TAKE, TRY_READ, TRY_TAKE, TRY_ABSENT);
-    private static final EnumSet<OperationType> TUPLES_RETURNING = EnumSet.of(GET, WRITE_ALL, READ_ALL, TAKE_ALL, TRY_READ, TRY_TAKE, TRY_ABSENT);
+    private static final EnumSet<OperationType> TUPLES_RETURNING = EnumSet.of(GET, WRITE_ALL, READ_ALL, TAKE_ALL, TRY_READ, TRY_TAKE, TRY_ABSENT, READ_AT_LEAST, TAKE_AT_LEAST);
     private static final EnumSet<OperationType> TEMPLATE_RETURNING = EnumSet.of(ABSENT, TRY_ABSENT);
     private static final EnumSet<OperationType> TEMPLATES_RETURNING = EnumSet.of(TRY_ABSENT);
 

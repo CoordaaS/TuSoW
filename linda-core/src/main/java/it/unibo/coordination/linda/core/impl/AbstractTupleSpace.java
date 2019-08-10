@@ -554,12 +554,50 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
 
     protected abstract Match<T, TT, K, V> failedMatch(TT template);
 
+    @Override
+    public CompletableFuture<Collection<? extends Match<T, TT, K, V>>> readAtLeast(int threshold, Collection<? extends TT> templates) {
+        final var invocationEvent = OperationEvent.templatesAcceptingInvocation(this, OperationType.READ_AT_LEAST, templates);
+        operationInvoked.syncEmit(invocationEvent);
+        log("Invoked `readAtLeast-%d` operation on templates: %s", threshold, templates);
+        final CompletableFuture<Collection<? extends Match<T, TT, K, V>>> result = new CompletableFuture<>();
+        executor.execute(() -> this.handleReadAtLeast(threshold, templates, result));
+        result.whenComplete((tuples, error) -> {
+            if (tuples != null) {
+                operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuples.stream().map(Match::getTuple).map(Optional::get)));
+                log("Completed `readAtLeast-%d` operation on templates %s, result: %s", templates, tuples);
+            }
+        });
+        return result;
+    }
+
+    private void handleReadAtLeast(int threshold, Collection<? extends TT> templates, CompletableFuture<Collection<? extends Match<T,TT,K,V>>> result) {
+    }
+
+    @Override
+    public CompletableFuture<Collection<? extends Match<T, TT, K, V>>> takeAtLeast(int threshold, Collection<? extends TT> templates) {
+        final var invocationEvent = OperationEvent.templatesAcceptingInvocation(this, OperationType.TAKE_AT_LEAST, templates);
+        operationInvoked.syncEmit(invocationEvent);
+        log("Invoked `takeAtLeast-%d` operation on templates: %s", threshold, templates);
+        final CompletableFuture<Collection<? extends Match<T, TT, K, V>>> result = new CompletableFuture<>();
+        executor.execute(() -> this.handleTakeAtLeast(threshold, templates, result));
+        result.whenComplete((tuples, error) -> {
+            if (tuples != null) {
+                operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuples.stream().map(Match::getTuple).map(Optional::get)));
+                log("Completed `takeAtLeast-%d` operation on templates %s, result: %s", templates, tuples);
+            }
+        });
+        return result;
+    }
+
+    private void handleTakeAtLeast(int threshold, Collection<? extends TT> templates, CompletableFuture<Collection<? extends Match<T,TT,K,V>>> result) {
+    }
+
     private Consumer<CancellationException> safelyRemovePendingRequest(PendingRequest pendingRequest) {
         return e -> {
             getLock().lock();
 
             try {
-               removePendingRequest(pendingRequest);
+                removePendingRequest(pendingRequest);
             } finally {
                 getLock().unlock();
             }
