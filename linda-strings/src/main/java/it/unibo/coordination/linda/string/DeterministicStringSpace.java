@@ -67,6 +67,11 @@ class DeterministicStringSpace extends AbstractTupleSpace<StringTuple, RegexTemp
     }
 
     @Override
+    protected boolean removeTuple(StringTuple tuple) {
+        return tuples.remove(tuple);
+    }
+
+    @Override
     protected Match<StringTuple, RegexTemplate, Object, String> match(RegexTemplate template, StringTuple tuple) {
         return template.matchWith(tuple);
     }

@@ -48,6 +48,11 @@ abstract class AbstractLogicSpaceImpl extends AbstractTupleSpace<LogicTuple, Log
     }
 
     @Override
+    protected boolean removeTuple(LogicTuple tuple) {
+        return retrieveTuple(tuple.toTemplate()).isMatching();
+    }
+
+    @Override
     protected void insertTuple(LogicTuple tuple) {
         PrologUtils.assertOn(engine, tuple.asTerm());
     }

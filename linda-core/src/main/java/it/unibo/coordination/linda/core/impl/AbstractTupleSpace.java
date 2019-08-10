@@ -15,7 +15,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
-import java.util.function.IntPredicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -170,8 +169,9 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
     }
 
     private void onTaken(T tuple) {
+        notifyTakeToPendingRequests(tuple);
         tupleSpaceChanged.syncEmit(TupleEvent.afterTaking(this, tuple));
-        resumePendingAbsentRequests(tuple);
+//        resumePendingAbsentRequests(tuple);
     }
 
     private void onRead(T tuple) {
@@ -179,6 +179,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
     }
 
     private void onWritten(T tuple) {
+        notifyWriteToPendingRequests(tuple);
         tupleSpaceChanged.syncEmit(TupleEvent.afterWriting(this, tuple));
     }
 
@@ -197,6 +198,8 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
     protected abstract Stream<? extends Match<T, TT, K, V>> retrieveTuples(TT template, int limit);
 
     protected abstract Match<T, TT, K, V> retrieveTuple(TT template);
+
+    protected abstract boolean removeTuple(T tuple);
 
     @Override
     public CompletableFuture<T> write(final T tuple) {
@@ -217,8 +220,9 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
     private void handleWrite(final T tuple, final CompletableFuture<T> promise) {
         getLock().lock();
         try {
+            insertTuple(tuple);
             onWritten(tuple);
-            resumePendingAccessRequests(tuple).ifPresent(this::insertTuple);
+//            resumePendingAccessRequests(tuple).ifPresent(this::insertTuple);
             promise.complete(tuple);
         } finally {
             getLock().unlock();
@@ -385,13 +389,89 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         final MultiSet<T> result = new HashMultiSet<>();
         try {
             for (final T tuple : tuples) {
+                insertTuple(tuple);
                 result.add(tuple);
                 onWritten(tuple);
-                resumePendingAccessRequests(tuple).ifPresent(this::insertTuple);
+//                resumePendingAccessRequests(tuple).ifPresent(this::insertTuple);
             }
             promise.complete(result);
         } finally {
             getLock().unlock();
+        }
+    }
+
+    private void trySatisfyingPendingRequestAfterWrite(PendingRequest request, T candidate) {
+        getLock().lock();
+        try {
+            if (!request.isSatisfiable()) return;
+
+            final var tuples = request.findSatisfyingTuples(candidate);
+            var success = false;
+
+            if (request.isMultiTemplate()) {
+                success = request.satisfy(tuples);
+            } else {
+                success = request.satisfy(tuples.get(0));
+            }
+
+            if (success) {
+                removePendingRequest(request);
+                switch (request.getRequestType()) {
+                    case TAKE:
+                        tuples.stream().filter(this::removeTuple).forEach(this::onTaken);
+                        break;
+                    case READ:
+                        tuples.forEach(this::onRead);
+                        break;
+                    default:
+                        throw new IllegalStateException("this should never happen");
+                }
+            }
+        } finally {
+            getLock().unlock();
+        }
+    }
+
+    private void trySatisfyingPendingRequestAfterTake(PendingRequest request, T candidate) {
+        getLock().lock();
+        try {
+            if (!request.isSatisfiable()) return;
+
+            if (request.satisfy()) {
+                onAbsent(request.getTemplate());
+            }
+
+        } finally {
+            getLock().unlock();
+        }
+    }
+
+    private void notifyWriteToPendingRequests(T tuple) {
+        final var i = getPendingRequestsIterator();
+
+        while (i.hasNext()) {
+            final var pending = i.next();
+
+            pending.notifyWrite(tuple);
+
+            if (pending.isSatisfiable()) {
+                getExecutor().execute(() ->
+                        trySatisfyingPendingRequestAfterWrite(pending, tuple));
+            }
+        }
+    }
+
+    private void notifyTakeToPendingRequests(T tuple) {
+        final var i = getPendingRequestsIterator();
+
+        while (i.hasNext()) {
+            final var pending = i.next();
+
+            pending.notifyTake(tuple);
+
+            if (pending.isSatisfiable()) {
+                getExecutor().execute(() -> trySatisfyingPendingRequestAfterTake(pending, tuple));
+            }
         }
     }
 
@@ -627,12 +707,54 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
             }
         }
 
-        public boolean isSatisfiable() {
-            final IntPredicate satisfiableTemplate = getRequestType() == RequestTypes.ABSENT
-                    ? (i -> count[i] == 0)
-                    : (i -> count[i] > 0);
+        public Stream<TT> getSatisfiableTemplates() {
+            return IntStream.range(0, templates.size()).filter(this::isSatisfiable).mapToObj(templates::get);
+        }
 
-            return IntStream.of(count).filter(satisfiableTemplate).count() >= atLeast;
+        private boolean isSatisfiable(int index) {
+            return getRequestType() == RequestTypes.ABSENT
+                    ? count[index] == 0
+                    : count[index] > 0;
+        }
+
+        public boolean isSatisfiable() {
+            return IntStream.range(0, templates.size())
+                    .filter(this::isSatisfiable)
+                    .count() >= atLeast;
+        }
+
+        public boolean isMultiTemplate() {
+            return templates.size() > 0;
+        }
+
+        private List<T> findSatisfyingTuples(T candidate) {
+            final var i = getSatisfiableTemplates().iterator();
+            final var result = new LinkedList<T>();
+
+            while (candidate != null && i.hasNext()) {
+                final var template = i.next();
+
+                final var match = match(template, candidate);
+                if (match.isMatching()) {
+                    result.add(candidate);
+                    break;
+                } else {
+                    final var match1 = lookForTuple(template);
+                    result.add(match1.getTuple().get());
+                }
+            }
+
+            while (i.hasNext()) {
+                final var template = i.next();
+                final var match = lookForTuple(template);
+                result.add(match.getTuple().get());
+            }
+
+            return result;
+        }
+
+        public boolean satisfy() {
+            return getPromise().complete(failedMatch(getTemplate()));
         }
 
         public boolean satisfy(T tuple) {
@@ -640,11 +762,13 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         }
 
         public boolean satisfy(Collection<? extends T> tuples) {
+            final var templates = getSatisfiableTemplates().collect(Collectors.toList());
+
             if (templates.size() != tuples.size())
                 return false;
 
             final List<Match<T, TT, K, V>> result = new ArrayList<>(tuples.size());
-            final var i = getTemplates().iterator();
+            final var i = templates.iterator();
             final var j = tuples.iterator();
 
             while (i.hasNext()) {
