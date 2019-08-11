@@ -11,8 +11,8 @@ import java.util.Optional;
 
 public interface LogicTemplate extends Template {
 
-    static LogicTemplate of(String template) {
-        return of(Term.createTerm(Objects.requireNonNull(template)));
+    static LogicTemplate of(String format, Object... args) {
+        return of(Term.createTerm(Objects.requireNonNull(String.format(format, args))));
     }
 
     static LogicTemplate of(Term term) {

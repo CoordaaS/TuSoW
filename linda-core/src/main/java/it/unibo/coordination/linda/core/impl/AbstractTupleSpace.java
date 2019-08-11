@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 
 public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K, V> implements InspectableExtendedTupleSpace<T, TT, K, V> {
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private final ExecutorService executor;
     private final String name;
@@ -408,7 +408,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
     private void trySatisfyingPendingRequestAfterWrite(PendingRequest request, T candidate) {
         getLock().lock();
         try {
-            if (!request.isSatisfiable()) return;
+            if (request.isSatisfied() || !request.isSatisfiable()) return;
 
             final var tuples = request.findSatisfyingTuples(candidate);
             var success = false;
@@ -440,7 +440,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
     private void trySatisfyingPendingRequestAfterTake(PendingRequest request, T candidate) {
         getLock().lock();
         try {
-            if (!request.isSatisfiable()) return;
+            if (request.isSatisfied() || !request.isSatisfiable()) return;
 
             if (request.satisfy()) {
                 onAbsent(request.getTemplate());
@@ -826,6 +826,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
                     : count[index] > 0;
         }
 
+        public boolean isSatisfied() {
+            return promise.isDone();
+        }
+
         public boolean isSatisfiable() {
             return IntStream.range(0, templates.size())
                     .filter(this::isSatisfiable)
@@ -850,7 +854,12 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
                     break;
                 } else {
                     final var match1 = lookForTuple(template);
-                    result.add(match1.getTuple().get());
+                    try {
+                        result.add(match1.getTuple().get());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        throw e;
+                    }
                 }
             }
 
@@ -918,8 +927,11 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         @Override
         public String toString() {
             return "PendingRequest{" +
-                    "requestType=" + requestType +
+                    "type=" + requestType +
                     ", templates=" + templates +
+                    ", count=" + Arrays.toString(count) +
+                    ", atLeast=" + atLeast +
+                    ", satisfiable=" + isSatisfiable() +
                     ", promiseTuple=" + promise +
                     '}';
         }

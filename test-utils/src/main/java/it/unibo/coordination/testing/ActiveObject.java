@@ -1,6 +1,8 @@
 package it.unibo.coordination.testing;
 
 import java.time.Duration;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public abstract class ActiveObject {
     private final String name;
@@ -52,6 +54,10 @@ public abstract class ActiveObject {
         running = false;
         thread.interrupt();
         return this;
+    }
+
+    public <X> X await(Future<X> promise) throws ExecutionException, InterruptedException {
+        return promise.get();
     }
 
     public ActiveObject await() {

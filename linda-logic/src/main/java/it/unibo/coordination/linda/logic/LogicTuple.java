@@ -9,8 +9,8 @@ import java.util.Objects;
 
 public interface LogicTuple extends Tuple, Comparable<LogicTuple> {
 
-    static LogicTuple of(String tuple) {
-        return LogicTuple.of(Term.createTerm(Objects.requireNonNull(tuple)));
+    static LogicTuple of(String format, Object... args) {
+        return LogicTuple.of(Term.createTerm(Objects.requireNonNull(String.format(format, args))));
     }
 
     static LogicTuple of(Term term) {
