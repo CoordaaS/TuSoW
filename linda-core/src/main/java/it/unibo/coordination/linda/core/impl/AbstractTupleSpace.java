@@ -3,6 +3,7 @@ package it.unibo.coordination.linda.core.impl;
 import it.unibo.coordination.linda.core.*;
 import it.unibo.coordination.linda.core.events.OperationEvent;
 import it.unibo.coordination.linda.core.events.TupleEvent;
+import it.unibo.coordination.utils.CollectionUtils;
 import it.unibo.coordination.utils.NumberUtils;
 import it.unibo.coordination.utils.events.EventSource;
 import it.unibo.coordination.utils.events.SyncEventEmitter;
@@ -560,7 +561,8 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
 
     @Override
     public CompletableFuture<Collection<? extends Match<T, TT, K, V>>> readAtLeast(int threshold, Collection<? extends TT> templates) {
-        NumberUtils.requireInRange(threshold, 2, templates.size());
+        CollectionUtils.requireSizeAtLeast(templates, 2);
+        NumberUtils.requireInRangeInclusive(threshold, 1, templates.size());
         final var invocationEvent = OperationEvent.templatesAcceptingInvocation(this, OperationType.READ_AT_LEAST, templates);
         operationInvoked.syncEmit(invocationEvent);
         log("Invoked `readAtLeast-%d-of-%d` operation on templates: %s", threshold, templates.size(), templates);
@@ -601,7 +603,8 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
 
     @Override
     public CompletableFuture<Collection<? extends Match<T, TT, K, V>>> takeAtLeast(int threshold, Collection<? extends TT> templates) {
-        NumberUtils.requireInRange(threshold, 2, templates.size());
+        CollectionUtils.requireSizeAtLeast(templates, 2);
+        NumberUtils.requireInRangeInclusive(threshold, 1, templates.size());
         final var invocationEvent = OperationEvent.templatesAcceptingInvocation(this, OperationType.TAKE_AT_LEAST, templates);
         operationInvoked.syncEmit(invocationEvent);
         log("Invoked `takeAtLeast-%d-of-%d` operation on templates: %s", threshold, templates.size(), templates);
@@ -777,7 +780,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
             this.requestType = Objects.requireNonNull(requestType);
             this.templates = List.copyOf(templates);
             this.promise = Objects.requireNonNull(promise);
-            this.atLeast = NumberUtils.requireInRange(atLeast, 1, templates.size());
+            this.atLeast = NumberUtils.requireInRangeInclusive(atLeast, 1, templates.size());
             this.count = new int[templates.size()];
         }
 
@@ -836,8 +839,9 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         private List<T> findSatisfyingTuples(T candidate) {
             final var i = getSatisfiableTemplates().iterator();
             final var result = new LinkedList<T>();
+            var j = 0;
 
-            while (candidate != null && i.hasNext()) {
+            while (candidate != null && i.hasNext() && j < atLeast) {
                 final var template = i.next();
 
                 final var match = match(template, candidate);
@@ -850,7 +854,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
                 }
             }
 
-            while (i.hasNext()) {
+            while (i.hasNext() && j < atLeast) {
                 final var template = i.next();
                 final var match = lookForTuple(template);
                 result.add(match.getTuple().get());
@@ -870,18 +874,22 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         public boolean satisfy(Collection<? extends T> tuples) {
             final var templates = getSatisfiableTemplates().collect(Collectors.toList());
 
-            if (templates.size() != tuples.size())
-                return false;
+            final var tuples2 = new LinkedList<>(tuples);
 
-            final List<Match<T, TT, K, V>> result = new ArrayList<>(tuples.size());
+            final List<Match<T, TT, K, V>> result = new LinkedList<>();
             final var i = templates.iterator();
-            final var j = tuples.iterator();
 
             while (i.hasNext()) {
-                result.add(match(i.next(), j.next()));
+//                result.add(match(i.next(), j.next()));
+
+                final var j = tuples2.iterator();
+                while (j.hasNext()) {
+                    result.add(match(i.next(), j.next()));
+                    j.remove();
+                }
             }
 
-            return getPromises().complete(result);
+            return getPromises().complete(Collections.unmodifiableList(result));
         }
 
         public CompletableFuture<Match<T, TT, K, V>> getPromise() {

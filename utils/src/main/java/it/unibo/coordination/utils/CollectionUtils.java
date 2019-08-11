@@ -16,8 +16,28 @@ public class CollectionUtils {
         return ListUtils.listOf(first, second, others);
     }
 
-    public static <X> void requireNonEmpty(Collection<X> collection) {
-        ObjectUtils.require(collection, it -> it.size() > 0, "Collection %s cannot be empty", collection);
+    public static <X> Collection<X> requireNonEmpty(Collection<X> collection) {
+        return ObjectUtils.require(collection, it -> it.size() > 0, "Collection %s cannot be empty", collection);
+    }
+
+    public static <X> Collection<X> requireSizeInRange(Collection<X> collection, int minInclusive, int maxExclusive) {
+        return requireSizeInRangeInclusive(collection, minInclusive, maxExclusive - 1);
+    }
+
+    public static <X> Collection<X> requireSizeAtLeast(Collection<X> collection, int minInclusive) {
+        return ObjectUtils.require(collection, it -> it.size() >= minInclusive, "Collection %s size cannot be lower than %d", collection, minInclusive);
+    }
+
+    public static <X> Collection<X> requireSizeInRangeInclusive(Collection<X> collection, int minInclusive, int maxInclusive) {
+        try {
+            NumberUtils.requireInRangeInclusive(collection.size(), minInclusive, maxInclusive);
+            return collection;
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(String.format(
+                    "Collection %s size must be between %d and %d",
+                    collection, minInclusive, maxInclusive
+            ));
+        }
     }
 
     public static <T> Iterator<T> randomIterator(List<T> list) {

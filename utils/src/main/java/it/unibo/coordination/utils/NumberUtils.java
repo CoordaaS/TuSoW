@@ -17,7 +17,11 @@ public class NumberUtils {
         return object;
     }
 
-    public static int requireInRange(int x, int minInclusive, int maxInclusive) {
+    public static int requireInRange(int x, int minInclusive, int maxExclusive) {
+        return requireInRangeInclusive(x, minInclusive, maxExclusive - 1);
+    }
+
+    public static int requireInRangeInclusive(int x, int minInclusive, int maxInclusive) {
         return require(x, y -> y >= minInclusive && y <= maxInclusive, "%d must be between %d and %d", x, minInclusive, maxInclusive);
     }
 }
