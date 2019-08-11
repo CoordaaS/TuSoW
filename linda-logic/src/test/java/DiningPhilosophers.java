@@ -12,7 +12,7 @@ public class DiningPhilosophers {
     public static final int MAX_ROUND = 10;
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
-        final var numOfPhilosophers = 5000;
+        final var numOfPhilosophers = 500;
 
         final var ts = LogicSpace.deterministic("table");
 
