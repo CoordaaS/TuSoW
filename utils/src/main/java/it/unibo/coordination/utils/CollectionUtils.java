@@ -12,6 +12,10 @@ public class CollectionUtils {
         return ListUtils.listOf(first, others);
     }
 
+    public static <X> Collection<X> collectionOf(X first, X second, X... others) {
+        return ListUtils.listOf(first, second, others);
+    }
+
     public static <X> void requireNonEmpty(Collection<X> collection) {
         ObjectUtils.require(collection, it -> it.size() > 0, "Collection %s cannot be empty", collection);
     }

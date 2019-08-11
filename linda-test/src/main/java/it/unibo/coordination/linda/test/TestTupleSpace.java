@@ -58,7 +58,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
     }
 
@@ -82,7 +82,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
     }
 
@@ -106,7 +106,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
     }
 
@@ -133,7 +133,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
     }
 
@@ -177,7 +177,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
         bob.await();
     }
@@ -225,7 +225,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
         bob.await();
     }
@@ -268,7 +268,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
         bob.await();
     }
@@ -312,7 +312,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
         bob.await();
     }
@@ -376,7 +376,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
         bob.await();
         carl.await();
@@ -413,7 +413,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
     }
 
@@ -446,7 +446,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
     }
 
@@ -475,7 +475,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
     }
 
@@ -529,7 +529,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
         bob.await();
     }
@@ -567,7 +567,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
     }
 
@@ -600,7 +600,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
     }
 
@@ -632,7 +632,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
     }
 
@@ -671,7 +671,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
 
         alice.await();
-//      test.await();
+        test.await();
     }
 
     @Test
@@ -693,7 +693,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
     }
 
@@ -721,7 +721,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
     }
 
@@ -744,7 +744,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
     }
 
@@ -773,7 +773,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
     }
 
@@ -818,7 +818,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
         bob.await();
     }
@@ -864,7 +864,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
         bob.await();
     }
@@ -910,7 +910,7 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         }.start();
 
-//      test.await();
+        test.await();
         alice.await();
         bob.await();
     }

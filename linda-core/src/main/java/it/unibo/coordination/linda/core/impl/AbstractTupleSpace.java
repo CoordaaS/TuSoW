@@ -400,6 +400,10 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         }
     }
 
+    private void trySatisfyingPendingRequestAfterWrite(PendingRequest request) {
+        trySatisfyingPendingRequestAfterWrite(request, null);
+    }
+
     private void trySatisfyingPendingRequestAfterWrite(PendingRequest request, T candidate) {
         getLock().lock();
         try {
@@ -556,40 +560,84 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
 
     @Override
     public CompletableFuture<Collection<? extends Match<T, TT, K, V>>> readAtLeast(int threshold, Collection<? extends TT> templates) {
+        NumberUtils.requireInRange(threshold, 2, templates.size());
         final var invocationEvent = OperationEvent.templatesAcceptingInvocation(this, OperationType.READ_AT_LEAST, templates);
         operationInvoked.syncEmit(invocationEvent);
-        log("Invoked `readAtLeast-%d` operation on templates: %s", threshold, templates);
+        log("Invoked `readAtLeast-%d-of-%d` operation on templates: %s", threshold, templates.size(), templates);
         final CompletableFuture<Collection<? extends Match<T, TT, K, V>>> result = new CompletableFuture<>();
         executor.execute(() -> this.handleReadAtLeast(threshold, templates, result));
         result.whenComplete((tuples, error) -> {
             if (tuples != null) {
                 operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuples.stream().map(Match::getTuple).map(Optional::get)));
-                log("Completed `readAtLeast-%d` operation on templates %s, result: %s", templates, tuples);
+                log("Completed `readAtLeast-%d-of-%d` operation on templates %s, result: %s", threshold, templates.size(), templates, tuples);
             }
         });
         return result;
     }
 
     private void handleReadAtLeast(int threshold, Collection<? extends TT> templates, CompletableFuture<Collection<? extends Match<T,TT,K,V>>> result) {
+        getLock().lock();
+        try {
+            final var pending = newPendingAccessRequest(RequestTypes.READ, threshold, templates, result);
+
+            for (TT template : pending.templates) {
+                lookForTuples(template)
+                        .filter(Match::isMatching)
+                        .map(Match::getTuple)
+                        .map(Optional::get)
+                        .forEach(pending::notifyWrite);
+            }
+
+            if (pending.isSatisfiable()) {
+                trySatisfyingPendingRequestAfterWrite(pending);
+            } else {
+                addPendingRequest(pending);
+                interceptCancel(result, safelyRemovePendingRequest(pending));
+            }
+        } finally {
+            getLock().unlock();
+        }
     }
 
     @Override
     public CompletableFuture<Collection<? extends Match<T, TT, K, V>>> takeAtLeast(int threshold, Collection<? extends TT> templates) {
+        NumberUtils.requireInRange(threshold, 2, templates.size());
         final var invocationEvent = OperationEvent.templatesAcceptingInvocation(this, OperationType.TAKE_AT_LEAST, templates);
         operationInvoked.syncEmit(invocationEvent);
-        log("Invoked `takeAtLeast-%d` operation on templates: %s", threshold, templates);
+        log("Invoked `takeAtLeast-%d-of-%d` operation on templates: %s", threshold, templates.size(), templates);
         final CompletableFuture<Collection<? extends Match<T, TT, K, V>>> result = new CompletableFuture<>();
         executor.execute(() -> this.handleTakeAtLeast(threshold, templates, result));
         result.whenComplete((tuples, error) -> {
             if (tuples != null) {
                 operationCompleted.syncEmit(invocationEvent.toTuplesReturningCompletion(tuples.stream().map(Match::getTuple).map(Optional::get)));
-                log("Completed `takeAtLeast-%d` operation on templates %s, result: %s", templates, tuples);
+                log("Completed `takeAtLeast-%d-of-%d` operation on templates %s, result: %s", threshold, templates.size(), templates, tuples);
             }
         });
         return result;
     }
 
     private void handleTakeAtLeast(int threshold, Collection<? extends TT> templates, CompletableFuture<Collection<? extends Match<T,TT,K,V>>> result) {
+        getLock().lock();
+        try {
+            final var pending = newPendingAccessRequest(RequestTypes.TAKE, threshold, templates, result);
+
+            for (TT template : pending.templates) {
+                lookForTuples(template)
+                        .filter(Match::isMatching)
+                        .map(Match::getTuple)
+                        .map(Optional::get)
+                        .forEach(pending::notifyWrite);
+            }
+
+            if (pending.isSatisfiable()) {
+                trySatisfyingPendingRequestAfterWrite(pending);
+            } else {
+                addPendingRequest(pending);
+                interceptCancel(result, safelyRemovePendingRequest(pending));
+            }
+        } finally {
+            getLock().unlock();
+        }
     }
 
     private Consumer<CancellationException> safelyRemovePendingRequest(PendingRequest pendingRequest) {
@@ -607,15 +655,25 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
     private void handleAbsent(final TT template, final CompletableFuture<Match<T, TT, K, V>> promise) {
         getLock().lock();
         try {
-            final Match<T, TT, K, V> read = lookForTuple(template);
-            if (read.isMatching()) {
-                final var pendingRequest = newPendingAbsentRequest(template, promise);
+            final var pendingRequest = newPendingAbsentRequest(template, promise);
+
+            if (pendingRequest.isSatisfiable()) {
+                onAbsent(template);
+                pendingRequest.satisfy();
+            } else {
                 addPendingRequest(pendingRequest);
                 interceptCancel(promise, safelyRemovePendingRequest(pendingRequest));
-            } else {
-                onAbsent(template);
-                promise.complete(failedMatch(template));
             }
+
+//            final Match<T, TT, K, V> read = lookForTuple(template);
+//            if (read.isMatching()) {
+//                final var pendingRequest = newPendingAbsentRequest(template, promise);
+//                addPendingRequest(pendingRequest);
+//                interceptCancel(promise, safelyRemovePendingRequest(pendingRequest));
+//            } else {
+//                onAbsent(template);
+//                promise.complete(failedMatch(template));
+//            }
         } finally {
             getLock().unlock();
         }
@@ -682,8 +740,18 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         return new PendingRequest(requestType, template, promise);
     }
 
+    private PendingRequest newPendingAccessRequest(final RequestTypes requestType, final int threshold, final Collection<? extends TT> template, final CompletableFuture<Collection<? extends Match<T, TT, K, V>>> promise) {
+        return new PendingRequest(requestType,threshold, template, promise);
+    }
+
     private PendingRequest newPendingAbsentRequest(final TT template, final CompletableFuture<Match<T, TT, K, V>> promise) {
-        return new PendingRequest(RequestTypes.ABSENT, template, promise);
+        final var request = new PendingRequest(RequestTypes.ABSENT, template, promise);
+        lookForTuples(template)
+                .filter(Match::isMatching)
+                .map(Match::getTuple)
+                .map(Optional::get)
+                .forEach(request::notifyWrite);
+        return request;
     }
 
     protected enum RequestTypes {
@@ -762,7 +830,7 @@ public abstract class AbstractTupleSpace<T extends Tuple, TT extends Template, K
         }
 
         public boolean isMultiTemplate() {
-            return templates.size() > 0;
+            return templates.size() > 1;
         }
 
         private List<T> findSatisfyingTuples(T candidate) {

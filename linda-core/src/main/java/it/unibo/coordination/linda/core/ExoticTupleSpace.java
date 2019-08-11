@@ -14,8 +14,8 @@ public interface ExoticTupleSpace<T extends Tuple, TT extends Template, K, V> ex
 
     CompletableFuture<Collection<? extends Match<T, TT, K, V>>> readAtLeast(int threshold, Collection<? extends TT> templates);
 
-    default CompletableFuture<Collection<? extends Match<T, TT, K, V>>> readAtLeast(int threshold, TT template, TT... templates) {
-        return readAtLeast(threshold, collectionOf(template, templates));
+    default CompletableFuture<Collection<? extends Match<T, TT, K, V>>> readAtLeast(int threshold, TT template1, TT template2, TT... templates) {
+        return readAtLeast(threshold, collectionOf(template1, template2, templates));
     }
 
     default CompletableFuture<Collection<? extends T>> readAtLeastTuples(int threshold, Collection<? extends TT> templates) {
@@ -25,8 +25,8 @@ public interface ExoticTupleSpace<T extends Tuple, TT extends Template, K, V> ex
         );
     }
 
-    default CompletableFuture<Collection<? extends T>>  readAtLeastTuples(int threshold, TT template, TT... templates) {
-        return readAtLeastTuples(threshold, collectionOf(template, templates));
+    default CompletableFuture<Collection<? extends T>>  readAtLeastTuples(int threshold, TT template1, TT template2, TT... templates) {
+        return readAtLeastTuples(threshold, collectionOf(template1, template2, templates));
     }
 
     default CompletableFuture<Collection<? extends Match<T, TT, K, V>>> readAny(Collection<? extends TT> templates) {
@@ -34,8 +34,8 @@ public interface ExoticTupleSpace<T extends Tuple, TT extends Template, K, V> ex
         return readAtLeast(1, templates);
     }
 
-    default CompletableFuture<Collection<? extends Match<T, TT, K, V>>> readAny(TT template, TT... templates) {
-        return readAny(collectionOf(template, templates));
+    default CompletableFuture<Collection<? extends Match<T, TT, K, V>>> readAny(TT template1, TT template2, TT... templates) {
+        return readAny(collectionOf(template1, template2, templates));
     }
 
     default CompletableFuture<Collection<? extends T>> readAnyTuple(Collection<? extends TT> templates) {
@@ -45,8 +45,8 @@ public interface ExoticTupleSpace<T extends Tuple, TT extends Template, K, V> ex
         );
     }
 
-    default CompletableFuture<Collection<? extends T>>  readAnyTuple(TT template, TT... templates) {
-        return readAnyTuple(collectionOf(template, templates));
+    default CompletableFuture<Collection<? extends T>>  readAnyTuple(TT template1, TT template2, TT... templates) {
+        return readAnyTuple(collectionOf(template1, template2, templates));
     }
 
     default CompletableFuture<Collection<? extends Match<T, TT, K, V>>> readEach(Collection<? extends TT> templates) {
@@ -54,8 +54,8 @@ public interface ExoticTupleSpace<T extends Tuple, TT extends Template, K, V> ex
         return readAtLeast(templates.size(), templates);
     }
 
-    default CompletableFuture<Collection<? extends Match<T, TT, K, V>>> readEach(TT template, TT... templates) {
-        return readEach(collectionOf(template, templates));
+    default CompletableFuture<Collection<? extends Match<T, TT, K, V>>> readEach(TT template1, TT template2, TT... templates) {
+        return readEach(collectionOf(template1, template2, templates));
     }
 
     default CompletableFuture<Collection<? extends T>> readEachTuple(Collection<? extends TT> templates) {
