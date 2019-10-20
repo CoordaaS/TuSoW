@@ -5,6 +5,7 @@ import it.unibo.coordination.linda.core.ExtendedTupleSpace;
 import it.unibo.coordination.linda.core.Match;
 import org.apache.commons.collections4.MultiSet;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -126,5 +127,21 @@ public interface StringSpace extends ExtendedTupleSpace<StringTuple, RegexTempla
 
     default CompletableFuture<Match<StringTuple, RegexTemplate, Object, String>> tryRead(Pattern template) {
         return tryRead(RegexTemplate.of(template));
+    }
+
+    default CompletableFuture<Collection<? extends Match<StringTuple, RegexTemplate, Object, String>>> readAll(String template) {
+        return readAll(RegexTemplate.of(template));
+    }
+
+    default CompletableFuture<Collection<? extends Match<StringTuple, RegexTemplate, Object, String>>> readAll(Pattern template) {
+        return readAll(RegexTemplate.of(template));
+    }
+
+    default CompletableFuture<Collection<? extends Match<StringTuple, RegexTemplate, Object, String>>> takeAll(String template) {
+        return takeAll(RegexTemplate.of(template));
+    }
+
+    default CompletableFuture<Collection<? extends Match<StringTuple, RegexTemplate, Object, String>>> takeAll(Pattern template) {
+        return takeAll(RegexTemplate.of(template));
     }
 }

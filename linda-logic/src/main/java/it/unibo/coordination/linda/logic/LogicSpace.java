@@ -6,6 +6,7 @@ import it.unibo.coordination.linda.core.ExtendedTupleSpace;
 import it.unibo.coordination.linda.core.Match;
 import org.apache.commons.collections4.MultiSet;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -163,4 +164,19 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
         return tryAbsentTuple(LogicTemplate.of(template));
     }
 
+    default CompletableFuture<Collection<? extends Match<LogicTuple, LogicTemplate, String, Term>>> readAll(String template) {
+        return readAll(LogicTemplate.of(template));
+    }
+
+    default CompletableFuture<Collection<? extends Match<LogicTuple, LogicTemplate, String, Term>>> readAll(Term template) {
+        return readAll(LogicTemplate.of(template));
+    }
+
+    default CompletableFuture<Collection<? extends Match<LogicTuple, LogicTemplate, String, Term>>> takeAll(String template) {
+        return takeAll(LogicTemplate.of(template));
+    }
+
+    default CompletableFuture<Collection<? extends Match<LogicTuple, LogicTemplate, String, Term>>> takeAll(Term template) {
+        return takeAll(LogicTemplate.of(template));
+    }
 }
