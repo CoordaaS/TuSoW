@@ -14,3 +14,11 @@ interface RemoteStringSpace : StringSpace {
         }
     }
 }
+
+fun StringSpace.remoteOf(address: String = "localhost", port: Int = 8080, name: String = "default"): RemoteStringSpace {
+    return RemoteStringSpace.of(address, port, name)
+}
+
+fun StringSpace.remoteOf(url: URL, name: String = "default"): RemoteStringSpace {
+    return RemoteStringSpace.of(url, name)
+}

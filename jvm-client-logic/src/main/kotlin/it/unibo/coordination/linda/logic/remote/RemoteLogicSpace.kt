@@ -14,3 +14,11 @@ interface RemoteLogicSpace : LogicSpace {
         }
     }
 }
+
+fun LogicSpace.remoteOf(address: String = "localhost", port: Int = 8080, name: String = "default"): RemoteLogicSpace {
+    return RemoteLogicSpace.of(address, port, name)
+}
+
+fun LogicSpace.remoteOf(url: URL, name: String = "default"): RemoteLogicSpace {
+    return RemoteLogicSpace.of(url, name)
+}
