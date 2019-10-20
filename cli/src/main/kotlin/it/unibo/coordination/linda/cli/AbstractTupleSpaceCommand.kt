@@ -41,7 +41,15 @@ abstract class AbstractTupleSpaceCommand(
 
     val tupleSpaceID: TupleSpaceID by lazy { TupleSpaceID(tupleSpaceName, type, url) }
 
-    protected fun<T, TT, K, V, M : Match<T, TT, K, V>> CompletableFuture<M>.onCompletion(f: M.()->Unit): Unit {
+    protected fun<T, TT, K, V, M : Match<T, TT, K, V>> CompletableFuture<M>.onSingleMatchCompletion(f: M.()->Unit): Unit {
+        try {
+            get().f()
+        } catch (e: ExecutionException) {
+            e.cause?.printStackTrace()
+        }
+    }
+
+    protected fun<T, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> CompletableFuture<C>.onMultipleMatchCompletion(f: C.()->Unit): Unit {
         try {
             get().f()
         } catch (e: ExecutionException) {
