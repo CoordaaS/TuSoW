@@ -10,5 +10,6 @@ include 'linda-test'
 include 'linda-presentation'
 include 'jvm-client-logic'
 include 'jvm-client-string'
+include 'cli'
 
 

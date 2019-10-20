@@ -119,4 +119,12 @@ public interface StringSpace extends ExtendedTupleSpace<StringTuple, RegexTempla
     default CompletableFuture<Optional<StringTuple>> tryAbsentTuple(Pattern template) {
         return tryAbsentTuple(RegexTemplate.of(template));
     }
+
+    default CompletableFuture<Match<StringTuple, RegexTemplate, Object, String>> tryRead(String template) {
+        return tryRead(RegexTemplate.of(template));
+    }
+
+    default CompletableFuture<Match<StringTuple, RegexTemplate, Object, String>> tryRead(Pattern template) {
+        return tryRead(RegexTemplate.of(template));
+    }
 }
