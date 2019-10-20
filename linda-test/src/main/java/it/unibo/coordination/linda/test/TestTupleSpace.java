@@ -18,6 +18,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>, TS extends ExtendedTupleSpace<T, TT, K, V>> extends TestBaseLinda<T, TT, K, V, M> {
 
     protected ExecutorService executor;
@@ -634,6 +637,22 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
         test.await();
         alice.await();
+    }
+
+    @Test
+    public void testTakeCanBeCanceled() throws Exception {
+        final var tupleTemplate = getATupleAndATemplateMatchingIt();
+
+        final var take = tupleSpace.takeTuple(tupleTemplate.getValue1());
+        take.cancel(true);
+
+        Thread.sleep(1000);
+
+        assertEquals(Integer.valueOf(0), tupleSpace.getSize().get());
+        assertEquals(tupleTemplate.getValue0(), tupleSpace.write(tupleTemplate.getValue0()).get());
+        assertEquals(Integer.valueOf(1), tupleSpace.getSize().get());
+        assertTrue(take.isCancelled());
+
     }
 
     @Test
