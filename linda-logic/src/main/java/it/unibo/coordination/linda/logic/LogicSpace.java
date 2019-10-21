@@ -148,12 +148,12 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
         );
     }
 
-    default CompletableFuture<LogicTemplate> absent(final String template) {
-        return absent(LogicTemplate.of(template)).thenApplyAsync(Match::getTemplate);
+    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> absent(final String template) {
+        return absent(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<LogicTemplate> absent(final Term template) {
-        return absent(LogicTemplate.of(template)).thenApplyAsync(Match::getTemplate);
+    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> absent(final Term template) {
+        return absent(LogicTemplate.of(template));
     }
 
     default CompletableFuture<Optional<LogicTuple>> tryAbsentTuple(String template) {

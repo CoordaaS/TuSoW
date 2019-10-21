@@ -22,10 +22,10 @@ abstract class AbstractObserveCommand(
 
     protected fun <T, TT, K, V, M : Match<T, TT, K, V>> CompletableFuture<M>.defaultReadHandlerForSingleResult() {
         onSingleMatchCompletion {
-            println(if (isMatching()) "Success!" else "Failure!")
-            if (isMatching()) {
+            println(if (isSuccess()) "Success!" else "Failure!")
+            if (isSuccess()) {
                 println("Success!")
-                println("\tResult: ${getTuple()}")
+                println("\tResult: ${getResult()}")
                 toMap().let {
                     if (it.isNotEmpty()) {
                         println("\tWhere:")
@@ -40,13 +40,19 @@ abstract class AbstractObserveCommand(
         }
     }
 
+    open protected fun <T, TT, K, V, M : Match<T, TT, K, V>> M.isSuccess(): Boolean = isMatching()
+
+    open protected fun <T, TT, K, V, M : Match<T, TT, K, V>> M.getResult(): Any = getTuple()
+
+    open protected fun <T, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> C.isSuccess(): Boolean = isNotEmpty()
+
     protected fun <T, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> CompletableFuture<C>.defaultReadHandlerForMultipleResult(): Unit {
         onMultipleMatchCompletion {
             println(if (isNotEmpty()) "Success!" else "Failure!")
-            if (isNotEmpty()) {
+            if (isSuccess()) {
                 println("Success!")
                 forEach {
-                    println("\tResult: ${it.getTuple()}")
+                    println("\tResult: ${it.getResult()}")
                     with(it.toMap()) {
                         if (isNotEmpty()) {
                             println("\tWhere:")

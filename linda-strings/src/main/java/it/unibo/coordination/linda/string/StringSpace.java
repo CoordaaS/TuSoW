@@ -105,12 +105,12 @@ public interface StringSpace extends ExtendedTupleSpace<StringTuple, RegexTempla
         );
     }
 
-    default CompletableFuture<RegexTemplate> absent(final String template) {
-        return absent(RegexTemplate.of(template)).thenApplyAsync(Match::getTemplate);
+    default CompletableFuture<Match<StringTuple, RegexTemplate, Object, String>> absent(final String template) {
+        return absent(RegexTemplate.of(template));
     }
 
-    default CompletableFuture<RegexTemplate> absent(final Pattern template) {
-        return absent(RegexTemplate.of(template)).thenApplyAsync(Match::getTemplate);
+    default CompletableFuture<Match<StringTuple, RegexTemplate, Object, String>> absent(final Pattern template) {
+        return absent(RegexTemplate.of(template));
     }
 
     default CompletableFuture<Optional<StringTuple>> tryAbsentTuple(String template) {
@@ -143,5 +143,21 @@ public interface StringSpace extends ExtendedTupleSpace<StringTuple, RegexTempla
 
     default CompletableFuture<Collection<? extends Match<StringTuple, RegexTemplate, Object, String>>> takeAll(Pattern template) {
         return takeAll(RegexTemplate.of(template));
+    }
+
+    default CompletableFuture<Match<StringTuple, RegexTemplate, Object, String>> tryTake(String template) {
+        return tryTake(RegexTemplate.of(template));
+    }
+
+    default CompletableFuture<Match<StringTuple, RegexTemplate, Object, String>> tryTake(Pattern template) {
+        return tryTake(RegexTemplate.of(template));
+    }
+
+    default CompletableFuture<Match<StringTuple, RegexTemplate, Object, String>> tryAbsent(String template) {
+        return tryAbsent(RegexTemplate.of(template));
+    }
+
+    default CompletableFuture<Match<StringTuple, RegexTemplate, Object, String>> tryAbsent(Pattern template) {
+        return tryAbsent(RegexTemplate.of(template));
     }
 }
