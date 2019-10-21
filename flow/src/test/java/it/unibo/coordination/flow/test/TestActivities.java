@@ -27,7 +27,7 @@ public class TestActivities {
 
             @Override
             public Continuation<Integer> onStep(Integer i) throws Exception {
-                if ( i < 10) {
+                if (i < 10) {
                     return Continuation.next(i + 1);
                 } else {
                     return Continuation.stop(i);
@@ -62,7 +62,7 @@ public class TestActivities {
 
             @Override
             public Continuation<Integer> onStep(Integer i) throws Exception {
-                if ( i < 10) {
+                if (i < 10) {
                     return Continuation.next(i + 1);
                 } else {
                     return Continuation.stop(i);
@@ -100,7 +100,7 @@ public class TestActivities {
 
             @Override
             public Continuation<Integer> onStep(Integer i) throws Exception {
-                if ( i < 10) {
+                if (i < 10) {
                     return Continuation.next(i + 1);
                 } else {
                     return Continuation.stop(i);
