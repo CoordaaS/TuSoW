@@ -2,6 +2,7 @@ package it.unibo.coordination.linda.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.int
@@ -9,6 +10,7 @@ import it.unibo.coordination.linda.cli.TupleSpaceTypes.LOGIC
 import it.unibo.coordination.linda.cli.TupleSpaceTypes.TEXT
 import it.unibo.coordination.linda.core.ExtendedTupleSpace
 import it.unibo.coordination.linda.core.Match
+import it.unibo.coordination.linda.core.Tuple
 import it.unibo.coordination.linda.logic.remote.RemoteLogicSpace
 import it.unibo.coordination.linda.strings.remote.RemoteStringSpace
 import java.net.URL
@@ -25,11 +27,11 @@ abstract class AbstractTupleSpaceCommand(
         autoCompleteEnvvar: String? = ""
     ) : CliktCommand(help, epilog, name, invokeWithoutSubcommand, printHelpOnEmptyArgs, helpTags, autoCompleteEnvvar) {
 
-    val tupleSpaceName: String by option("--tuplespace", "-ts").default("default")
+    val tupleSpaceName: String by option("--tuplespace", "-T").default("default")
 
     val host: String by option("--host", "-h").default("localhost")
 
-    val port: Int by option("--port", "-p").int().default(8080)
+    val port: Int by option("--port", "-P").int().default(8080)
 
     private val urlString: String? by option("--url", "-u")
 
@@ -41,19 +43,60 @@ abstract class AbstractTupleSpaceCommand(
 
     val tupleSpaceID: TupleSpaceID by lazy { TupleSpaceID(tupleSpaceName, type, url) }
 
-    protected fun<T, TT, K, V, M : Match<T, TT, K, V>> CompletableFuture<M>.onSingleMatchCompletion(f: M.()->Unit): Unit {
+    val bulk: Boolean by option("-b", "--bulk", "-a", "--all").flag(default = false)
+
+    protected fun<T, TT, K, V, M : Match<T, TT, K, V>> CompletableFuture<M>.onSingleMatchCompletion(f: M.()->Unit) {
         try {
             get().f()
         } catch (e: ExecutionException) {
-            e.cause?.printStackTrace()
+            if (e.cause != null) {
+                throw e.cause!!
+            }
+            throw e
         }
     }
 
-    protected fun<T, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> CompletableFuture<C>.onMultipleMatchCompletion(f: C.()->Unit): Unit {
+    protected fun<T, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> CompletableFuture<C>.onMultipleMatchCompletion(f: C.()->Unit) {
         try {
             get().f()
         } catch (e: ExecutionException) {
-            e.cause?.printStackTrace()
+            if (e.cause != null) {
+                throw e.cause!!
+            }
+            throw e
+        }
+    }
+
+    protected fun<T : Tuple> CompletableFuture<T>.onSingleTupleCompletion(f: T.()->Unit) {
+        try {
+            get().f()
+        } catch (e: ExecutionException) {
+            if (e.cause != null) {
+                throw e.cause!!
+            }
+            throw e
+        }
+    }
+
+    protected fun<T : Tuple> CompletableFuture<T>.onSingleTupleCompletionAsync(f: T.()->Unit) {
+        try {
+            get().f()
+        } catch (e: ExecutionException) {
+            if (e.cause != null) {
+                throw e.cause!!
+            }
+            throw e
+        }
+    }
+
+    protected fun<T : Tuple, C : Collection<out T>> CompletableFuture<C>.onMultipleTupleCompletion(f: C.()->Unit) {
+        try {
+            get().f()
+        } catch (e: ExecutionException) {
+            if (e.cause != null) {
+                throw e.cause!!
+            }
+            throw e
         }
     }
 

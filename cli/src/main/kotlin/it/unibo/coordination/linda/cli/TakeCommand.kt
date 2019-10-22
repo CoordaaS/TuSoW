@@ -5,33 +5,41 @@ import it.unibo.coordination.linda.cli.TupleSpaceTypes.TEXT
 import it.unibo.coordination.linda.logic.LogicSpace
 import it.unibo.coordination.linda.string.StringSpace
 
-class TakeCommand : AbstractObserveCommand(name="take") {
+class TakeCommand(
+        help: String = "",
+        epilog: String = "",
+        name: String? = "take",
+        invokeWithoutSubcommand: Boolean = false,
+        printHelpOnEmptyArgs: Boolean = false,
+        helpTags: Map<String, String> = emptyMap(),
+        autoCompleteEnvvar: String? = ""
+) : AbstractObserveCommand(help, epilog, name, invokeWithoutSubcommand, printHelpOnEmptyArgs, helpTags, autoCompleteEnvvar)  {
 
     override fun run() {
         when {
             bulk -> when (type) {
                 LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
                         .takeAll(template)
-                        .defaultReadHandlerForMultipleResult()
+                        .defaultHandlerForMultipleResult()
                 TEXT -> getTupleSpace<StringSpace>(tupleSpaceID)
                         .takeAll(template)
-                        .defaultReadHandlerForMultipleResult()
+                        .defaultHandlerForMultipleResult()
             }
             predicative -> when (type) {
                 LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
                         .tryTake(template)
-                        .defaultReadHandlerForSingleResult()
+                        .defaultHandlerForSingleResult()
                 TEXT -> getTupleSpace<StringSpace>(tupleSpaceID)
                         .tryTake(template)
-                        .defaultReadHandlerForSingleResult()
+                        .defaultHandlerForSingleResult()
             }
             else -> when (type) {
                 LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
                         .read(template)
-                        .defaultReadHandlerForSingleResult()
+                        .defaultHandlerForSingleResult()
                 TEXT -> getTupleSpace<StringSpace>(tupleSpaceID)
                         .read(template)
-                        .defaultReadHandlerForSingleResult()
+                        .defaultHandlerForSingleResult()
             }
         }
     }

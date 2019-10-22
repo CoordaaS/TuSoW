@@ -6,7 +6,15 @@ import it.unibo.coordination.linda.core.Match
 import it.unibo.coordination.linda.logic.LogicSpace
 import it.unibo.coordination.linda.string.StringSpace
 
-class AbsentCommand : AbstractObserveCommand(name="absent") {
+class AbsentCommand(
+        help: String = "",
+        epilog: String = "",
+        name: String? = "absent",
+        invokeWithoutSubcommand: Boolean = false,
+        printHelpOnEmptyArgs: Boolean = false,
+        helpTags: Map<String, String> = emptyMap(),
+        autoCompleteEnvvar: String? = ""
+) : AbstractObserveCommand(help, epilog, name, invokeWithoutSubcommand, printHelpOnEmptyArgs, helpTags, autoCompleteEnvvar)  {
 
     override fun run() {
         when {
@@ -14,18 +22,18 @@ class AbsentCommand : AbstractObserveCommand(name="absent") {
             predicative -> when (type) {
                 LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
                         .tryAbsent(template)
-                        .defaultReadHandlerForSingleResult()
+                        .defaultHandlerForSingleResult()
                 TEXT -> getTupleSpace<StringSpace>(tupleSpaceID)
                         .tryAbsent(template)
-                        .defaultReadHandlerForSingleResult()
+                        .defaultHandlerForSingleResult()
             }
             else -> when (type) {
                 LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
                         .absent(template)
-                        .defaultReadHandlerForSingleResult()
+                        .defaultHandlerForSingleResult()
                 TEXT -> getTupleSpace<StringSpace>(tupleSpaceID)
                         .absent(template)
-                        .defaultReadHandlerForSingleResult()
+                        .defaultHandlerForSingleResult()
             }
         }
     }

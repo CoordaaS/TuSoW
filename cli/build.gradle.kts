@@ -1,8 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    java
     `java-library`
     kotlin("jvm") version "1.3.50"
+    application
 }
 
 val javaVersion: String by project
@@ -46,14 +48,12 @@ configure<JavaPluginConvention> {
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = javaVersion
 }
+
 repositories {
     mavenCentral()
 }
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    jvmTarget = javaVersion
+
+application {
+    mainClassName = "it.unibo.coordination.linda.cli.TusowCommandKt"
 }
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-    jvmTarget = javaVersion
-}
+

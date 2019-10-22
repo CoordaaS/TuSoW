@@ -17,20 +17,26 @@ abstract class AbstractObserveCommand(
 ) : AbstractTupleSpaceCommand(help, epilog, name, invokeWithoutSubcommand, printHelpOnEmptyArgs, helpTags, autoCompleteEnvvar) {
 
     val template: String by argument("TEMPLATE")
-    val bulk: Boolean by option("-b", "--bulk").flag(default = false)
     val predicative: Boolean by option("-p", "--predicative").flag(default = false)
 
-    protected fun <T, TT, K, V, M : Match<T, TT, K, V>> CompletableFuture<M>.defaultReadHandlerForSingleResult() {
-        onSingleMatchCompletion {
-            println(if (isSuccess()) "Success!" else "Failure!")
+    open protected fun <T, TT, K, V, M : Match<T, TT, K, V>> M.isSuccess(): Boolean = isMatching()
+
+    open protected fun <T, TT, K, V, M : Match<T, TT, K, V>> M.getResult(): Any = getTuple().get()!!
+
+    open protected fun <T, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> C.isSuccess(): Boolean = isNotEmpty()
+
+    protected fun <T, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> CompletableFuture<C>.defaultHandlerForMultipleResult() {
+        onMultipleMatchCompletion {
             if (isSuccess()) {
                 println("Success!")
-                println("\tResult: ${getResult()}")
-                toMap().let {
-                    if (it.isNotEmpty()) {
-                        println("\tWhere:")
-                        it.forEach { k, v ->
-                            println("\t\t$k = $v")
+                forEach {
+                    println("\tResult: ${it.getResult()}")
+                    with(it.toMap()) {
+                        if (isNotEmpty()) {
+                            println("\tWhere:")
+                            forEach { k, v ->
+                                println("\t\t$k = ${v}")
+                            }
                         }
                     }
                 }
@@ -40,25 +46,16 @@ abstract class AbstractObserveCommand(
         }
     }
 
-    open protected fun <T, TT, K, V, M : Match<T, TT, K, V>> M.isSuccess(): Boolean = isMatching()
-
-    open protected fun <T, TT, K, V, M : Match<T, TT, K, V>> M.getResult(): Any = getTuple()
-
-    open protected fun <T, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> C.isSuccess(): Boolean = isNotEmpty()
-
-    protected fun <T, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> CompletableFuture<C>.defaultReadHandlerForMultipleResult(): Unit {
-        onMultipleMatchCompletion {
-            println(if (isNotEmpty()) "Success!" else "Failure!")
+    protected fun <T, TT, K, V, M : Match<T, TT, K, V>> CompletableFuture<M>.defaultHandlerForSingleResult() {
+        onSingleMatchCompletion {
             if (isSuccess()) {
                 println("Success!")
-                forEach {
-                    println("\tResult: ${it.getResult()}")
-                    with(it.toMap()) {
-                        if (isNotEmpty()) {
-                            println("\tWhere:")
-                            forEach { k, v ->
-                                println("\t\t$k = $v")
-                            }
+                println("\tResult: ${getResult()}")
+                toMap().let {
+                    if (it.isNotEmpty()) {
+                        println("\tWhere:")
+                        it.forEach { k, v ->
+                            println("\t\t$k = $v")
                         }
                     }
                 }
