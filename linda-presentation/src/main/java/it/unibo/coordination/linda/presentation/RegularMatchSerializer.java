@@ -17,7 +17,7 @@ class RegularMatchSerializer extends DynamicSerializer<RegularMatch> {
     public Object toDynamicObject(RegularMatch object) {
         final var matchMap = new HashMap<String, Object>();
 
-        matchMap.put("tuple", object.getTuple().map(StringTuple::getTuple).orElse(null));
+        matchMap.put("tuple", object.getTuple().map(StringTuple::getValue).orElse(null));
         matchMap.put("template", object.getTemplate().getTemplate().pattern());
         matchMap.put("match", object.isMatching());
         matchMap.put("map", object.toMap());

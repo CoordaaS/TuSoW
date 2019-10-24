@@ -38,7 +38,7 @@ final class LogicTupleImpl implements LogicTuple {
         return term;
     }
 
-    public Term getTuple() {
+    public Term getValue() {
         return asTerm().getArg(0);
     }
 }

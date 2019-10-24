@@ -1,5 +1,6 @@
 package it.unibo.coordination.linda.cli
 
+import it.unibo.coordination.linda.core.Tuple
 import it.unibo.coordination.linda.logic.LogicSpace
 import it.unibo.coordination.linda.string.StringSpace
 import java.util.concurrent.CompletableFuture
@@ -14,13 +15,15 @@ class GetCommand(
         autoCompleteEnvvar: String? = ""
 ) : AbstractTupleSpaceCommand(help, epilog, name, invokeWithoutSubcommand, printHelpOnEmptyArgs, helpTags, autoCompleteEnvvar) {
 
-    fun <T, C : Collection<out T>> CompletableFuture<C>.defaultHandler() {
+    fun <T : Tuple, C : Collection<out T>> CompletableFuture<C>.defaultHandler() {
         await {
             println("Success!")
-            forEach {
+            if (isEmpty()) {
+                println("\tThe tuple space is empty")
+            } else {
                 println("\tResults:")
-                forEach {
-                    println("\t\t$it")
+                forEachIndexed { i, it ->
+                    println("\t\t$i) ${it.value}")
                 }
             }
         }

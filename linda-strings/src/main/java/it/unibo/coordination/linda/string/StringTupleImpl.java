@@ -11,7 +11,7 @@ class StringTupleImpl implements StringTuple {
     }
 
     @Override
-    public String getTuple() {
+    public String getValue() {
         return tuple;
     }
 

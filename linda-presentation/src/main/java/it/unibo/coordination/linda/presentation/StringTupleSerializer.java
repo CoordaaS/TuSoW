@@ -13,6 +13,6 @@ class StringTupleSerializer extends DynamicSerializer<StringTuple> {
 
     @Override
     public Object toDynamicObject(StringTuple object) {
-        return Map.of("tuple", object.getTuple());
+        return Map.of("tuple", object.getValue());
     }
 }

@@ -26,7 +26,7 @@ class RegexTemplateImpl implements RegexTemplate {
     @Override
     public RegularMatch matchWith(Tuple tuple) {
         if (tuple instanceof StringTuple) {
-            return new RegularMatchImpl(this, pattern.matcher(((StringTuple) tuple).getTuple()), tuple);
+            return new RegularMatchImpl(this, pattern.matcher(((StringTuple) tuple).getValue()), tuple);
         }
 
         return RegularMatch.failed(this);

@@ -28,7 +28,7 @@ final class LogicTemplateImpl implements LogicTemplate {
     public LogicMatch matchWith(Tuple tuple) {
         if (tuple instanceof LogicTuple) {
             final LogicTuple logicTuple = (LogicTuple) tuple;
-            final SolveInfo si = ENGINE.solve(PrologUtils.unificationTerm(getTemplate(), logicTuple.getTuple()));
+            final SolveInfo si = ENGINE.solve(PrologUtils.unificationTerm(getTemplate(), logicTuple.getValue()));
             return new LogicMatchImpl(this, si, logicTuple);
         }
 

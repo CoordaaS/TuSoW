@@ -42,7 +42,7 @@ class RegularMatchImpl implements RegularMatch {
                     matcher != null && getTuple().isPresent()
                         && matcher.matches()
                         && matcher.start() == 0
-                        && matcher.end() == getTuple().get().getTuple().length()
+                        && matcher.end() == getTuple().get().getValue().length()
                 );
         }
         return matchingCache.get();

@@ -27,7 +27,8 @@ public interface LogicTuple extends Tuple, Comparable<LogicTuple> {
 
     Struct asTerm();
 
-    Term getTuple();
+    @Override
+    Term getValue();
 
     @Override
     boolean equals(Object o);
@@ -36,7 +37,7 @@ public interface LogicTuple extends Tuple, Comparable<LogicTuple> {
     int hashCode();
 
     default int compareTo(LogicTuple o) {
-        return getTuple().toString().compareTo(o.getTuple().toString());
+        return getValue().toString().compareTo(o.getValue().toString());
     }
 
     static boolean equals(LogicTuple t1, LogicTuple t2) {

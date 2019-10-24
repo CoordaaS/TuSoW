@@ -168,7 +168,7 @@ public class Presentation {
         registerDynamicSerializers(LogicTemplate.class, (klass, targetType, template) ->
                 PrologUtils.termToDynamicObject(template.getTemplate()));
         registerDynamicSerializers(LogicTuple.class, (klass, targetType, tuple) ->
-                PrologUtils.termToDynamicObject(tuple.getTuple()));
+                PrologUtils.termToDynamicObject(tuple.getValue()));
         registerDynamicSerializers(LogicMatch.class, LogicMatchSerializer::new);
         registerDynamicSerializers(Term.class, (klass, targetType, term) ->
                 PrologUtils.termToDynamicObject(term));
