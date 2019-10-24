@@ -21,7 +21,7 @@ abstract class AbstractUpdateCommand(
     val asynchronous: Boolean by option("-A", "--asynch").flag(default = false)
 
     protected fun<T : Tuple> CompletableFuture<T>.defaultHandlerForSingleResult() {
-        onSingleTupleCompletion {
+        await {
             println("Success!")
             println("\tTuple $this has been inserted")
         }
@@ -33,7 +33,7 @@ abstract class AbstractUpdateCommand(
     }
 
     protected fun<T : Tuple, C : Collection<out T>> CompletableFuture<C>.defaultHandlerForMultipleResult() {
-        onMultipleTupleCompletion {
+        await {
             print("Success!")
             println("\tThe following tuples have been inserted:")
             forEachIndexed { i, t ->

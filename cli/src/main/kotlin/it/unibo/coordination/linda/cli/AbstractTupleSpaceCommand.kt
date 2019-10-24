@@ -9,8 +9,6 @@ import com.github.ajalt.clikt.parameters.types.int
 import it.unibo.coordination.linda.cli.TupleSpaceTypes.LOGIC
 import it.unibo.coordination.linda.cli.TupleSpaceTypes.TEXT
 import it.unibo.coordination.linda.core.ExtendedTupleSpace
-import it.unibo.coordination.linda.core.Match
-import it.unibo.coordination.linda.core.Tuple
 import it.unibo.coordination.linda.logic.remote.RemoteLogicSpace
 import it.unibo.coordination.linda.strings.remote.RemoteStringSpace
 import java.net.URL
@@ -45,51 +43,7 @@ abstract class AbstractTupleSpaceCommand(
 
     val bulk: Boolean by option("-b", "--bulk", "-a", "--all").flag(default = false)
 
-    protected fun<T, TT, K, V, M : Match<T, TT, K, V>> CompletableFuture<M>.onSingleMatchCompletion(f: M.()->Unit) {
-        try {
-            get().f()
-        } catch (e: ExecutionException) {
-            if (e.cause != null) {
-                throw e.cause!!
-            }
-            throw e
-        }
-    }
-
-    protected fun<T, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> CompletableFuture<C>.onMultipleMatchCompletion(f: C.()->Unit) {
-        try {
-            get().f()
-        } catch (e: ExecutionException) {
-            if (e.cause != null) {
-                throw e.cause!!
-            }
-            throw e
-        }
-    }
-
-    protected fun<T : Tuple> CompletableFuture<T>.onSingleTupleCompletion(f: T.()->Unit) {
-        try {
-            get().f()
-        } catch (e: ExecutionException) {
-            if (e.cause != null) {
-                throw e.cause!!
-            }
-            throw e
-        }
-    }
-
-    protected fun<T : Tuple> CompletableFuture<T>.onSingleTupleCompletionAsync(f: T.()->Unit) {
-        try {
-            get().f()
-        } catch (e: ExecutionException) {
-            if (e.cause != null) {
-                throw e.cause!!
-            }
-            throw e
-        }
-    }
-
-    protected fun<T : Tuple, C : Collection<out T>> CompletableFuture<C>.onMultipleTupleCompletion(f: C.()->Unit) {
+    protected fun<X, R> CompletableFuture<X>.await(f: X.()->R) {
         try {
             get().f()
         } catch (e: ExecutionException) {

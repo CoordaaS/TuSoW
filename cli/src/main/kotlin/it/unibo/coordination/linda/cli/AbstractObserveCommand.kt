@@ -26,7 +26,7 @@ abstract class AbstractObserveCommand(
     open protected fun <T, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> C.isSuccess(): Boolean = isNotEmpty()
 
     protected fun <T, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> CompletableFuture<C>.defaultHandlerForMultipleResult() {
-        onMultipleMatchCompletion {
+        await {
             if (isSuccess()) {
                 println("Success!")
                 forEach {
@@ -47,7 +47,7 @@ abstract class AbstractObserveCommand(
     }
 
     protected fun <T, TT, K, V, M : Match<T, TT, K, V>> CompletableFuture<M>.defaultHandlerForSingleResult() {
-        onSingleMatchCompletion {
+        await {
             if (isSuccess()) {
                 println("Success!")
                 println("\tResult: ${getResult()}")

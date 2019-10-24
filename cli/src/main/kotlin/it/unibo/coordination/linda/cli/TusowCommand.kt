@@ -9,7 +9,9 @@ class TusowCommand() : CliktCommand(name="tusow") {
         subcommands(
                 ReadCommand(),
                 TakeCommand(),
-                WriteCommand()
+                WriteCommand(),
+                GetCommand(),
+                CountCommand()
         )
     }
 
