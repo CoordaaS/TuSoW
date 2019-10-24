@@ -380,7 +380,9 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
                 future = promise
         ) { req, res ->
             res.addExceptionHandler(promise)
-            if (res.statusCode() != 200) {
+            if (res.statusCode() == 204) {
+                promise.complete(HashMultiSet())
+            } else if (res.statusCode() != 200) {
                 promise.completeExceptionally(RemoteException("$GET", req.absoluteURI(), res.statusCode()))
             } else {
                 res.bodyHandler {

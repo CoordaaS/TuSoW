@@ -24,9 +24,9 @@ abstract class AbstractObserveCommand(
 
     open protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>> M.getResult(): Any = getTuple().get().value
 
-    open protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> C.isSuccess(): Boolean = isNotEmpty()
+    open protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>, C : Collection<M>> C.isSuccess(): Boolean = isNotEmpty()
 
-    protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> CompletableFuture<C>.defaultHandlerForMultipleResult() {
+    protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>, C : Collection<M>> CompletableFuture<C>.defaultHandlerForMultipleResult() {
         await {
             if (isSuccess()) {
                 println("Success!")

@@ -3,6 +3,7 @@ package it.unibo.coordination.linda.cli
 import it.unibo.coordination.linda.cli.TupleSpaceTypes.LOGIC
 import it.unibo.coordination.linda.cli.TupleSpaceTypes.TEXT
 import it.unibo.coordination.linda.core.Match
+import it.unibo.coordination.linda.core.Tuple
 import it.unibo.coordination.linda.logic.LogicSpace
 import it.unibo.coordination.linda.string.StringSpace
 
@@ -38,10 +39,10 @@ class AbsentCommand(
         }
     }
 
-    override fun <T, TT, K, V, M : Match<T, TT, K, V>> M.isSuccess(): Boolean = !isMatching()
+    override fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>> M.isSuccess(): Boolean = !isMatching()
 
-    override fun <T, TT, K, V, M : Match<T, TT, K, V>> M.getResult(): Any =
-            if (isMatching()) getTuple() as Any else getTemplate() as Any
+    override fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>> M.getResult(): Any =
+            if (isMatching()) getTuple().get().value as Any else getTemplate() as Any
 
-    override fun <T, TT, K, V, M : Match<T, TT, K, V>, C : Collection<out M>> C.isSuccess(): Boolean = isEmpty()
+    override fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>, C : Collection<M>> C.isSuccess(): Boolean = isEmpty()
 }

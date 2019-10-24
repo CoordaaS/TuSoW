@@ -64,6 +64,8 @@ abstract class AbstractTupleSpaceCommand(
                     TEXT -> RemoteStringSpace.of(id.host, id.name)
                 }
             }
+
+            @Suppress("UNCHECKED_CAST")
             return tupleSpaces[id] as T
         }
     }

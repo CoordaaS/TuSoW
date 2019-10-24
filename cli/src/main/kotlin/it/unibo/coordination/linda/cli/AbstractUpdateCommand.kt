@@ -32,7 +32,7 @@ abstract class AbstractUpdateCommand(
         println("\tTuple ${input.value} has been inserted")
     }
 
-    protected fun<T : Tuple, C : Collection<out T>> CompletableFuture<C>.defaultHandlerForMultipleResult() {
+    protected fun<T : Tuple, C : Collection<T>> CompletableFuture<C>.defaultHandlerForMultipleResult() {
         await {
             println("Success!")
             println("\tThe following tuples have been inserted:")
@@ -42,7 +42,7 @@ abstract class AbstractUpdateCommand(
         }
     }
 
-    protected fun<T : Tuple, C : Collection<out T>> CompletableFuture<C>.defaultAsyncHandlerForMultipleResult(input: Collection<out T>) {
+    protected fun<T : Tuple, C : Collection<T>> CompletableFuture<C>.defaultAsyncHandlerForMultipleResult(input: Collection<T>) {
         print("Success!")
         println("\tThe following tuples have been inserted:")
         input.forEachIndexed { i, t ->
