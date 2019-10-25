@@ -5,11 +5,11 @@ variables:
 
 build:
   stage: build
-  script: gradle assemble $GOPTS
+  script: gradle clean assemble javadoc $GOPTS
 
 test:
   stage: test
-  script: gradle check $GOPTS
+  script: gradle clean test $GOPTS
 
 deploy_artifacts:
   stage: deploy
