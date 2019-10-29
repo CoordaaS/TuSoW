@@ -402,6 +402,7 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
                 .putHeader(HttpHeaders.CONTENT_TYPE.toString(), mimeType.toString())
                 .putHeader(HttpHeaders.ACCEPT.toString(), mimeType.toString())
 
+        @Suppress("DEPRECATION")
         request.handler {
             callback(request, it)
         }

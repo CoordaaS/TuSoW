@@ -20,12 +20,31 @@ import kotlin.streams.toList
 abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?, val executor: ExecutorService) : InspectableExtendedTupleSpace<T, TT, K, V> {
 
     override val name: String = name ?: this.javaClass.simpleName + "_" + System.identityHashCode(this)
-    
+
     protected val lock = ReentrantLock(true)
 
     private val operationInvoked: SyncEventEmitter<OperationEvent<T, TT>> = SyncEventEmitter.ordered()
     private val operationCompleted: SyncEventEmitter<OperationEvent<T, TT>> = SyncEventEmitter.ordered()
     private val tupleSpaceChanged: SyncEventEmitter<TupleEvent<T, TT>> = SyncEventEmitter.ordered()
+
+    protected fun <R> atomically(block: () -> R): R {
+        try {
+            lock.lock()
+            return block()
+        } finally {
+            lock.unlock()
+        }
+    }
+
+    protected fun postpone(block: () -> Unit) {
+        executor.execute(block)
+    }
+
+    protected fun <T, R> postpone(f: (T, Promise<R>) -> Unit, arg: T): Promise<R> {
+        val promise = Promise<R>()
+        postpone { f(arg, promise) }
+        return promise
+    }
 
     protected abstract val pendingRequests: MutableCollection<PendingRequest>
 
@@ -55,7 +74,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         pendingRequests.add(request)
     }
 
-    protected fun<X, Y> Promise<X>.map(f: (X)->Y): Promise<Y> {
+    protected fun <X, Y> Promise<X>.map(f: (X) -> Y): Promise<Y> {
         return thenApplyAsync(Function<X, Y> { f(it) }, executor)
     }
 
@@ -63,31 +82,26 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         val invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.READ, template)
         operationInvoked.syncEmit(invocationEvent)
         log("Invoked `read` operation on template: %s", template)
-        val result = CompletableFuture<Match<T, TT, K, V>>()
-        executor.execute { this.handleRead(template, result) }
-        return result.map { tuple ->
-            operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(tuple.tuple.get()))
-            log("Completed `read` operation on template '%s', result: %s", template, tuple)
-            tuple
+        return postpone(this::handleRead, template)
+                .map {
+                    it.also {
+                        operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(it.tuple.get()))
+                        log("Completed `read` operation on template '%s', result: %s", template, it)
+                    }
+                }
+    }
+
+    private fun handleRead(template: TT, promise: CompletableFuture<Match<T, TT, K, V>>): Unit = atomically {
+        val read = lookForTuple(template)
+        if (read.isMatching) {
+            promise.complete(read)
+            onRead(read.tuple.get())
+        } else {
+            addPendingRequest(newPendingAccessRequest(RequestTypes.READ, template, promise))
         }
     }
 
-    private fun handleRead(template: TT, promise: CompletableFuture<Match<T, TT, K, V>>) {
-        lock.lock()
-        try {
-            val read = lookForTuple(template)
-            if (read.isMatching) {
-                promise.complete(read)
-                onRead(read.tuple.get())
-            } else {
-                addPendingRequest(newPendingAccessRequest(RequestTypes.READ, template, promise))
-            }
-        } finally {
-            lock.unlock()
-        }
-    }
-
-    protected fun lookForTuples(template: TT): Stream<out Match<T, TT, K, V>> {
+    protected open fun lookForTuples(template: TT): Stream<out Match<T, TT, K, V>> {
         return lookForTuples(template, Integer.MAX_VALUE)
     }
 
@@ -99,28 +113,23 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         val invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TAKE, template)
         operationInvoked.syncEmit(invocationEvent)
         log("Invoked `take` operation on template: %s", template)
-        val result = CompletableFuture<Match<T, TT, K, V>>()
-        executor.execute { this.handleTake(template, result) }
-        return result.map { tuple ->
-            operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(tuple.tuple.get()))
-            log("Completed `take` operation on template '%s', result: %s", template, tuple)
-            tuple
-        }
+        return postpone(this::handleTake, template)
+                .map {
+                    it.also {
+                        operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(it.tuple.get()))
+                        log("Completed `take` operation on template '%s', result: %s", template, it)
+                    }
+                }
     }
 
-    private fun handleTake(template: TT, promise: CompletableFuture<Match<T, TT, K, V>>) {
-        lock.lock()
-        try {
-            val take = retrieveTuple(template)
-            if (take.isMatching) {
-                promise.complete(take)
-                onTaken(take.tuple.get())
-            } else {
-                val pendingRequest = newPendingAccessRequest(RequestTypes.TAKE, template, promise)
-                addPendingRequest(pendingRequest)
-            }
-        } finally {
-            lock.unlock()
+    private fun handleTake(template: TT, promise: CompletableFuture<Match<T, TT, K, V>>): Unit = atomically {
+        val take = retrieveTuple(template)
+        if (take.isMatching) {
+            promise.complete(take)
+            onTaken(take.tuple.get())
+        } else {
+            val pendingRequest = newPendingAccessRequest(RequestTypes.TAKE, template, promise)
+            addPendingRequest(pendingRequest)
         }
     }
 
@@ -157,24 +166,18 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         val invocationEvent = OperationEvent.tupleAcceptingInvocation(this, OperationType.WRITE, tuple)
         operationInvoked.syncEmit(invocationEvent)
         log("Invoked `write` operation for of: %s", tuple)
-        val result = CompletableFuture<T>()
-        executor.execute { handleWrite(tuple, result) }
-        return result.map { t ->
-            operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(t))
-            log("Completed `write` operation on tuple '%s', result: %s", tuple, t)
-            t
+        return postpone(this::handleWrite, tuple).map {
+            it.also {
+                operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(it))
+                log("Completed `write` operation on tuple '%s', result: %s", tuple, it)
+            }
         }
     }
 
-    private fun handleWrite(tuple: T, promise: CompletableFuture<T>) {
-        lock.lock()
-        try {
-            onWritten(tuple)
-            resumePendingAccessRequests(tuple).ifPresent { insertTuple(it) }
-            promise.complete(tuple)
-        } finally {
-            lock.unlock()
-        }
+    private fun handleWrite(tuple: T, promise: CompletableFuture<T>): Unit = atomically {
+        onWritten(tuple)
+        resumePendingAccessRequests(tuple).ifPresent { insertTuple(it) }
+        promise.complete(tuple)
     }
 
     protected abstract fun match(template: TT, tuple: T): Match<T, TT, K, V>
@@ -511,7 +514,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
 
         private val DEBUG = true
 
-        protected fun<X> Stream<X>.toMultiSet(): MultiSet<X> {
+        protected fun <X> Stream<X>.toMultiSet(): MultiSet<X> {
             val result = HashMultiSet<X>()
             forEach {
                 result.add(it)
