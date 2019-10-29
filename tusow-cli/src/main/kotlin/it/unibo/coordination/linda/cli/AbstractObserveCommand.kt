@@ -20,9 +20,9 @@ abstract class AbstractObserveCommand(
     val template: String by argument("TEMPLATE")
     val predicative: Boolean by option("-p", "--predicative").flag(default = false)
 
-    open protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>> M.isSuccess(): Boolean = isMatching()
+    open protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>> M.isSuccess(): Boolean = isMatching
 
-    open protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>> M.getResult(): Any = getTuple().get().value
+    open protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>> M.getResult(): Any = tuple.get().value
 
     open protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>, C : Collection<M>> C.isSuccess(): Boolean = isNotEmpty()
 

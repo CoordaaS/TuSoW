@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-library`
-    kotlin("jvm") version "1.3.50"
+    kotlin("jvm")
 }
 
 val javaVersion: String by project
@@ -11,6 +11,7 @@ val junitVersion: String by project
 val jacksonVersion: String by project
 val vertxVersion: String by project
 val commonsCliVersion: String by project
+val ktFreeCompilerArgs: String by project
 
 dependencies {
     api(project(":linda-core"))
@@ -39,5 +40,8 @@ configure<JavaPluginConvention> {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = javaVersion
+    kotlinOptions {
+        jvmTarget = javaVersion
+        freeCompilerArgs = ktFreeCompilerArgs.split(";").toList()
+    }
 }

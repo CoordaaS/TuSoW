@@ -3,8 +3,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     `java-library`
-    kotlin("jvm") version "1.3.50"
     application
+    kotlin("jvm")
 }
 
 val javaVersion: String by project
@@ -14,6 +14,7 @@ val jacksonVersion: String by project
 val vertxVersion: String by project
 val commonsCliVersion: String by project
 val cliktVersion: String by project
+val ktFreeCompilerArgs: String by project
 
 dependencies {
     api(project(":linda-logic-client"))
@@ -34,11 +35,10 @@ configure<JavaPluginConvention> {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = javaVersion
-}
-
-repositories {
-    mavenCentral()
+    kotlinOptions {
+        jvmTarget = javaVersion
+        freeCompilerArgs = ktFreeCompilerArgs.split(";").toList()
+    }
 }
 
 application {

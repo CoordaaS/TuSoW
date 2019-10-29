@@ -1,5 +1,8 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     `java-library`
+    kotlin("jvm")
 }
 
 group = rootProject.group
@@ -12,6 +15,7 @@ val jacksonVersion: String by project
 val logbackVersion: String by project
 val vertxVersion: String by project
 val commonsCliVersion: String by project
+val ktFreeCompilerArgs: String by project
 
 dependencies {
     api(project(":linda-core"))
@@ -38,6 +42,7 @@ dependencies {
 
     testImplementation("junit", "junit", junitVersion)
     testImplementation(project(":test-utils"))
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 configure<JavaPluginConvention> {
@@ -58,4 +63,14 @@ task<JavaExec>("tusow") {
         args = listOf("-p", project.property("port").toString())
     }
     standardInput = System.`in`
+}
+repositories {
+    mavenCentral()
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = javaVersion
+        freeCompilerArgs = ktFreeCompilerArgs.split(";").toList()
+    }
 }

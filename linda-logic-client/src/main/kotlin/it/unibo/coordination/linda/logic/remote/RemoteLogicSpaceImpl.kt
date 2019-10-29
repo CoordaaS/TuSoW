@@ -17,7 +17,7 @@ import java.net.URL
 import java.net.URLEncoder
 import java.util.concurrent.CompletableFuture
 
-internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val name: String) : RemoteLogicSpace {
+internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val _name: String) : RemoteLogicSpace {
 
     companion object {
 
@@ -80,9 +80,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
 
     val tupleSpacePath: String by lazy { "/tusow/v$tusowApiVersion/tuple-spaces/logic/$name" }
 
-    override fun getName(): String {
-        return name
-    }
+    override val name: String
+        get() = _name
 
     override fun tryTake(template: LogicTemplate): CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> {
         val promise = CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>>()
