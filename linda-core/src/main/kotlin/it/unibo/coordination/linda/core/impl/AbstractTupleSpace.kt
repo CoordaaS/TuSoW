@@ -158,6 +158,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         operationInvoked.syncEmit(invocationEvent)
         log("Invoked `write` operation for of: %s", tuple)
         val result = CompletableFuture<T>()
+        executor.execute { handleWrite(tuple, result) }
         return result.map { t ->
             operationCompleted.syncEmit(invocationEvent.toTupleReturningCompletion(t))
             log("Completed `write` operation on tuple '%s', result: %s", tuple, t)

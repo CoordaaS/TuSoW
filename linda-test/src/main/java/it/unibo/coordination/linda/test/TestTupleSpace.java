@@ -120,9 +120,9 @@ public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V,
 
             @Override
             protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.getSize(), 0);
-                test.assertEquals(tupleSpace.write(tuple), tuple);
-                test.assertEquals(tupleSpace.getSize(), 1);
+                test.assertEquals(tupleSpace.getSize(), 0, "The tuple space should be initially empty");
+                test.assertEquals(tupleSpace.write(tuple), tuple, "A write operation should always return the tuple it has inserted");
+                test.assertEquals(tupleSpace.getSize(), 1, "After a write, the tuple space should contain one more tuple");
                 stop();
             }
 
