@@ -18,12 +18,10 @@ interface Match<T : Tuple, TT : Template, K, V> {
 
         @JvmStatic
         fun <T : Tuple, TT : Template, K, V, M : Match<T, TT, K, V>> equals(m1: M?, m2: M?): Boolean {
-            return if (m1 === m2) {
-                true
-            } else if (m1 == null || m2 == null){
-                false
-            } else {
-                m1.template == m2.template
+            return when {
+                m1 === m2 -> true
+                m1 == null || m2 == null -> false
+                else -> m1.template == m2.template
                         && m1.tuple == m2.tuple
                         && m1.isMatching == m2.isMatching
             }
