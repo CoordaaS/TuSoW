@@ -9,7 +9,7 @@ include 'linda-text'
 include 'linda-test'
 include 'linda-presentation'
 include 'jvm-client-logic'
-include 'jvm-client-string'
+include 'jvm-client-text'
 include 'cli'
 
 

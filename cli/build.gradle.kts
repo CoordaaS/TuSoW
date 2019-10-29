@@ -17,21 +17,9 @@ val cliktVersion: String by project
 
 dependencies {
     api(project(":jvm-client-logic"))
-    api(project(":jvm-client-string"))
+    api(project(":jvm-client-text"))
 
-//    implementation(project(":utils"))
-//    implementation(project(":prologx"))
-//    implementation(kotlin("stdlib"))
-//
-//    api("io.vertx", "vertx-web-client", vertxVersion)
-
-    // Use JUnit test framework
-//    testImplementation("io.vertx", "vertx-unit", vertxVersion)
-//    testImplementation("ch.qos.logback", "logback-classic", vertxVersion)
-//    implementation("commons-cli", "commons-cli", commonsCliVersion)
-//    implementation("info.picocli", "picocli", picocliVersion)
     implementation("com.github.ajalt", "clikt", cliktVersion)
-
 
     testImplementation("junit", "junit", junitVersion)
     testImplementation(project(":tusow"))
