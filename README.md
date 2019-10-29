@@ -5,20 +5,20 @@ multi-processes, distributed, or multi-agent applications through **LINDA** _tup
 
 ## Modules `linda-*`
 
-Module `linda-core` and its implementations (currently, `linda-logic` and `linda-strings`) are aimed at letting developers
+Module `linda-core` and its implementations (currently, `linda-logic` and `linda-text`) are aimed at letting developers
 use tuple spaces programmatically in concurrent, local (i.e., **non-distributed**) applications.
 
-## Module `tusow` and remote tuples spaces in `jvm-client-*`
+## Module `tusow` and remote tuples spaces in `linda-*-client`
 
 TuSoW (Tuple Spaces over the Web) is a Web wrapper for tuple spaces exposing them to the Internet as a Web Service,
 through a ReST-ful API.
 
-TuSoW wraps _all_ current implementations of `linda-core` (currently, `linda-logic` and `linda-strings`).
+TuSoW wraps _all_ current implementations of `linda-core` (currently, `linda-logic` and `linda-text`).
 
 You can either interact with TuSoW through any HTTP client or employ our implementations, which supports the usage of 
 remote tuple spaces using the exact same API used for local ones.
-This is the purpose of modules `jvm-client-logic` and `jvm-client-strings`, which are the remote equivalents of 
-`linda-logic` and `linda-strings`, respectively.
+This is the purpose of modules `linda-logic-client` and `linda-text-client`, which are the remote equivalents of 
+`linda-logic` and `linda-text`, respectively.
 
 Finally, module `cli` is aimed at letting users interact with TuSoW tuple spaced through a command line interface.
 
@@ -37,6 +37,6 @@ If you want it to run on another port, you can start it this way:
 You can play with TuSoW through our CLI.
 Let the CLI help messages drive your understanding of how the CLI works:
 ```bash
-./gradlew cli:run --args="[COMMAND] [--help]"
+./gradlew tusow-cli:run --args="[COMMAND] [--help]"
 ```
 where apexes are required and square brackets represent optionality.
