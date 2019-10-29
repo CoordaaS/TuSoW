@@ -42,7 +42,7 @@ class AbsentCommand(
     override fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>> M.isSuccess(): Boolean = !this.isMatching
 
     override fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>> M.getResult(): Any =
-            if (isMatching) tuple.get().value as Any else template as Any
+            if (isMatching) tuple.get().value else template as Any
 
     override fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>, C : Collection<M>> C.isSuccess(): Boolean = isEmpty()
 }

@@ -10,7 +10,6 @@ import it.unibo.coordination.linda.presentation.Serializer
 import it.unibo.coordination.linda.string.RegexTemplate
 import it.unibo.coordination.linda.string.RegularMatch
 import it.unibo.coordination.linda.string.StringTuple
-import org.apache.commons.collections4.MultiSet
 import org.apache.commons.collections4.multiset.HashMultiSet
 import java.net.URL
 import java.net.URLEncoder
@@ -188,8 +187,8 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         return promise
     }
 
-    override fun writeAll(tuples: Collection<StringTuple>): CompletableFuture<MultiSet<StringTuple>> {
-        val promise = CompletableFuture<MultiSet<StringTuple>>()
+    override fun writeAll(tuples: Collection<StringTuple>): CompletableFuture<Collection<StringTuple>> {
+        val promise = CompletableFuture<Collection<StringTuple>>()
 
         remoteOperation(
                 method = POST,
@@ -369,8 +368,8 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         return promise
     }
 
-    override fun get(): CompletableFuture<MultiSet<StringTuple>> {
-        val promise = CompletableFuture<MultiSet<StringTuple>>()
+    override fun get(): CompletableFuture<Collection<StringTuple>> {
+        val promise = CompletableFuture<Collection<StringTuple>>()
 
         remoteOperation(
                 method = GET,
@@ -402,6 +401,7 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
                 .putHeader(HttpHeaders.CONTENT_TYPE.toString(), mimeType.toString())
                 .putHeader(HttpHeaders.ACCEPT.toString(), mimeType.toString())
 
+        @Suppress("DEPRECATION")
         request.handler {
             callback(request, it)
         }

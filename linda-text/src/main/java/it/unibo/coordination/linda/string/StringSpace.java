@@ -3,15 +3,11 @@ package it.unibo.coordination.linda.string;
 import it.unibo.coordination.Engines;
 import it.unibo.coordination.linda.core.ExtendedTupleSpace;
 import it.unibo.coordination.linda.core.Match;
-import org.apache.commons.collections4.MultiSet;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public interface StringSpace extends ExtendedTupleSpace<StringTuple, RegexTemplate, Object, String> {
 
@@ -79,32 +75,6 @@ public interface StringSpace extends ExtendedTupleSpace<StringTuple, RegexTempla
         return tryTakeTuple(RegexTemplate.of(template));
     }
 
-    default CompletableFuture<MultiSet<StringTuple>> readAllTuples(String template) {
-        return readAllTuples(RegexTemplate.of(template));
-    }
-
-    default CompletableFuture<MultiSet<StringTuple>> readAllTuples(Pattern template) {
-        return readAllTuples(RegexTemplate.of(template));
-    }
-
-    default CompletableFuture<MultiSet<StringTuple>> takeAllTuples(String template) {
-        return takeAllTuples(RegexTemplate.of(template));
-    }
-
-    default CompletableFuture<MultiSet<StringTuple>> takeAllTuples(Pattern template) {
-        return takeAllTuples(RegexTemplate.of(template));
-    }
-
-    default CompletableFuture<MultiSet<StringTuple>> writeAll(String tuple, String... tuples) {
-        return writeAll(
-                Stream.concat(
-                        Stream.of(tuple),
-                        Stream.of(tuples)
-                ).map(StringTuple::of)
-                        .collect(Collectors.toList())
-        );
-    }
-
     default CompletableFuture<Match<StringTuple, RegexTemplate, Object, String>> absent(final String template) {
         return absent(RegexTemplate.of(template));
     }
@@ -129,22 +99,6 @@ public interface StringSpace extends ExtendedTupleSpace<StringTuple, RegexTempla
         return tryRead(RegexTemplate.of(template));
     }
 
-    default CompletableFuture<Collection<? extends Match<StringTuple, RegexTemplate, Object, String>>> readAll(String template) {
-        return readAll(RegexTemplate.of(template));
-    }
-
-    default CompletableFuture<Collection<? extends Match<StringTuple, RegexTemplate, Object, String>>> readAll(Pattern template) {
-        return readAll(RegexTemplate.of(template));
-    }
-
-    default CompletableFuture<Collection<? extends Match<StringTuple, RegexTemplate, Object, String>>> takeAll(String template) {
-        return takeAll(RegexTemplate.of(template));
-    }
-
-    default CompletableFuture<Collection<? extends Match<StringTuple, RegexTemplate, Object, String>>> takeAll(Pattern template) {
-        return takeAll(RegexTemplate.of(template));
-    }
-
     default CompletableFuture<Match<StringTuple, RegexTemplate, Object, String>> tryTake(String template) {
         return tryTake(RegexTemplate.of(template));
     }
@@ -159,5 +113,15 @@ public interface StringSpace extends ExtendedTupleSpace<StringTuple, RegexTempla
 
     default CompletableFuture<Match<StringTuple, RegexTemplate, Object, String>> tryAbsent(Pattern template) {
         return tryAbsent(RegexTemplate.of(template));
+    }
+
+    @Override
+    default StringTuple toTuple(String $this$toTuple) {
+        return StringTuple.of($this$toTuple);
+    }
+
+    @Override
+    default RegexTemplate toTemplate(String $this$toTemplate) {
+        return RegexTemplate.of($this$toTemplate);
     }
 }

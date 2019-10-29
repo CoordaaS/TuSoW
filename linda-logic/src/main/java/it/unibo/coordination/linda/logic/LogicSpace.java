@@ -4,14 +4,10 @@ import alice.tuprolog.Term;
 import it.unibo.coordination.Engines;
 import it.unibo.coordination.linda.core.ExtendedTupleSpace;
 import it.unibo.coordination.linda.core.Match;
-import org.apache.commons.collections4.MultiSet;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate, String, Term> {
 
@@ -122,32 +118,6 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
         return tryTakeTuple(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<MultiSet<LogicTuple>> readAllTuples(String template) {
-        return readAllTuples(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<MultiSet<LogicTuple>> readAllTuples(Term template) {
-        return readAllTuples(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<MultiSet<LogicTuple>> takeAllTuples(String template) {
-        return takeAllTuples(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<MultiSet<LogicTuple>> takeAllTuples(Term template) {
-        return takeAllTuples(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<MultiSet<LogicTuple>> writeAll(String tuple, String... tuples) {
-        return writeAll(
-                Stream.concat(
-                        Stream.of(tuple),
-                        Stream.of(tuples)
-                    ).map(LogicTuple::of)
-                    .collect(Collectors.toList())
-        );
-    }
-
     default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> absent(final String template) {
         return absent(LogicTemplate.of(template));
     }
@@ -164,19 +134,13 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
         return tryAbsentTuple(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<Collection<? extends Match<LogicTuple, LogicTemplate, String, Term>>> readAll(String template) {
-        return readAll(LogicTemplate.of(template));
+    @Override
+    default LogicTuple toTuple(String $this$toTuple) {
+        return LogicTuple.of($this$toTuple);
     }
 
-    default CompletableFuture<Collection<? extends Match<LogicTuple, LogicTemplate, String, Term>>> readAll(Term template) {
-        return readAll(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<Collection<? extends Match<LogicTuple, LogicTemplate, String, Term>>> takeAll(String template) {
-        return takeAll(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<Collection<? extends Match<LogicTuple, LogicTemplate, String, Term>>> takeAll(Term template) {
-        return takeAll(LogicTemplate.of(template));
+    @Override
+    default LogicTemplate toTemplate(String $this$toTemplate) {
+        return LogicTemplate.of($this$toTemplate);
     }
 }

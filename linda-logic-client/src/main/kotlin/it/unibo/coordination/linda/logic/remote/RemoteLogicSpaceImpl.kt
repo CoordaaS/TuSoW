@@ -11,7 +11,6 @@ import it.unibo.coordination.linda.logic.LogicTuple
 import it.unibo.coordination.linda.presentation.Deserializer
 import it.unibo.coordination.linda.presentation.MIMETypes
 import it.unibo.coordination.linda.presentation.Serializer
-import org.apache.commons.collections4.MultiSet
 import org.apache.commons.collections4.multiset.HashMultiSet
 import java.net.URL
 import java.net.URLEncoder
@@ -189,8 +188,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun writeAll(tuples: Collection<LogicTuple>): CompletableFuture<MultiSet<LogicTuple>> {
-        val promise = CompletableFuture<MultiSet<LogicTuple>>()
+    override fun writeAll(tuples: Collection<LogicTuple>): CompletableFuture<Collection<LogicTuple>> {
+        val promise = CompletableFuture<Collection<LogicTuple>>()
 
         remoteOperation(
                 method = POST,
@@ -370,8 +369,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun get(): CompletableFuture<MultiSet<LogicTuple>> {
-        val promise = CompletableFuture<MultiSet<LogicTuple>>()
+    override fun get(): CompletableFuture<Collection<LogicTuple>> {
+        val promise = CompletableFuture<Collection<LogicTuple>>()
 
         remoteOperation(
                 method = GET,
