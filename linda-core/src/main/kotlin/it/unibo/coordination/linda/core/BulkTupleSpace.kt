@@ -8,13 +8,25 @@ interface BulkTupleSpace<T : Tuple, TT : Template, K, V> : TupleSpace<T, TT, K, 
     fun readAll(template: TT): Promise<Collection<Match<T, TT, K, V>>>
 
     @JvmDefault
+    fun readAll(template: String): Promise<Collection<Match<T, TT, K, V>>> =
+            readAll(template.toTemplate())
+
+    @JvmDefault
     fun readAllTuples(template: TT): Promise<Collection<T>> {
         return readAll(template).thenApplyAsync { matches ->
             HashMultiSet(matches.map { it.tuple.get() })
         }
     }
 
+    @JvmDefault
+    fun readAllTuples(template: String): Promise<Collection<T>> =
+            readAllTuples(template.toTemplate())
+
     fun takeAll(template: TT): Promise<Collection<Match<T, TT, K, V>>>
+
+    @JvmDefault
+    fun takeAll(template: String): Promise<Collection<Match<T, TT, K, V>>> =
+            takeAll(template.toTemplate())
 
     @JvmDefault
     fun takeAllTuples(template: TT): Promise<Collection<T>> {
@@ -23,7 +35,15 @@ interface BulkTupleSpace<T : Tuple, TT : Template, K, V> : TupleSpace<T, TT, K, 
         }
     }
 
+    @JvmDefault
+    fun takeAllTuples(template: String): Promise<Collection<T>> =
+            takeAllTuples(template.toTemplate())
+
     fun writeAll(tuples: Collection<T>): Promise<Collection<T>>
+
+    @JvmDefault
+    fun writeAll(tuple1: String, vararg otherTuples: String): Promise<Collection<T>> =
+            writeAll(listOf(tuple1, *otherTuples).map { it.toTuple() })
 
     @JvmDefault
     fun writeAll(tuple1: T, vararg otherTuples: T): Promise<Collection<T>> {
