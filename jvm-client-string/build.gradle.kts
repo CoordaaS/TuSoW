@@ -14,7 +14,7 @@ val commonsCliVersion: String by project
 
 dependencies {
     api(project(":linda-core"))
-    api(project(":linda-strings"))
+    api(project(":linda-text"))
     api(project(":linda-presentation"))
 
     implementation(project(":utils"))
