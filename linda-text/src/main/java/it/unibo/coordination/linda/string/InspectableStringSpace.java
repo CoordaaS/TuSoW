@@ -1,6 +1,6 @@
 package it.unibo.coordination.linda.string;
 
-import it.unibo.coordination.Engine;
+import it.unibo.coordination.Engines;
 import it.unibo.coordination.linda.core.InspectableExtendedTupleSpace;
 
 import java.util.concurrent.ExecutorService;
@@ -12,11 +12,11 @@ public interface InspectableStringSpace extends StringSpace, InspectableExtended
     }
 
     static InspectableStringSpace deterministic(String name) {
-        return deterministic(name, Engine.getDefaultEngine());
+        return deterministic(name, Engines.getDefaultEngine());
     }
 
     static InspectableStringSpace deterministic(ExecutorService executorService) {
-        return deterministic(null, Engine.getDefaultEngine());
+        return deterministic(null, Engines.getDefaultEngine());
     }
 
 }

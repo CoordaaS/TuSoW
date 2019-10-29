@@ -1,7 +1,7 @@
 package it.unibo.coordination.linda.logic;
 
 import alice.tuprolog.Term;
-import it.unibo.coordination.Engine;
+import it.unibo.coordination.Engines;
 import it.unibo.coordination.linda.core.ExtendedTupleSpace;
 import it.unibo.coordination.linda.core.Match;
 import org.apache.commons.collections4.MultiSet;
@@ -20,11 +20,11 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
     }
 
     static LogicSpace deterministic(String name) {
-        return deterministic(name, Engine.getDefaultEngine());
+        return deterministic(name, Engines.getDefaultEngine());
     }
 
     static LogicSpace deterministic(ExecutorService executorService) {
-        return deterministic(null, Engine.getDefaultEngine());
+        return deterministic(null, Engines.getDefaultEngine());
     }
 
     static LogicSpace nonDeterministic(String name, ExecutorService executorService) {
@@ -32,11 +32,11 @@ public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate
     }
 
     static LogicSpace nonDeterministic(String name) {
-        return nonDeterministic(name, Engine.getDefaultEngine());
+        return nonDeterministic(name, Engines.getDefaultEngine());
     }
 
     static LogicSpace nonDeterministic(ExecutorService executorService) {
-        return nonDeterministic(null, Engine.getDefaultEngine());
+        return nonDeterministic(null, Engines.getDefaultEngine());
     }
 
 

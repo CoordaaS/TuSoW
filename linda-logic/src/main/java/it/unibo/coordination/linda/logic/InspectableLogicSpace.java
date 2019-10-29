@@ -1,7 +1,7 @@
 package it.unibo.coordination.linda.logic;
 
 import alice.tuprolog.Term;
-import it.unibo.coordination.Engine;
+import it.unibo.coordination.Engines;
 import it.unibo.coordination.linda.core.InspectableExtendedTupleSpace;
 
 import java.util.concurrent.ExecutorService;
@@ -13,7 +13,7 @@ public interface InspectableLogicSpace extends LogicSpace, InspectableExtendedTu
     }
 
     static InspectableLogicSpace create(String name) {
-        return create(name, Engine.getDefaultEngine());
+        return create(name, Engines.getDefaultEngine());
     }
 
     static InspectableLogicSpace create(ExecutorService executorService) {

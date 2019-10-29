@@ -1,4 +1,4 @@
-package it.unibo.coordination.linda
+package it.unibo.coordination
 
 import java.util.concurrent.CompletableFuture
 

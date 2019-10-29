@@ -1,6 +1,6 @@
 package it.unibo.coordination.linda.core
 
-import it.unibo.coordination.linda.Promise
+import it.unibo.coordination.Promise
 import org.apache.commons.collections4.MultiSet
 
 interface TupleSpace<T : Tuple, TT : Template, K, V> {

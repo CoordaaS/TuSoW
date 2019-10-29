@@ -1,6 +1,6 @@
 package it.unibo.coordination.linda.string;
 
-import it.unibo.coordination.Engine;
+import it.unibo.coordination.Engines;
 import it.unibo.coordination.linda.core.ExtendedTupleSpace;
 import it.unibo.coordination.linda.core.Match;
 import org.apache.commons.collections4.MultiSet;
@@ -20,11 +20,11 @@ public interface StringSpace extends ExtendedTupleSpace<StringTuple, RegexTempla
     }
 
     static StringSpace deterministic(String name) {
-        return deterministic(name, Engine.getDefaultEngine());
+        return deterministic(name, Engines.getDefaultEngine());
     }
 
     static StringSpace deterministic(ExecutorService executorService) {
-        return deterministic(null, Engine.getDefaultEngine());
+        return deterministic(null, Engines.getDefaultEngine());
     }
 
     default CompletableFuture<StringTuple> write(String template) {
