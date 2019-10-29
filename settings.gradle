@@ -8,8 +8,8 @@ include 'test-utils'
 include 'linda-text'
 include 'linda-test'
 include 'linda-presentation'
-include 'jvm-client-logic'
-include 'jvm-client-text'
+include 'linda-logic-client'
+include 'linda-text-client'
 include 'cli'
 
 

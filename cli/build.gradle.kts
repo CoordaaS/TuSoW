@@ -16,8 +16,8 @@ val commonsCliVersion: String by project
 val cliktVersion: String by project
 
 dependencies {
-    api(project(":jvm-client-logic"))
-    api(project(":jvm-client-text"))
+    api(project(":linda-logic-client"))
+    api(project(":linda-text-client"))
 
     implementation("com.github.ajalt", "clikt", cliktVersion)
 
