@@ -1,7 +1,6 @@
 package it.unibo.coordination.linda.core
 
 import it.unibo.coordination.Promise
-import org.apache.commons.collections4.MultiSet
 
 interface TupleSpace<T : Tuple, TT : Template, K, V> {
 
@@ -18,12 +17,12 @@ interface TupleSpace<T : Tuple, TT : Template, K, V> {
 
     @JvmDefault
     fun takeTuple(template: TT): Promise<T> {
-        return take(template).thenApplyAsync { match -> match.tuple.get() }
+        return take(template).thenApplyAsync { it.tuple.get() }
     }
 
     fun write(tuple: T): Promise<T>
 
-    fun get(): Promise<MultiSet<T>>
+    fun get(): Promise<Collection<out T>>
 
     fun getSize(): Promise<Int>
 }
