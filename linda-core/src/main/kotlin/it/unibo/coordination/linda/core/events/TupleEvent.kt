@@ -16,11 +16,11 @@ class TupleEvent<T : Tuple, TT : Template>
     val isAfter: Boolean
         get() = !isBefore
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        if (!super.equals(o)) return false
-        val that = o as TupleEvent<*, *>?
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        if (!super.equals(other)) return false
+        val that = other as TupleEvent<*, *>?
         return isBefore == that!!.isBefore &&
                 effect == that.effect &&
                 tuple == that.tuple &&
