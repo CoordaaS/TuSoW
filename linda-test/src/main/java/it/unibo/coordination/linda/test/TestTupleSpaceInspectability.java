@@ -14,7 +14,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -61,9 +64,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
 
         final var expectedEvent = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.READ, template);
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         try {
             await(tupleSpace.readTuple(template));
@@ -87,9 +90,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
 
         final var expectedEvent = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TAKE, template);
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         try {
             await(tupleSpace.takeTuple(template));
@@ -115,9 +118,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent3 = expectedEvent1.toTupleReturningCompletion(tuple);
 
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.write(tuple));
 
@@ -144,9 +147,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent5 = TupleEvent.afterReading(tupleSpace, tupleTemplate.getValue0());
         final var expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.getValue0());
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.write(tupleTemplate.getValue0()));
         await(tupleSpace.readTuple(tupleTemplate.getValue1()));
@@ -173,9 +176,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent5 = expectedEvent2.toTupleReturningCompletion(tupleTemplate.getValue0());
         final var expectedEvent6 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.getValue0());
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         var read = tupleSpace.readTuple(tupleTemplate.getValue1());
         await(tupleSpace.write(tupleTemplate.getValue0()));
@@ -201,9 +204,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TRY_READ, template);
         final var expectedEvent2 = expectedEvent1.toTuplesReturningCompletion();
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.tryReadTuple(template));
 
@@ -228,9 +231,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent5 = TupleEvent.afterReading(tupleSpace, tupleTemplate.getValue0());
         final var expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.getValue0());
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.write(tupleTemplate.getValue0()));
         await(tupleSpace.tryRead(tupleTemplate.getValue1()));
@@ -257,9 +260,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent5 = TupleEvent.afterTaking(tupleSpace, tupleTemplate.getValue0());
         final var expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.getValue0());
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.write(tupleTemplate.getValue0()));
         await(tupleSpace.takeTuple(tupleTemplate.getValue1()));
@@ -284,9 +287,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent5 = expectedEvent2.toTupleReturningCompletion(tupleTemplate.getValue0());
         final var expectedEvent6 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.getValue0());
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         var take = tupleSpace.takeTuple(tupleTemplate.getValue1());
         await(tupleSpace.write(tupleTemplate.getValue0()));
@@ -316,9 +319,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent5 = TupleEvent.afterTaking(tupleSpace, tupleTemplate.getValue0());
         final var expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.getValue0());
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.write(tupleTemplate.getValue0()));
         await(tupleSpace.tryTakeTuple(tupleTemplate.getValue1()));
@@ -340,9 +343,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TRY_TAKE, template);
         final var expectedEvent2 = expectedEvent1.toTuplesReturningCompletion();
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.tryTakeTuple(template));
 
@@ -368,9 +371,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent3 = expectedEvent1.toTuplesReturningCompletion(tuples);
 
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.writeAll(tuples));
 
@@ -404,9 +407,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples);
 
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.writeAll(tuples));
         await(tupleSpace.get());
@@ -441,9 +444,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples.getValue0());
 
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.writeAll(tuples.getValue0()));
         await(tupleSpace.readAllTuples(tuples.getValue1()));
@@ -478,9 +481,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         //final var expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples.getValue0());
 
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         var read = tupleSpace.readAllTuples(tuples.getValue1());
         await(tupleSpace.writeAll(tuples.getValue0()));
@@ -537,9 +540,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples.getValue0());
 
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.writeAll(tuples.getValue0()));
         await(tupleSpace.takeAllTuples(tuples.getValue1()));
@@ -574,9 +577,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         //final var expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples.getValue0());
 
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         var read = tupleSpace.takeAllTuples(tuples.getValue1());
         await(tupleSpace.writeAll(tuples.getValue0()));
@@ -628,9 +631,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent3 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.getValue0());
         final var expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.ABSENT, tupleTemplate.getValue1());
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.write(tupleTemplate.getValue0()));
         try {
@@ -656,9 +659,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent2 = TupleEvent.afterAbsent(tupleSpace, template);
         final var expectedEvent3 = expectedEvent1.toTemplateReturningCompletion(template);
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.absentTemplate(template));
 
@@ -685,9 +688,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent8 = TupleEvent.afterTaking(tupleSpace, tupleTemplate.getValue0());
         final var expectedEvent9 = expectedEvent7.toTupleReturningCompletion(tupleTemplate.getValue0());
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.write(tupleTemplate.getValue0()));
         var absent = tupleSpace.absentTemplate(tupleTemplate.getValue1());
@@ -719,9 +722,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TRY_ABSENT, template);
         final var expectedEvent2 = expectedEvent1.toTuplesReturningCompletion();
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.tryAbsent(template));
 
@@ -746,9 +749,9 @@ public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends T
         final var expectedEvent5 = TupleEvent.afterAbsent(tupleSpace, tupleTemplate.getValue1(), tupleTemplate.getValue0());
         final var expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.getValue0());
 
-        tupleSpace.operationInvoked().bind(observableBehaviour::add);
-        tupleSpace.tupleSpaceChanged().bind(observableBehaviour::add);
-        tupleSpace.operationCompleted().bind(observableBehaviour::add);
+        tupleSpace.getOperationInvoked().bind(observableBehaviour::add);
+        tupleSpace.getTupleSpaceChanged().bind(observableBehaviour::add);
+        tupleSpace.getOperationCompleted().bind(observableBehaviour::add);
 
         await(tupleSpace.write(tupleTemplate.getValue0()));
         await(tupleSpace.tryAbsent(tupleTemplate.getValue1()));
