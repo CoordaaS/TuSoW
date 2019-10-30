@@ -61,7 +61,7 @@ abstract class TupleSpaceEventDeserializer<T extends Tuple, TT extends Template>
                             && dynamicMap.containsKey("template")) {
                         final T tuple = Optional.ofNullable(dynamicMap.get("tuple")).map(t -> getDeserializer(tupleClass).fromDynamicObject(t)).orElse(null);
                         final TT template = Optional.ofNullable(dynamicMap.get("template")).map(t -> getDeserializer(templateClass).fromDynamicObject(t)).orElse(null);
-                        return TupleEvent.of(tupleSpace, (Boolean) dynamicMap.get("before"), TupleEvent.Effect.valueOf((String) dynamicMap.get("effect")), tuple, template);
+                        return TupleEvent.of(tupleSpace, ((Boolean)dynamicMap.get("before")).booleanValue(), TupleEvent.Effect.valueOf((String) dynamicMap.get("effect")), tuple, template);
                     }
                 }
             }
