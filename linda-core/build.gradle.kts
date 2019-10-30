@@ -17,6 +17,7 @@ val ktFreeCompilerArgs: String by project
 
 dependencies {
     api("org.apache.commons", "commons-collections4", apacheCommonsVersion)
+    api(project(":utils"))
 
     testImplementation("junit", "junit", junitVersion)
     implementation(kotlin("stdlib-jdk8"))
