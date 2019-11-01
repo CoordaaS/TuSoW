@@ -9,7 +9,7 @@ internal class SyncOrderedEventSourceImpl<T> : AbstractEventSourceImpl<T>() {
 
     override fun syncEmit(data: T): T {
         for (listener in eventListeners) {
-            listener.onEvent(data)
+            listener(data)
         }
         return data
     }

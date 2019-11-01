@@ -33,7 +33,7 @@ internal class AsyncOrderedEventSourceImpl<T>(private val engine: ExecutorServic
             promise.complete(data)
         } else {
             engine.submit {
-                eventListeners[i].onEvent(data)
+                eventListeners[i](data)
                 submitNotifications(data, eventListeners, i + 1, promise)
             }
         }
