@@ -5,6 +5,7 @@ import it.unibo.coordination.linda.core.*
 import it.unibo.coordination.linda.core.events.OperationEvent
 import it.unibo.coordination.linda.core.events.TupleEvent
 import it.unibo.coordination.utils.events.SyncEventEmitter
+import it.unibo.coordination.utils.toMultiSet
 import org.apache.commons.collections4.MultiSet
 import org.apache.commons.collections4.multiset.HashMultiSet
 import java.util.*
@@ -469,13 +470,6 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V, M : Match<T, T
 
         private val DEBUG = true
 
-        protected fun <X> Stream<X>.toMultiSet(): MultiSet<X> {
-            val result = HashMultiSet<X>()
-            forEach {
-                result.add(it)
-            }
-            return result
-        }
     }
 }
 

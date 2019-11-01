@@ -1,6 +1,8 @@
 package it.unibo.coordination.linda.core.events
 
 import it.unibo.coordination.linda.core.*
+import it.unibo.coordination.utils.toMultiSet
+import org.apache.commons.collections4.MultiSet
 import java.util.*
 import java.util.stream.Stream
 import kotlin.streams.toList
@@ -15,10 +17,10 @@ private constructor(tupleSpace: InspectableTupleSpace<T, TT, *, *, *>,
                     resultTuples: Stream<out T>,
                     resultTemplates: Stream<out TT>) : TupleSpaceEvent<T, TT>(tupleSpace) {
 
-    private val argumentTuples: List<T> = argumentTuples.toList()
-    private val argumentTemplates: List<TT> = argumentTemplates.toList()
-    private val resultTuples: List<T> = resultTuples.toList()
-    private val resultTemplates: List<TT> = resultTemplates.toList()
+    val argumentTuples: List<T> = argumentTuples.toList()
+    val argumentTemplates: List<TT> = argumentTemplates.toList()
+    val resultTuples: MultiSet<T> = resultTuples.map { it }.toMultiSet()
+    val resultTemplates: MultiSet<TT> = resultTemplates.map { it }.toMultiSet()
 
     val argumentTuple: Optional<T>
         get() = argumentTuples.stream().findFirst()
@@ -37,22 +39,6 @@ private constructor(tupleSpace: InspectableTupleSpace<T, TT, *, *, *>,
 
     val isResultPresent: Boolean
         get() = resultTuples.isNotEmpty() || resultTemplates.isNotEmpty()
-
-    fun getArgumentTuples(): List<T> {
-        return argumentTuples.toList()
-    }
-
-    fun getArgumentTemplates(): List<TT> {
-        return argumentTemplates.toList()
-    }
-
-    fun getResultTuples(): List<T> {
-        return resultTuples.toList()
-    }
-
-    fun getResultTemplates(): List<TT> {
-        return resultTemplates.toList()
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -140,8 +126,8 @@ private constructor(tupleSpace: InspectableTupleSpace<T, TT, *, *, *>,
                 invocation.tupleSpace,
                 invocation.operationType,
                 OperationPhase.COMPLETION,
-                invocation.getResultTuples().stream(),
-                invocation.getArgumentTemplates().stream(),
+                invocation.resultTuples.stream(),
+                invocation.argumentTemplates.stream(),
                 resultTuples,
                 resultTemplates
         )
