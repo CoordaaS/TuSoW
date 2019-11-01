@@ -1,7 +1,7 @@
 package it.unibo.coordination.linda.cli
 
 import it.unibo.coordination.linda.logic.LogicSpace
-import it.unibo.coordination.linda.string.StringSpace
+import it.unibo.coordination.linda.text.StringSpace
 import java.util.concurrent.CompletableFuture
 
 class CountCommand(

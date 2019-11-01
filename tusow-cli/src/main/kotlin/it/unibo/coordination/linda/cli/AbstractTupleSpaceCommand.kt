@@ -10,7 +10,7 @@ import it.unibo.coordination.linda.cli.TupleSpaceTypes.LOGIC
 import it.unibo.coordination.linda.cli.TupleSpaceTypes.TEXT
 import it.unibo.coordination.linda.core.TupleSpace
 import it.unibo.coordination.linda.logic.remote.RemoteLogicSpace
-import it.unibo.coordination.linda.strings.remote.RemoteStringSpace
+import it.unibo.coordination.linda.text.remote.RemoteStringSpace
 import java.net.URL
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException

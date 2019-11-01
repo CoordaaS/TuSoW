@@ -1,4 +1,4 @@
-package it.unibo.coordination.linda.string;
+package it.unibo.coordination.linda.text;
 
 import com.google.code.regexp.Matcher;
 import it.unibo.coordination.linda.core.Match;

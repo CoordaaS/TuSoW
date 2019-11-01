@@ -1,9 +1,5 @@
-package it.unibo.coordination.linda.strings;
+package it.unibo.coordination.linda.text;
 
-import it.unibo.coordination.linda.string.InspectableStringSpace;
-import it.unibo.coordination.linda.string.RegexTemplate;
-import it.unibo.coordination.linda.string.RegularMatch;
-import it.unibo.coordination.linda.string.StringTuple;
 import it.unibo.coordination.linda.test.TestTupleSpaceInspectability;
 
 import java.util.concurrent.ExecutorService;

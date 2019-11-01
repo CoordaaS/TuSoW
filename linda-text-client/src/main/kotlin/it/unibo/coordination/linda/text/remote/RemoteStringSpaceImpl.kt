@@ -1,4 +1,4 @@
-package it.unibo.coordination.linda.strings.remote
+package it.unibo.coordination.linda.text.remote
 
 import io.vertx.core.Vertx
 import io.vertx.core.http.*
@@ -7,9 +7,9 @@ import it.unibo.coordination.Promise
 import it.unibo.coordination.linda.presentation.Deserializer
 import it.unibo.coordination.linda.presentation.MIMETypes
 import it.unibo.coordination.linda.presentation.Serializer
-import it.unibo.coordination.linda.string.RegexTemplate
-import it.unibo.coordination.linda.string.RegularMatch
-import it.unibo.coordination.linda.string.StringTuple
+import it.unibo.coordination.linda.text.RegexTemplate
+import it.unibo.coordination.linda.text.RegularMatch
+import it.unibo.coordination.linda.text.StringTuple
 import org.apache.commons.collections4.multiset.HashMultiSet
 import java.net.URL
 import java.net.URLEncoder

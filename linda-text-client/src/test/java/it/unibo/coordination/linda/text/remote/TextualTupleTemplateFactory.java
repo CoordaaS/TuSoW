@@ -1,8 +1,8 @@
-package it.unibo.coordination.linda.strings;
+package it.unibo.coordination.linda.text.remote;
 
-import it.unibo.coordination.linda.string.RegexTemplate;
-import it.unibo.coordination.linda.string.RegularMatch;
-import it.unibo.coordination.linda.string.StringTuple;
+import it.unibo.coordination.linda.text.RegexTemplate;
+import it.unibo.coordination.linda.text.RegularMatch;
+import it.unibo.coordination.linda.text.StringTuple;
 import it.unibo.coordination.linda.test.TupleTemplateFactory;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;

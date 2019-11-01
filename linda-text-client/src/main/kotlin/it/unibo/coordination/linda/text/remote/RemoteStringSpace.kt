@@ -1,6 +1,6 @@
-package it.unibo.coordination.linda.strings.remote
+package it.unibo.coordination.linda.text.remote
 
-import it.unibo.coordination.linda.string.StringSpace
+import it.unibo.coordination.linda.text.StringSpace
 import java.net.URL
 
 interface RemoteStringSpace : StringSpace {

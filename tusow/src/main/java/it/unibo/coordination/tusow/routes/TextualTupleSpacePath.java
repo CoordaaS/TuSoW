@@ -4,9 +4,9 @@ import io.vertx.ext.web.RoutingContext;
 import it.unibo.coordination.linda.presentation.Deserializer;
 import it.unibo.coordination.linda.presentation.MIMETypes;
 import it.unibo.coordination.linda.presentation.Serializer;
-import it.unibo.coordination.linda.string.RegexTemplate;
-import it.unibo.coordination.linda.string.RegularMatch;
-import it.unibo.coordination.linda.string.StringTuple;
+import it.unibo.coordination.linda.text.RegexTemplate;
+import it.unibo.coordination.linda.text.RegularMatch;
+import it.unibo.coordination.linda.text.StringTuple;
 import it.unibo.coordination.tusow.api.TextualTupleSpaceApi;
 import it.unibo.coordination.tusow.api.TupleSpaceApi;
 

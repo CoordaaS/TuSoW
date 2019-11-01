@@ -5,7 +5,7 @@ import it.unibo.coordination.linda.cli.TupleSpaceTypes.TEXT
 import it.unibo.coordination.linda.core.Match
 import it.unibo.coordination.linda.core.Tuple
 import it.unibo.coordination.linda.logic.LogicSpace
-import it.unibo.coordination.linda.string.StringSpace
+import it.unibo.coordination.linda.text.StringSpace
 
 class AbsentCommand(
         help: String = "",

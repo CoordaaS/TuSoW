@@ -1,9 +1,9 @@
-package it.unibo.coordination.linda.strings.remote;
+package it.unibo.coordination.linda.text.remote;
 
 import io.vertx.core.Future;
-import it.unibo.coordination.linda.string.RegexTemplate;
-import it.unibo.coordination.linda.string.RegularMatch;
-import it.unibo.coordination.linda.string.StringTuple;
+import it.unibo.coordination.linda.text.RegexTemplate;
+import it.unibo.coordination.linda.text.RegularMatch;
+import it.unibo.coordination.linda.text.StringTuple;
 import it.unibo.coordination.linda.test.TestTupleSpace;
 import it.unibo.coordination.tusow.Service;
 import org.junit.AfterClass;

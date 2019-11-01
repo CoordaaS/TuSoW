@@ -2,8 +2,8 @@ package it.unibo.coordination.linda.cli
 
 import it.unibo.coordination.linda.logic.LogicSpace
 import it.unibo.coordination.linda.logic.LogicTuple
-import it.unibo.coordination.linda.string.StringSpace
-import it.unibo.coordination.linda.string.StringTuple
+import it.unibo.coordination.linda.text.StringSpace
+import it.unibo.coordination.linda.text.StringTuple
 
 class WriteCommand(
         help: String = "",

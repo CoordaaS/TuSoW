@@ -1,7 +1,7 @@
 package it.unibo.coordination.linda.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.unibo.coordination.linda.string.RegexTemplate;
+import it.unibo.coordination.linda.text.RegexTemplate;
 
 import java.util.Map;
 

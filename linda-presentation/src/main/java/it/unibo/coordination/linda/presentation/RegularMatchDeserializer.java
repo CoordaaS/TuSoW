@@ -1,9 +1,9 @@
 package it.unibo.coordination.linda.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.unibo.coordination.linda.string.RegexTemplate;
-import it.unibo.coordination.linda.string.RegularMatch;
-import it.unibo.coordination.linda.string.StringTuple;
+import it.unibo.coordination.linda.text.RegexTemplate;
+import it.unibo.coordination.linda.text.RegularMatch;
+import it.unibo.coordination.linda.text.StringTuple;
 
 import java.util.Map;
 

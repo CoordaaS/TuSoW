@@ -1,4 +1,4 @@
-package it.unibo.coordination.linda.string;
+package it.unibo.coordination.linda.text;
 
 import it.unibo.coordination.linda.core.impl.AbstractTupleSpace;
 import org.apache.commons.collections4.MultiSet;

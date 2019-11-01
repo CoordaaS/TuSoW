@@ -1,7 +1,7 @@
 package it.unibo.coordination.tusow.linda;
 
 import it.unibo.coordination.linda.logic.LogicSpace;
-import it.unibo.coordination.linda.string.StringSpace;
+import it.unibo.coordination.linda.text.StringSpace;
 
 import java.util.HashMap;
 import java.util.Map;
