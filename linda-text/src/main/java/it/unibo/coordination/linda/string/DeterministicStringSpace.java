@@ -1,6 +1,5 @@
 package it.unibo.coordination.linda.string;
 
-import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.impl.AbstractTupleSpace;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
@@ -9,7 +8,7 @@ import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
-class DeterministicStringSpace extends AbstractTupleSpace<StringTuple, RegexTemplate, Object, String> implements InspectableStringSpace {
+class DeterministicStringSpace extends AbstractTupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch> implements InspectableStringSpace {
 
     private final MultiSet<PendingRequest> pendingRequests = new HashMultiSet<>();
     private final MultiSet<StringTuple> tuples = new HashMultiSet<>();
@@ -24,7 +23,7 @@ class DeterministicStringSpace extends AbstractTupleSpace<StringTuple, RegexTemp
     }
 
     @Override
-    protected Stream<? extends Match<StringTuple, RegexTemplate, Object, String>> lookForTuples(RegexTemplate template, int limit) {
+    protected Stream<? extends RegularMatch> lookForTuples(RegexTemplate template, int limit) {
         return tuples.stream()
                 .map(template::matchWith)
                 .filter(RegularMatch::isMatching)
@@ -32,7 +31,7 @@ class DeterministicStringSpace extends AbstractTupleSpace<StringTuple, RegexTemp
     }
 
     @Override
-    protected Match<StringTuple, RegexTemplate, Object, String> lookForTuple(RegexTemplate template) {
+    protected RegularMatch lookForTuple(RegexTemplate template) {
         return lookForTuples(template, 1)
                 .findFirst()
                 .map(RegularMatch.class::cast)
@@ -40,7 +39,7 @@ class DeterministicStringSpace extends AbstractTupleSpace<StringTuple, RegexTemp
     }
 
     @Override
-    protected Stream<? extends Match<StringTuple, RegexTemplate, Object, String>> retrieveTuples(RegexTemplate template, int limit) {
+    protected Stream<? extends RegularMatch> retrieveTuples(RegexTemplate template, int limit) {
         final var i = tuples.iterator();
         Stream.Builder<RegularMatch> result = Stream.builder();
         var j = 0;
@@ -60,14 +59,14 @@ class DeterministicStringSpace extends AbstractTupleSpace<StringTuple, RegexTemp
     }
 
     @Override
-    protected Match<StringTuple, RegexTemplate, Object, String> retrieveTuple(RegexTemplate template) {
+    protected RegularMatch retrieveTuple(RegexTemplate template) {
         return retrieveTuples(template, 1).findFirst()
                 .map(RegularMatch.class::cast)
                 .orElseGet(() -> RegularMatch.failed(template));
     }
 
     @Override
-    protected Match<StringTuple, RegexTemplate, Object, String> match(RegexTemplate template, StringTuple tuple) {
+    protected RegularMatch match(RegexTemplate template, StringTuple tuple) {
         return template.matchWith(tuple);
     }
 
@@ -87,7 +86,7 @@ class DeterministicStringSpace extends AbstractTupleSpace<StringTuple, RegexTemp
     }
 
     @Override
-    protected Match<StringTuple, RegexTemplate, Object, String> failedMatch(RegexTemplate template) {
+    protected RegularMatch failedMatch(RegexTemplate template) {
         return RegularMatch.failed(template);
     }
 }

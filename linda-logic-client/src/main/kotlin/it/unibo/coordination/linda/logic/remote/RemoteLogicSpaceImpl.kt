@@ -1,10 +1,9 @@
 package it.unibo.coordination.linda.logic.remote
 
-import alice.tuprolog.Term
 import io.vertx.core.Vertx
 import io.vertx.core.http.*
 import io.vertx.core.http.HttpMethod.*
-import it.unibo.coordination.linda.core.Match
+import it.unibo.coordination.Promise
 import it.unibo.coordination.linda.logic.LogicMatch
 import it.unibo.coordination.linda.logic.LogicTemplate
 import it.unibo.coordination.linda.logic.LogicTuple
@@ -14,7 +13,6 @@ import it.unibo.coordination.linda.presentation.Serializer
 import org.apache.commons.collections4.multiset.HashMultiSet
 import java.net.URL
 import java.net.URLEncoder
-import java.util.concurrent.CompletableFuture
 
 internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val _name: String) : RemoteLogicSpace {
 
@@ -63,14 +61,14 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         }
 
         @JvmStatic
-        private fun <T> HttpClientRequest.addExceptionHandler(future: CompletableFuture<T>) {
+        private fun <T> HttpClientRequest.addExceptionHandler(future: Promise<T>) {
             this.exceptionHandler {
                 future.completeExceptionally(it)
             }
         }
 
         @JvmStatic
-        private fun <T> HttpClientResponse.addExceptionHandler(future: CompletableFuture<T>) {
+        private fun <T> HttpClientResponse.addExceptionHandler(future: Promise<T>) {
             this.exceptionHandler {
                 future.completeExceptionally(it)
             }
@@ -82,8 +80,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
     override val name: String
         get() = _name
 
-    override fun tryTake(template: LogicTemplate): CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> {
-        val promise = CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>>()
+    override fun tryTake(template: LogicTemplate): Promise<LogicMatch> {
+        val promise = Promise<LogicMatch>()
 
         remoteOperation(
                 method = DELETE,
@@ -109,8 +107,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun take(template: LogicTemplate): CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> {
-        val promise = CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>>()
+    override fun take(template: LogicTemplate): Promise<LogicMatch> {
+        val promise = Promise<LogicMatch>()
 
         remoteOperation(
                 method = DELETE,
@@ -136,8 +134,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun takeAll(template: LogicTemplate): CompletableFuture<Collection<Match<LogicTuple, LogicTemplate, String, Term>>> {
-        val promise = CompletableFuture<Collection<Match<LogicTuple, LogicTemplate, String, Term>>>()
+    override fun takeAll(template: LogicTemplate): Promise<Collection<LogicMatch>> {
+        val promise = Promise<Collection<LogicMatch>>()
 
         remoteOperation(
                 method = DELETE,
@@ -161,8 +159,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun write(tuple: LogicTuple): CompletableFuture<LogicTuple> {
-        val promise = CompletableFuture<LogicTuple>()
+    override fun write(tuple: LogicTuple): Promise<LogicTuple> {
+        val promise = Promise<LogicTuple>()
 
         remoteOperation(
                 method = POST,
@@ -188,8 +186,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun writeAll(tuples: Collection<LogicTuple>): CompletableFuture<Collection<LogicTuple>> {
-        val promise = CompletableFuture<Collection<LogicTuple>>()
+    override fun writeAll(tuples: Collection<LogicTuple>): Promise<Collection<LogicTuple>> {
+        val promise = Promise<Collection<LogicTuple>>()
 
         remoteOperation(
                 method = POST,
@@ -211,8 +209,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun getSize(): CompletableFuture<Int> {
-        val promise = CompletableFuture<Int>()
+    override fun getSize(): Promise<Int> {
+        val promise = Promise<Int>()
 
         remoteOperation(
                 method = HEAD,
@@ -236,8 +234,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun readAll(template: LogicTemplate): CompletableFuture<Collection<Match<LogicTuple, LogicTemplate, String, Term>>> {
-        val promise = CompletableFuture<Collection<Match<LogicTuple, LogicTemplate, String, Term>>>()
+    override fun readAll(template: LogicTemplate): Promise<Collection<LogicMatch>> {
+        val promise = Promise<Collection<LogicMatch>>()
 
         remoteOperation(
                 method = GET,
@@ -261,8 +259,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun tryRead(template: LogicTemplate): CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> {
-        val promise = CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>>()
+    override fun tryRead(template: LogicTemplate): Promise<LogicMatch> {
+        val promise = Promise<LogicMatch>()
 
         remoteOperation(
                 method = GET,
@@ -288,8 +286,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun read(template: LogicTemplate): CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> {
-        val promise = CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>>()
+    override fun read(template: LogicTemplate): Promise<LogicMatch> {
+        val promise = Promise<LogicMatch>()
 
         remoteOperation(
                 method = GET,
@@ -315,8 +313,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun tryAbsent(template: LogicTemplate): CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> {
-        val promise = CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>>()
+    override fun tryAbsent(template: LogicTemplate): Promise<LogicMatch> {
+        val promise = Promise<LogicMatch>()
 
         remoteOperation(
                 method = GET,
@@ -342,8 +340,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun absent(template: LogicTemplate): CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> {
-        val promise = CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>>()
+    override fun absent(template: LogicTemplate): Promise<LogicMatch> {
+        val promise = Promise<LogicMatch>()
 
         remoteOperation(
                 method = GET,
@@ -369,8 +367,8 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    override fun get(): CompletableFuture<Collection<LogicTuple>> {
-        val promise = CompletableFuture<Collection<LogicTuple>>()
+    override fun get(): Promise<Collection<LogicTuple>> {
+        val promise = Promise<Collection<LogicTuple>>()
 
         remoteOperation(
                 method = GET,
@@ -393,7 +391,7 @@ internal class RemoteLogicSpaceImpl(private val serviceAddress: URL, private val
         return promise
     }
 
-    protected fun <T> remoteOperation(method: HttpMethod, query: Collection<Pair<String, Any>> = emptyList(), body: ()->String? = {null}, future: CompletableFuture<T>,  callback: (HttpClientRequest, HttpClientResponse)->Unit) {
+    protected fun <T> remoteOperation(method: HttpMethod, query: Collection<Pair<String, Any>> = emptyList(), body: ()->String? = {null}, future: Promise<T>,  callback: (HttpClientRequest, HttpClientResponse)->Unit) {
         val path = tupleSpacePath + if (query.isEmpty()) "" else query.joinToString("&", "?"){
             "${it.first}=${URLEncoder.encode(it.second.toString(), "UTF-8")}"
         }

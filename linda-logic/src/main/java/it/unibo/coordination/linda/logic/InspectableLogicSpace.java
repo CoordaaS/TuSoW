@@ -6,7 +6,7 @@ import it.unibo.coordination.linda.core.InspectableTupleSpace;
 
 import java.util.concurrent.ExecutorService;
 
-public interface InspectableLogicSpace extends LogicSpace, InspectableTupleSpace<LogicTuple, LogicTemplate, String, Term> {
+public interface InspectableLogicSpace extends LogicSpace, InspectableTupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch> {
 
     static InspectableLogicSpace create(String name, ExecutorService executorService) {
         return new DeterministicLogicSpaceImpl(name, executorService);

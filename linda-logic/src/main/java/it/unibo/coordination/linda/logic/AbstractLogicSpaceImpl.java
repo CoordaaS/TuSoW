@@ -3,14 +3,13 @@ package it.unibo.coordination.linda.logic;
 import alice.tuprolog.Prolog;
 import alice.tuprolog.Struct;
 import alice.tuprolog.Term;
-import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.impl.AbstractTupleSpace;
 import it.unibo.coordination.prologx.PrologUtils;
 
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
-abstract class AbstractLogicSpaceImpl extends AbstractTupleSpace<LogicTuple, LogicTemplate, String, Term> implements InspectableLogicSpace {
+abstract class AbstractLogicSpaceImpl extends AbstractTupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch> implements InspectableLogicSpace {
 
     private final Prolog engine = new Prolog();
 
@@ -65,12 +64,12 @@ abstract class AbstractLogicSpaceImpl extends AbstractTupleSpace<LogicTuple, Log
     }
 
     @Override
-    protected Match<LogicTuple, LogicTemplate, String, Term> match(LogicTemplate template, LogicTuple tuple) {
+    protected LogicMatch match(LogicTemplate template, LogicTuple tuple) {
         return template.matchWith(tuple);
     }
 
     @Override
-    protected Match<LogicTuple, LogicTemplate, String, Term> failedMatch(LogicTemplate template) {
+    protected LogicMatch failedMatch(LogicTemplate template) {
         return LogicMatch.failed(template);
     }
 

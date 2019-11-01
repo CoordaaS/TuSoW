@@ -55,9 +55,9 @@ abstract class AbstractTupleSpaceCommand(
     }
 
     companion object {
-        protected val TUPLE_SPACES: MutableMap<TupleSpaceID, TupleSpace<*, *, *, *>> = mutableMapOf()
+        protected val TUPLE_SPACES: MutableMap<TupleSpaceID, TupleSpace<*, *, *, *, *>> = mutableMapOf()
 
-        fun<T : TupleSpace<*, *, *, *>> getTupleSpace(id: TupleSpaceID): T {
+        fun<T : TupleSpace<*, *, *, *, *>> getTupleSpace(id: TupleSpaceID): T {
             if (id !in TUPLE_SPACES) {
                 TUPLE_SPACES[id] = when (id.type) {
                     LOGIC -> RemoteLogicSpace.of(id.host, id.name)

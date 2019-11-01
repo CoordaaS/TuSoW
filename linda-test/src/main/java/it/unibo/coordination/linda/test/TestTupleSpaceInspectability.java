@@ -21,10 +21,10 @@ import java.util.Set;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>,  TS extends InspectableTupleSpace<T, TT, K, V>> extends TestBaseLinda<T, TT, K, V, M> {
+public abstract class TestTupleSpaceInspectability<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>,  TS extends InspectableTupleSpace<T, TT, K, V, M>> extends TestBaseLinda<T, TT, K, V, M> {
 
     private ExecutorService executor;
-    private InspectableTupleSpace<T, TT, K, V> tupleSpace;
+    private InspectableTupleSpace<T, TT, K, V, M> tupleSpace;
     private ConcurrentTestHelper test;
     protected Random rand;
 

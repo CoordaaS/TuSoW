@@ -3,7 +3,7 @@ package it.unibo.coordination.linda.strings.remote
 import io.vertx.core.Vertx
 import io.vertx.core.http.*
 import io.vertx.core.http.HttpMethod.*
-import it.unibo.coordination.linda.core.Match
+import it.unibo.coordination.Promise
 import it.unibo.coordination.linda.presentation.Deserializer
 import it.unibo.coordination.linda.presentation.MIMETypes
 import it.unibo.coordination.linda.presentation.Serializer
@@ -13,7 +13,6 @@ import it.unibo.coordination.linda.string.StringTuple
 import org.apache.commons.collections4.multiset.HashMultiSet
 import java.net.URL
 import java.net.URLEncoder
-import java.util.concurrent.CompletableFuture
 
 internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private val _name: String) : RemoteStringSpace {
 
@@ -62,14 +61,14 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         }
 
         @JvmStatic
-        private fun <T> HttpClientRequest.addExceptionHandler(future: CompletableFuture<T>) {
+        private fun <T> HttpClientRequest.addExceptionHandler(future: Promise<T>) {
             this.exceptionHandler {
                 future.completeExceptionally(it)
             }
         }
 
         @JvmStatic
-        private fun <T> HttpClientResponse.addExceptionHandler(future: CompletableFuture<T>) {
+        private fun <T> HttpClientResponse.addExceptionHandler(future: Promise<T>) {
             this.exceptionHandler {
                 future.completeExceptionally(it)
             }
@@ -81,8 +80,8 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
     override val name: String
         get() = _name
 
-    override fun tryTake(template: RegexTemplate): CompletableFuture<Match<StringTuple, RegexTemplate, Any, String>> {
-        val promise = CompletableFuture<Match<StringTuple, RegexTemplate, Any, String>>()
+    override fun tryTake(template: RegexTemplate): Promise<RegularMatch> {
+        val promise = Promise<RegularMatch>()
 
         remoteOperation(
                 method = DELETE,
@@ -108,8 +107,8 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         return promise
     }
 
-    override fun take(template: RegexTemplate): CompletableFuture<Match<StringTuple, RegexTemplate, Any, String>> {
-        val promise = CompletableFuture<Match<StringTuple, RegexTemplate, Any, String>>()
+    override fun take(template: RegexTemplate): Promise<RegularMatch> {
+        val promise = Promise<RegularMatch>()
 
         remoteOperation(
                 method = DELETE,
@@ -135,8 +134,8 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         return promise
     }
 
-    override fun takeAll(template: RegexTemplate): CompletableFuture<Collection<Match<StringTuple, RegexTemplate, Any, String>>> {
-        val promise = CompletableFuture<Collection<Match<StringTuple, RegexTemplate, Any, String>>>()
+    override fun takeAll(template: RegexTemplate): Promise<Collection<RegularMatch>> {
+        val promise = Promise<Collection<RegularMatch>>()
 
         remoteOperation(
                 method = DELETE,
@@ -160,8 +159,8 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         return promise
     }
 
-    override fun write(tuple: StringTuple): CompletableFuture<StringTuple> {
-        val promise = CompletableFuture<StringTuple>()
+    override fun write(tuple: StringTuple): Promise<StringTuple> {
+        val promise = Promise<StringTuple>()
 
         remoteOperation(
                 method = POST,
@@ -187,8 +186,8 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         return promise
     }
 
-    override fun writeAll(tuples: Collection<StringTuple>): CompletableFuture<Collection<StringTuple>> {
-        val promise = CompletableFuture<Collection<StringTuple>>()
+    override fun writeAll(tuples: Collection<StringTuple>): Promise<Collection<StringTuple>> {
+        val promise = Promise<Collection<StringTuple>>()
 
         remoteOperation(
                 method = POST,
@@ -210,8 +209,8 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         return promise
     }
 
-    override fun getSize(): CompletableFuture<Int> {
-        val promise = CompletableFuture<Int>()
+    override fun getSize(): Promise<Int> {
+        val promise = Promise<Int>()
 
         remoteOperation(
                 method = HEAD,
@@ -235,8 +234,8 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         return promise
     }
 
-    override fun readAll(template: RegexTemplate): CompletableFuture<Collection<Match<StringTuple, RegexTemplate, Any, String>>> {
-        val promise = CompletableFuture<Collection<Match<StringTuple, RegexTemplate, Any, String>>>()
+    override fun readAll(template: RegexTemplate): Promise<Collection<RegularMatch>> {
+        val promise = Promise<Collection<RegularMatch>>()
 
         remoteOperation(
                 method = GET,
@@ -260,8 +259,8 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         return promise
     }
 
-    override fun tryRead(template: RegexTemplate): CompletableFuture<Match<StringTuple, RegexTemplate, Any, String>> {
-        val promise = CompletableFuture<Match<StringTuple, RegexTemplate, Any, String>>()
+    override fun tryRead(template: RegexTemplate): Promise<RegularMatch> {
+        val promise = Promise<RegularMatch>()
 
         remoteOperation(
                 method = GET,
@@ -287,8 +286,8 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         return promise
     }
 
-    override fun read(template: RegexTemplate): CompletableFuture<Match<StringTuple, RegexTemplate, Any, String>> {
-        val promise = CompletableFuture<Match<StringTuple, RegexTemplate, Any, String>>()
+    override fun read(template: RegexTemplate): Promise<RegularMatch> {
+        val promise = Promise<RegularMatch>()
 
         remoteOperation(
                 method = GET,
@@ -314,8 +313,8 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         return promise
     }
 
-    override fun tryAbsent(template: RegexTemplate): CompletableFuture<Match<StringTuple, RegexTemplate, Any, String>> {
-        val promise = CompletableFuture<Match<StringTuple, RegexTemplate, Any, String>>()
+    override fun tryAbsent(template: RegexTemplate): Promise<RegularMatch> {
+        val promise = Promise<RegularMatch>()
 
         remoteOperation(
                 method = GET,
@@ -341,8 +340,8 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         return promise
     }
 
-    override fun absent(template: RegexTemplate): CompletableFuture<Match<StringTuple, RegexTemplate, Any, String>> {
-        val promise = CompletableFuture<Match<StringTuple, RegexTemplate, Any, String>>()
+    override fun absent(template: RegexTemplate): Promise<RegularMatch> {
+        val promise = Promise<RegularMatch>()
 
         remoteOperation(
                 method = GET,
@@ -368,8 +367,8 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         return promise
     }
 
-    override fun get(): CompletableFuture<Collection<StringTuple>> {
-        val promise = CompletableFuture<Collection<StringTuple>>()
+    override fun get(): Promise<Collection<StringTuple>> {
+        val promise = Promise<Collection<StringTuple>>()
 
         remoteOperation(
                 method = GET,
@@ -392,7 +391,7 @@ internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private va
         return promise
     }
 
-    protected fun <T> remoteOperation(method: HttpMethod, query: Collection<Pair<String, Any>> = emptyList(), body: ()->String? = {null}, future: CompletableFuture<T>,  callback: (HttpClientRequest, HttpClientResponse)->Unit) {
+    protected fun <T> remoteOperation(method: HttpMethod, query: Collection<Pair<String, Any>> = emptyList(), body: ()->String? = {null}, future: Promise<T>,  callback: (HttpClientRequest, HttpClientResponse)->Unit) {
         val path = tupleSpacePath + if (query.isEmpty()) "" else query.joinToString("&", "?"){
             "${it.first}=${URLEncoder.encode(it.second.toString(), "UTF-8")}"
         }

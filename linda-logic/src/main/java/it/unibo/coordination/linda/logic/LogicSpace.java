@@ -2,14 +2,13 @@ package it.unibo.coordination.linda.logic;
 
 import alice.tuprolog.Term;
 import it.unibo.coordination.Engines;
-import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.TupleSpace;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
-public interface LogicSpace extends TupleSpace<LogicTuple, LogicTemplate, String, Term> {
+public interface LogicSpace extends TupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch> {
 
     static LogicSpace deterministic(String name, ExecutorService executorService) {
         return new DeterministicLogicSpaceImpl(name, executorService);
@@ -54,35 +53,35 @@ public interface LogicSpace extends TupleSpace<LogicTuple, LogicTemplate, String
         return readTuple(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> read(String template) {
+    default CompletableFuture<LogicMatch> read(String template) {
         return read(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> tryRead(String template) {
+    default CompletableFuture<LogicMatch> tryRead(String template) {
         return tryRead(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> tryRead(Term template) {
+    default CompletableFuture<LogicMatch> tryRead(Term template) {
         return tryRead(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> tryAbsent(String template) {
+    default CompletableFuture<LogicMatch> tryAbsent(String template) {
         return tryAbsent(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> tryAbsent(Term template) {
+    default CompletableFuture<LogicMatch> tryAbsent(Term template) {
         return tryAbsent(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> tryTake(String template) {
+    default CompletableFuture<LogicMatch> tryTake(String template) {
         return tryTake(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> tryTake(Term template) {
+    default CompletableFuture<LogicMatch> tryTake(Term template) {
         return tryTake(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> read(Term template) {
+    default CompletableFuture<LogicMatch> read(Term template) {
         return read(LogicTemplate.of(template));
     }
 
@@ -102,11 +101,11 @@ public interface LogicSpace extends TupleSpace<LogicTuple, LogicTemplate, String
         return takeTuple(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> take(String template) {
+    default CompletableFuture<LogicMatch> take(String template) {
         return take(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> take(Term template) {
+    default CompletableFuture<LogicMatch> take(Term template) {
         return take(LogicTemplate.of(template));
     }
 
@@ -118,11 +117,11 @@ public interface LogicSpace extends TupleSpace<LogicTuple, LogicTemplate, String
         return tryTakeTuple(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> absent(final String template) {
+    default CompletableFuture<LogicMatch> absent(final String template) {
         return absent(LogicTemplate.of(template));
     }
 
-    default CompletableFuture<Match<LogicTuple, LogicTemplate, String, Term>> absent(final Term template) {
+    default CompletableFuture<LogicMatch> absent(final Term template) {
         return absent(LogicTemplate.of(template));
     }
 
