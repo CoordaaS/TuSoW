@@ -8,12 +8,12 @@ import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
-class DeterministicStringSpace extends AbstractTupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch> implements InspectableStringSpace {
+class DeterministicTextualSpace extends AbstractTupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch> implements InspectableTextualSpace {
 
     private final MultiSet<PendingRequest> pendingRequests = new HashMultiSet<>();
     private final MultiSet<StringTuple> tuples = new HashMultiSet<>();
 
-    public DeterministicStringSpace(String name, ExecutorService executor) {
+    public DeterministicTextualSpace(String name, ExecutorService executor) {
         super(name, executor);
     }
 

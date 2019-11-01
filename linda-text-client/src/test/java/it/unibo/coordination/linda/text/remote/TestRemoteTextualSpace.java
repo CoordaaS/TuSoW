@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.IntStream;
 
 @RunWith(Parameterized.class)
-public class TestRemoteStringSpace extends TestTupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch, RemoteStringSpace> {
+public class TestRemoteTextualSpace extends TestTupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch, RemoteTextualSpace> {
 
     private static final int PORT = 10002;
 
@@ -25,7 +25,7 @@ public class TestRemoteStringSpace extends TestTupleSpace<StringTuple, RegexTemp
     private final int testIndex;
     private static int testCaseIndex = 0;
 
-    public TestRemoteStringSpace(Integer i) {
+    public TestRemoteTextualSpace(Integer i) {
         super(new TextualTupleTemplateFactory());
         this.testIndex = i;
     }
@@ -55,8 +55,8 @@ public class TestRemoteStringSpace extends TestTupleSpace<StringTuple, RegexTemp
 
 
     @Override
-    protected RemoteStringSpace getTupleSpace(ExecutorService executor) {
-        return RemoteStringSpace.of("localhost", PORT, TestRemoteStringSpace.class.getSimpleName() + "-" + testIndex + "-" + testCaseIndex);
+    protected RemoteTextualSpace getTupleSpace(ExecutorService executor) {
+        return RemoteTextualSpace.of("localhost", PORT, TestRemoteTextualSpace.class.getSimpleName() + "-" + testIndex + "-" + testCaseIndex);
     }
 
     @Parameterized.Parameters

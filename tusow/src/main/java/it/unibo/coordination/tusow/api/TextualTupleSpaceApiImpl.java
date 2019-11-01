@@ -4,11 +4,11 @@ import io.vertx.ext.web.RoutingContext;
 import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.text.RegexTemplate;
 import it.unibo.coordination.linda.text.RegularMatch;
-import it.unibo.coordination.linda.text.StringSpace;
+import it.unibo.coordination.linda.text.TextualSpace;
 import it.unibo.coordination.linda.text.StringTuple;
 import it.unibo.coordination.tusow.linda.TupleSpaces;
 
-class TextualTupleSpaceApiImpl extends AbstractTupleSpaceApiTupleSpaceApi<StringTuple, RegexTemplate, Object, String, RegularMatch, StringSpace>
+class TextualTupleSpaceApiImpl extends AbstractTupleSpaceApiTupleSpaceApi<StringTuple, RegexTemplate, Object, String, RegularMatch, TextualSpace>
         implements TextualTupleSpaceApi {
 
     TextualTupleSpaceApiImpl(RoutingContext routingContext) {
@@ -16,7 +16,7 @@ class TextualTupleSpaceApiImpl extends AbstractTupleSpaceApiTupleSpaceApi<String
     }
 
     @Override
-    protected StringSpace getTupleSpaceByName(String name) {
+    protected TextualSpace getTupleSpaceByName(String name) {
         return TupleSpaces.getTextualSpace(name);
     }
 

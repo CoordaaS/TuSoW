@@ -2,7 +2,7 @@ package it.unibo.coordination.linda.cli
 
 import it.unibo.coordination.linda.logic.LogicSpace
 import it.unibo.coordination.linda.logic.LogicTuple
-import it.unibo.coordination.linda.text.StringSpace
+import it.unibo.coordination.linda.text.TextualSpace
 import it.unibo.coordination.linda.text.StringTuple
 
 class WriteCommand(
@@ -25,7 +25,7 @@ class WriteCommand(
                                     .defaultAsyncHandlerForMultipleResult(it)
                         }
                     TupleSpaceTypes.TEXT -> tuples.map { StringTuple.of(it) }.let {
-                        getTupleSpace<StringSpace>(tupleSpaceID)
+                        getTupleSpace<TextualSpace>(tupleSpaceID)
                                 .writeAll(it)
                                 .defaultAsyncHandlerForMultipleResult(it)
                     }
@@ -37,7 +37,7 @@ class WriteCommand(
                                 .defaultAsyncHandlerForSingleResult(it)
                     }
                     TupleSpaceTypes.TEXT -> tuples[0].let(StringTuple::of).let {
-                        getTupleSpace<StringSpace>(tupleSpaceID)
+                        getTupleSpace<TextualSpace>(tupleSpaceID)
                                 .write(it)
                                 .defaultAsyncHandlerForSingleResult(it)
                     }
@@ -49,7 +49,7 @@ class WriteCommand(
                     TupleSpaceTypes.LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
                             .writeAll(tuples.map { LogicTuple.of(it) })
                             .defaultHandlerForMultipleResult()
-                    TupleSpaceTypes.TEXT -> getTupleSpace<StringSpace>(tupleSpaceID)
+                    TupleSpaceTypes.TEXT -> getTupleSpace<TextualSpace>(tupleSpaceID)
                             .writeAll(tuples.map { StringTuple.of(it) })
                             .defaultHandlerForMultipleResult()
                 }
@@ -57,7 +57,7 @@ class WriteCommand(
                     TupleSpaceTypes.LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
                             .write(LogicTuple.of(tuples[0]))
                             .defaultHandlerForSingleResult()
-                    TupleSpaceTypes.TEXT -> getTupleSpace<StringSpace>(tupleSpaceID)
+                    TupleSpaceTypes.TEXT -> getTupleSpace<TextualSpace>(tupleSpaceID)
                             .write(StringTuple.of(tuples[0]))
                             .defaultHandlerForSingleResult()
                 }

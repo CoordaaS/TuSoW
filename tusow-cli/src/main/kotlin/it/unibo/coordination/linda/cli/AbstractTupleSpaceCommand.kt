@@ -10,7 +10,7 @@ import it.unibo.coordination.linda.cli.TupleSpaceTypes.LOGIC
 import it.unibo.coordination.linda.cli.TupleSpaceTypes.TEXT
 import it.unibo.coordination.linda.core.TupleSpace
 import it.unibo.coordination.linda.logic.remote.RemoteLogicSpace
-import it.unibo.coordination.linda.text.remote.RemoteStringSpace
+import it.unibo.coordination.linda.text.remote.RemoteTextualSpace
 import java.net.URL
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
@@ -61,7 +61,7 @@ abstract class AbstractTupleSpaceCommand(
             if (id !in TUPLE_SPACES) {
                 TUPLE_SPACES[id] = when (id.type) {
                     LOGIC -> RemoteLogicSpace.of(id.host, id.name)
-                    TEXT -> RemoteStringSpace.of(id.host, id.name)
+                    TEXT -> RemoteTextualSpace.of(id.host, id.name)
                 }
             }
 

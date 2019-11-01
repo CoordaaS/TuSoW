@@ -1,7 +1,7 @@
 package it.unibo.coordination.linda.cli
 
 import it.unibo.coordination.linda.logic.LogicSpace
-import it.unibo.coordination.linda.text.StringSpace
+import it.unibo.coordination.linda.text.TextualSpace
 import java.util.concurrent.CompletableFuture
 
 class CountCommand(
@@ -26,7 +26,7 @@ class CountCommand(
             TupleSpaceTypes.LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
                     .getSize()
                     .defaultHandler()
-            TupleSpaceTypes.TEXT -> getTupleSpace<StringSpace>(tupleSpaceID)
+            TupleSpaceTypes.TEXT -> getTupleSpace<TextualSpace>(tupleSpaceID)
                     .getSize()
                     .defaultHandler()
         }

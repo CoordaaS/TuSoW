@@ -14,7 +14,7 @@ import org.apache.commons.collections4.multiset.HashMultiSet
 import java.net.URL
 import java.net.URLEncoder
 
-internal class RemoteStringSpaceImpl(private val serviceAddress: URL, private val _name: String) : RemoteStringSpace {
+internal class RemoteTextualSpaceImpl(private val serviceAddress: URL, private val _name: String) : RemoteTextualSpace {
 
     companion object {
 

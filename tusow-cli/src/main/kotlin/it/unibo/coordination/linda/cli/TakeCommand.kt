@@ -3,7 +3,7 @@ package it.unibo.coordination.linda.cli
 import it.unibo.coordination.linda.cli.TupleSpaceTypes.LOGIC
 import it.unibo.coordination.linda.cli.TupleSpaceTypes.TEXT
 import it.unibo.coordination.linda.logic.LogicSpace
-import it.unibo.coordination.linda.text.StringSpace
+import it.unibo.coordination.linda.text.TextualSpace
 
 class TakeCommand(
         help: String = "",
@@ -21,7 +21,7 @@ class TakeCommand(
                 LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
                         .takeAll(template)
                         .defaultHandlerForMultipleResult()
-                TEXT -> getTupleSpace<StringSpace>(tupleSpaceID)
+                TEXT -> getTupleSpace<TextualSpace>(tupleSpaceID)
                         .takeAll(template)
                         .defaultHandlerForMultipleResult()
             }
@@ -29,7 +29,7 @@ class TakeCommand(
                 LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
                         .tryTake(template)
                         .defaultHandlerForSingleResult()
-                TEXT -> getTupleSpace<StringSpace>(tupleSpaceID)
+                TEXT -> getTupleSpace<TextualSpace>(tupleSpaceID)
                         .tryTake(template)
                         .defaultHandlerForSingleResult()
             }
@@ -37,7 +37,7 @@ class TakeCommand(
                 LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
                         .read(template)
                         .defaultHandlerForSingleResult()
-                TEXT -> getTupleSpace<StringSpace>(tupleSpaceID)
+                TEXT -> getTupleSpace<TextualSpace>(tupleSpaceID)
                         .read(template)
                         .defaultHandlerForSingleResult()
             }

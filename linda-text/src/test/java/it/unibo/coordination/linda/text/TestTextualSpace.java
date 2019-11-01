@@ -8,15 +8,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.IntStream;
 
 @RunWith(Parameterized.class)
-public class TestStringSpace extends TestTupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch, StringSpace> {
+public class TestTextualSpace extends TestTupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch, TextualSpace> {
 
-    public TestStringSpace(Integer i) {
+    public TestTextualSpace(Integer i) {
         super(new TextualTupleTemplateFactory());
     }
 
     @Override
-    protected StringSpace getTupleSpace(ExecutorService executor) {
-        return StringSpace.deterministic(executor);
+    protected TextualSpace getTupleSpace(ExecutorService executor) {
+        return TextualSpace.deterministic(executor);
     }
 
     @Parameterized.Parameters

@@ -8,17 +8,17 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 
-public interface StringSpace extends TupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch> {
+public interface TextualSpace extends TupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch> {
 
-    static StringSpace deterministic(String name, ExecutorService executorService) {
-        return new DeterministicStringSpace(name, executorService);
+    static TextualSpace deterministic(String name, ExecutorService executorService) {
+        return new DeterministicTextualSpace(name, executorService);
     }
 
-    static StringSpace deterministic(String name) {
+    static TextualSpace deterministic(String name) {
         return deterministic(name, Engines.getDefaultEngine());
     }
 
-    static StringSpace deterministic(ExecutorService executorService) {
+    static TextualSpace deterministic(ExecutorService executorService) {
         return deterministic(null, Engines.getDefaultEngine());
     }
 
