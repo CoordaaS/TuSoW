@@ -2,14 +2,14 @@ package it.unibo.coordination.linda.core
 
 import it.unibo.coordination.Promise
 
-interface LindaTupleSpace<T : Tuple, TT : Template, K, V> {
+interface LindaTupleSpace<T : Tuple, TT : Template, K, V, M : Match<T, TT, K, V>> {
 
     val name: String
 
-    fun read(template: TT): Promise<Match<T, TT, K, V>>
+    fun read(template: TT): Promise<M>
 
     @JvmDefault
-    fun read(template: String): Promise<Match<T, TT, K, V>> =
+    fun read(template: String): Promise<M> =
             read(template.toTemplate())
 
     @JvmDefault
@@ -21,10 +21,10 @@ interface LindaTupleSpace<T : Tuple, TT : Template, K, V> {
     fun readTuple(template: String): Promise<T> =
             readTuple(template.toTemplate())
 
-    fun take(template: TT): Promise<Match<T, TT, K, V>>
+    fun take(template: TT): Promise<M>
 
     @JvmDefault
-    fun take(template: String): Promise<Match<T, TT, K, V>> =
+    fun take(template: String): Promise<M> =
             take(template.toTemplate())
 
     @JvmDefault

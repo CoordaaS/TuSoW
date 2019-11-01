@@ -14,7 +14,9 @@ import java.util.function.Function
 import java.util.stream.Stream
 import kotlin.streams.toList
 
-abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?, val executor: ExecutorService) : InspectableTupleSpace<T, TT, K, V> {
+abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V, M : Match<T, TT, K, V>>
+    constructor(name: String?, val executor: ExecutorService)
+    : InspectableTupleSpace<T, TT, K, V, M> {
 
     override val name: String = name ?: this.javaClass.simpleName + "_" + System.identityHashCode(this)
 
@@ -78,7 +80,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false
-        val that = other as AbstractTupleSpace<*, *, *, *>?
+        val that = other as AbstractTupleSpace<*, *, *, *, *>?
         return name == that!!.name && executor == that.executor
     }
 
@@ -94,7 +96,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         return thenApplyAsync(Function<X, Y> { f(it) }, executor)
     }
 
-    override fun read(template: TT): Promise<Match<T, TT, K, V>> {
+    override fun read(template: TT): Promise<M> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.READ, template)
         operationInvokedEmitter.syncEmit(invocationEvent)
         log("Invoked `read` operation on template: %s", template)
@@ -107,7 +109,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
                 }
     }
 
-    private fun handleRead(template: TT, promise: Promise<Match<T, TT, K, V>>): Unit = atomically {
+    private fun handleRead(template: TT, promise: Promise<M>): Unit = atomically {
         val read = lookForTuple(template)
         if (read.isMatching) {
             promise.complete(read)
@@ -117,15 +119,15 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         }
     }
 
-    protected open fun lookForTuples(template: TT): Stream<out Match<T, TT, K, V>> {
+    protected open fun lookForTuples(template: TT): Stream<out M> {
         return lookForTuples(template, Integer.MAX_VALUE)
     }
 
-    protected abstract fun lookForTuples(template: TT, limit: Int): Stream<out Match<T, TT, K, V>>
+    protected abstract fun lookForTuples(template: TT, limit: Int): Stream<out M>
 
-    protected abstract fun lookForTuple(template: TT): Match<T, TT, K, V>
+    protected abstract fun lookForTuple(template: TT): M
 
-    override fun take(template: TT): Promise<Match<T, TT, K, V>> {
+    override fun take(template: TT): Promise<M> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TAKE, template)
         operationInvokedEmitter.syncEmit(invocationEvent)
         log("Invoked `take` operation on template: %s", template)
@@ -138,7 +140,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
                 }
     }
 
-    private fun handleTake(template: TT, promise: Promise<Match<T, TT, K, V>>): Unit = atomically {
+    private fun handleTake(template: TT, promise: Promise<M>): Unit = atomically {
         val take = retrieveTuple(template)
         if (take.isMatching) {
             promise.complete(take)
@@ -170,13 +172,13 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         tupleSpaceChangedEmitter.syncEmit(TupleEvent.afterAbsent(this, template))
     }
 
-    protected open fun retrieveTuples(template: TT): Stream<out Match<T, TT, K, V>> {
+    protected open fun retrieveTuples(template: TT): Stream<out M> {
         return retrieveTuples(template, Integer.MAX_VALUE)
     }
 
-    protected abstract fun retrieveTuples(template: TT, limit: Int): Stream<out Match<T, TT, K, V>>
+    protected abstract fun retrieveTuples(template: TT, limit: Int): Stream<out M>
 
-    protected abstract fun retrieveTuple(template: TT): Match<T, TT, K, V>
+    protected abstract fun retrieveTuple(template: TT): M
 
     override fun write(tuple: T): Promise<T> {
         val invocationEvent = OperationEvent.tupleAcceptingInvocation(this, OperationType.WRITE, tuple)
@@ -196,7 +198,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         promise.complete(tuple)
     }
 
-    protected abstract fun match(template: TT, tuple: T): Match<T, TT, K, V>
+    protected abstract fun match(template: TT, tuple: T): M
 
     protected abstract fun insertTuple(tuple: T)
 
@@ -260,7 +262,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         promise.complete(count)
     }
 
-    override fun readAll(template: TT): Promise<Collection<Match<T, TT, K, V>>> {
+    override fun readAll(template: TT): Promise<Collection<M>> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.READ_ALL, template)
         operationInvokedEmitter.syncEmit(invocationEvent)
         log("Invoked `readAll` operation on template %s", template)
@@ -274,13 +276,13 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         }
     }
 
-    private fun handleReadAll(template: TT, promise: Promise<Collection<Match<T, TT, K, V>>>): Unit = atomically {
+    private fun handleReadAll(template: TT, promise: Promise<Collection<M>>): Unit = atomically {
         val result = lookForTuples(template).toMultiSet()
         result.stream().map { it.tuple }.map<T> { it.get() }.forEach { this.onRead(it) }
         promise.complete(result)
     }
 
-    override fun takeAll(template: TT): Promise<Collection<Match<T, TT, K, V>>> {
+    override fun takeAll(template: TT): Promise<Collection<M>> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TAKE_ALL, template)
         operationInvokedEmitter.syncEmit(invocationEvent)
         log("Invoked `takeAll` operation on template %s", template)
@@ -294,7 +296,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         }
     }
 
-    private fun handleTakeAll(template: TT, promise: Promise<Collection<Match<T, TT, K, V>>>): Unit = atomically {
+    private fun handleTakeAll(template: TT, promise: Promise<Collection<M>>): Unit = atomically {
         val result = retrieveTuples(template).toMultiSet()
         result.stream().map { it.tuple.get() }.forEach { onTaken(it) }
         promise.complete(result)
@@ -322,7 +324,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         promise.complete(result)
     }
 
-    override fun tryTake(template: TT): Promise<Match<T, TT, K, V>> {
+    override fun tryTake(template: TT): Promise<M> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TRY_TAKE, template)
         operationInvokedEmitter.syncEmit(invocationEvent)
         log("Invoked `tryTake` operation on template: %s", template)
@@ -334,13 +336,13 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         }
     }
 
-    private fun handleTryTake(template: TT, promise: Promise<Match<T, TT, K, V>>): Unit = atomically {
+    private fun handleTryTake(template: TT, promise: Promise<M>): Unit = atomically {
         val take = retrieveTuple(template)
         take.tuple.ifPresent { onTaken(it) }
         promise.complete(take)
     }
 
-    override fun tryRead(template: TT): Promise<Match<T, TT, K, V>> {
+    override fun tryRead(template: TT): Promise<M> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TRY_READ, template)
         operationInvokedEmitter.syncEmit(invocationEvent)
         log("Invoked `tryRead` operation on template: %s", template)
@@ -352,7 +354,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         }
     }
 
-    private fun handleTryRead(template: TT, promise: Promise<Match<T, TT, K, V>>): Unit = atomically {
+    private fun handleTryRead(template: TT, promise: Promise<M>): Unit = atomically {
         val read = lookForTuple(template)
         read.tuple.ifPresent { onRead(it) }
         promise.complete(read)
@@ -364,7 +366,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
                 '}'.toString()
     }
 
-    override fun absent(template: TT): Promise<Match<T, TT, K, V>> {
+    override fun absent(template: TT): Promise<M> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.ABSENT, template)
         operationInvokedEmitter.syncEmit(invocationEvent)
         log("Invoked `absent` operation on template: %s", template)
@@ -376,9 +378,9 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         }
     }
 
-    protected abstract fun failedMatch(template: TT): Match<T, TT, K, V>
+    protected abstract fun failedMatch(template: TT): M
 
-    private fun handleAbsent(template: TT, promise: Promise<Match<T, TT, K, V>>): Unit = atomically {
+    private fun handleAbsent(template: TT, promise: Promise<M>): Unit = atomically {
         val read = lookForTuple(template)
         if (read.isMatching) {
             addPendingRequest(newPendingAbsentRequest(template, promise))
@@ -403,7 +405,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         }
     }
 
-    override fun tryAbsent(template: TT): Promise<Match<T, TT, K, V>> {
+    override fun tryAbsent(template: TT): Promise<M> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(this, OperationType.TRY_ABSENT, template)
         operationInvokedEmitter.syncEmit(invocationEvent)
         log("Invoked `tryAbsent` operation on template: %s", template)
@@ -415,17 +417,17 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         }
     }
 
-    private fun handleTryAbsent(template: TT, promise: Promise<Match<T, TT, K, V>>): Unit = atomically {
+    private fun handleTryAbsent(template: TT, promise: Promise<M>): Unit = atomically {
         val counterexample = lookForTuple(template)
         counterexample.tuple.ifPresent { onAbsent(template, it) }
         promise.complete(counterexample)
     }
 
-    private fun newPendingAccessRequest(requestType: RequestTypes, template: TT, promise: Promise<Match<T, TT, K, V>>): PendingRequest {
+    private fun newPendingAccessRequest(requestType: RequestTypes, template: TT, promise: Promise<M>): PendingRequest {
         return PendingRequest(requestType, template, promise)
     }
 
-    private fun newPendingAbsentRequest(template: TT, promise: Promise<Match<T, TT, K, V>>): PendingRequest {
+    private fun newPendingAbsentRequest(template: TT, promise: Promise<M>): PendingRequest {
         return PendingRequest(RequestTypes.ABSENT, template, promise)
     }
 
@@ -433,16 +435,16 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?,
         READ, TAKE, ABSENT
     }
 
-    protected inner class PendingRequest(requestType: RequestTypes, template: TT, promise: Promise<Match<T, TT, K, V>>) {
+    protected inner class PendingRequest(requestType: RequestTypes, template: TT, promise: Promise<M>) {
 
         val requestType: RequestTypes = Objects.requireNonNull(requestType)
         val template: TT = Objects.requireNonNull(template)
-        val promise: Promise<Match<T, TT, K, V>> = Objects.requireNonNull(promise)
+        val promise: Promise<M> = Objects.requireNonNull(promise)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || javaClass != other.javaClass) return false
-            val that = other as AbstractTupleSpace<*, *, *, *>.PendingRequest
+            val that = other as AbstractTupleSpace<*, *, *, *, *>.PendingRequest
             return requestType == that.requestType &&
                     template == that.template &&
                     promise == that.promise

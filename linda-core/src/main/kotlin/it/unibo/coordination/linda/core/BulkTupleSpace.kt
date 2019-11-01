@@ -3,12 +3,12 @@ package it.unibo.coordination.linda.core
 import it.unibo.coordination.Promise
 import org.apache.commons.collections4.multiset.HashMultiSet
 
-interface BulkTupleSpace<T : Tuple, TT : Template, K, V> : LindaTupleSpace<T, TT, K, V> {
+interface BulkTupleSpace<T : Tuple, TT : Template, K, V, M : Match<T, TT, K, V>> : LindaTupleSpace<T, TT, K, V, M> {
 
-    fun readAll(template: TT): Promise<Collection<Match<T, TT, K, V>>>
+    fun readAll(template: TT): Promise<Collection<M>>
 
     @JvmDefault
-    fun readAll(template: String): Promise<Collection<Match<T, TT, K, V>>> =
+    fun readAll(template: String): Promise<Collection<M>> =
             readAll(template.toTemplate())
 
     @JvmDefault
@@ -22,10 +22,10 @@ interface BulkTupleSpace<T : Tuple, TT : Template, K, V> : LindaTupleSpace<T, TT
     fun readAllTuples(template: String): Promise<Collection<T>> =
             readAllTuples(template.toTemplate())
 
-    fun takeAll(template: TT): Promise<Collection<Match<T, TT, K, V>>>
+    fun takeAll(template: TT): Promise<Collection<M>>
 
     @JvmDefault
-    fun takeAll(template: String): Promise<Collection<Match<T, TT, K, V>>> =
+    fun takeAll(template: String): Promise<Collection<M>> =
             takeAll(template.toTemplate())
 
     @JvmDefault
