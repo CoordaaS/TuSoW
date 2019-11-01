@@ -3,7 +3,7 @@ package it.unibo.coordination.linda.core
 import it.unibo.coordination.Promise
 import org.apache.commons.collections4.multiset.HashMultiSet
 
-interface BulkTupleSpace<T : Tuple, TT : Template, K, V> : TupleSpace<T, TT, K, V> {
+interface BulkTupleSpace<T : Tuple, TT : Template, K, V> : LindaTupleSpace<T, TT, K, V> {
 
     fun readAll(template: TT): Promise<Collection<Match<T, TT, K, V>>>
 

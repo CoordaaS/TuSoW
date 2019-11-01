@@ -16,7 +16,7 @@ abstract class TupleSpaceEventDeserializer<T extends Tuple, TT extends Template>
     private Class<T> tupleClass;
     private Class<TT> templateClass;
 
-    protected abstract TupleSpace<T, TT, ?, ?> getSpace(String tupleSpace);
+    protected abstract LindaTupleSpace<T, TT, ?, ?> getSpace(String tupleSpace);
 
     public TupleSpaceEventDeserializer(MIMETypes mimeType, ObjectMapper mapper, Class<T> tupleClass, Class<TT> templateClass) {
         super(TupleSpaceEvent.class, mimeType, mapper);
@@ -35,7 +35,7 @@ abstract class TupleSpaceEventDeserializer<T extends Tuple, TT extends Template>
             final var dynamicMap = (Map<String, ?>) dynamicObject;
 
             if (dynamicMap.containsKey("eventType") && dynamicMap.containsKey("tupleSpace")) {
-                final TupleSpace<T, TT, ?, ?> tupleSpace = getSpace((String) dynamicMap.get("tupleSpace"));
+                final LindaTupleSpace<T, TT, ?, ?> tupleSpace = getSpace((String) dynamicMap.get("tupleSpace"));
                 if(dynamicMap.get("eventType").equals(OperationEvent.class.getSimpleName())) {
                     if(dynamicMap.containsKey("operationPhase")
                             && dynamicMap.containsKey("operationType")

@@ -7,7 +7,7 @@ import kotlin.streams.toList
 
 abstract class OperationEvent<T : Tuple, TT : Template>
 
-private constructor(tupleSpace: TupleSpace<T, TT, *, *>,
+private constructor(tupleSpace: LindaTupleSpace<T, TT, *, *>,
                     val operationType: OperationType,
                     val operationPhase: OperationPhase,
                     argumentTuples: Stream<out T>,
@@ -83,7 +83,7 @@ private constructor(tupleSpace: TupleSpace<T, TT, *, *>,
                 "}"
     }
 
-    class Invocation<T : Tuple, TT : Template> internal constructor(tupleSpace: TupleSpace<T, TT, *, *>, operationType: OperationType, argumentTuples: Stream<out T>, argumentTemplates: Stream<out TT>) : OperationEvent<T, TT>(tupleSpace, operationType, OperationPhase.INVOCATION, argumentTuples, argumentTemplates, Stream.empty<T>(), Stream.empty<TT>()) {
+    class Invocation<T : Tuple, TT : Template> internal constructor(tupleSpace: LindaTupleSpace<T, TT, *, *>, operationType: OperationType, argumentTuples: Stream<out T>, argumentTemplates: Stream<out TT>) : OperationEvent<T, TT>(tupleSpace, operationType, OperationPhase.INVOCATION, argumentTuples, argumentTemplates, Stream.empty<T>(), Stream.empty<TT>()) {
 
         fun toTupleReturningCompletion(tuple: T): Completion<T, TT> {
             check(OperationType.isTupleReturningSet(operationType))
@@ -124,7 +124,7 @@ private constructor(tupleSpace: TupleSpace<T, TT, *, *>,
 
     class Completion<T : Tuple, TT : Template> : OperationEvent<T, TT> {
 
-        internal constructor(tupleSpace: TupleSpace<T, TT, *, *>, operationType: OperationType, argumentTuples: Stream<out T>, argumentTemplates: Stream<out TT>, resultTuples: Stream<out T>, resultTemplates: Stream<out TT>) : super(tupleSpace, operationType, OperationPhase.COMPLETION, argumentTuples, argumentTemplates, resultTuples, resultTemplates) {}
+        internal constructor(tupleSpace: LindaTupleSpace<T, TT, *, *>, operationType: OperationType, argumentTuples: Stream<out T>, argumentTemplates: Stream<out TT>, resultTuples: Stream<out T>, resultTemplates: Stream<out TT>) : super(tupleSpace, operationType, OperationPhase.COMPLETION, argumentTuples, argumentTemplates, resultTuples, resultTemplates) {}
 
         internal constructor(invocation: Invocation<T, TT>, resultTuples: Stream<out T>, resultTemplates: Stream<out TT>) : super(
                 invocation.tupleSpace,
@@ -140,21 +140,21 @@ private constructor(tupleSpace: TupleSpace<T, TT, *, *>,
     companion object {
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> invocation(tupleSpace: TupleSpace<X, Y, *, *>, operationType: OperationType, argumentTuples: Stream<out X>, argumentTemplates: Stream<out Y>): Invocation<X, Y> {
+        fun <X : Tuple, Y : Template> invocation(tupleSpace: LindaTupleSpace<X, Y, *, *>, operationType: OperationType, argumentTuples: Stream<out X>, argumentTemplates: Stream<out Y>): Invocation<X, Y> {
             return Invocation(
                     tupleSpace, operationType, argumentTuples, argumentTemplates
             )
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> completion(tupleSpace: TupleSpace<X, Y, *, *>, operationType: OperationType, argumentTuples: Stream<out X>, argumentTemplates: Stream<out Y>, resultTuples: Stream<out X>, resultTemplates: Stream<out Y>): Completion<X, Y> {
+        fun <X : Tuple, Y : Template> completion(tupleSpace: LindaTupleSpace<X, Y, *, *>, operationType: OperationType, argumentTuples: Stream<out X>, argumentTemplates: Stream<out Y>, resultTuples: Stream<out X>, resultTemplates: Stream<out Y>): Completion<X, Y> {
             return Completion(
                     tupleSpace, operationType, argumentTuples, argumentTemplates, resultTuples, resultTemplates
             )
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> nothingAcceptingInvocation(tupleSpace: TupleSpace<X, Y, *, *>, operationType: OperationType): Invocation<X, Y> {
+        fun <X : Tuple, Y : Template> nothingAcceptingInvocation(tupleSpace: LindaTupleSpace<X, Y, *, *>, operationType: OperationType): Invocation<X, Y> {
             require(OperationType.isNothingAccepting(operationType)) { operationType.toString() }
 
             return Invocation(
@@ -163,7 +163,7 @@ private constructor(tupleSpace: TupleSpace<T, TT, *, *>,
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> tupleAcceptingInvocation(tupleSpace: TupleSpace<X, Y, *, *>, operationType: OperationType, tuple: X): Invocation<X, Y> {
+        fun <X : Tuple, Y : Template> tupleAcceptingInvocation(tupleSpace: LindaTupleSpace<X, Y, *, *>, operationType: OperationType, tuple: X): Invocation<X, Y> {
             require(OperationType.isTupleAcceptingSet(operationType)) { operationType.toString() }
 
             return Invocation(
@@ -172,7 +172,7 @@ private constructor(tupleSpace: TupleSpace<T, TT, *, *>,
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> tuplesAcceptingInvocation(tupleSpace: TupleSpace<X, Y, *, *>, operationType: OperationType, tuples: Collection<X>): Invocation<X, Y> {
+        fun <X : Tuple, Y : Template> tuplesAcceptingInvocation(tupleSpace: LindaTupleSpace<X, Y, *, *>, operationType: OperationType, tuples: Collection<X>): Invocation<X, Y> {
             require(OperationType.isTuplesAcceptingSet(operationType)) { operationType.toString() }
 
             return Invocation(
@@ -181,7 +181,7 @@ private constructor(tupleSpace: TupleSpace<T, TT, *, *>,
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> templateAcceptingInvocation(tupleSpace: TupleSpace<X, Y, *, *>, operationType: OperationType, template: Y): Invocation<X, Y> {
+        fun <X : Tuple, Y : Template> templateAcceptingInvocation(tupleSpace: LindaTupleSpace<X, Y, *, *>, operationType: OperationType, template: Y): Invocation<X, Y> {
             require(OperationType.isTemplateAccepting(operationType)) { operationType.toString() }
 
             return Invocation(
@@ -190,7 +190,7 @@ private constructor(tupleSpace: TupleSpace<T, TT, *, *>,
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> templatesAcceptingInvocation(tupleSpace: TupleSpace<X, Y, *, *>, operationType: OperationType, templates: Collection<Y>): Invocation<X, Y> {
+        fun <X : Tuple, Y : Template> templatesAcceptingInvocation(tupleSpace: LindaTupleSpace<X, Y, *, *>, operationType: OperationType, templates: Collection<Y>): Invocation<X, Y> {
             require(OperationType.isTemplatesAccepting(operationType)) { operationType.toString() }
 
             return Invocation(

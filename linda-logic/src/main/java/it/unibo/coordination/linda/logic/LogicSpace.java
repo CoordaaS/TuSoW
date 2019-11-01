@@ -2,14 +2,14 @@ package it.unibo.coordination.linda.logic;
 
 import alice.tuprolog.Term;
 import it.unibo.coordination.Engines;
-import it.unibo.coordination.linda.core.ExtendedTupleSpace;
 import it.unibo.coordination.linda.core.Match;
+import it.unibo.coordination.linda.core.TupleSpace;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
-public interface LogicSpace extends ExtendedTupleSpace<LogicTuple, LogicTemplate, String, Term> {
+public interface LogicSpace extends TupleSpace<LogicTuple, LogicTemplate, String, Term> {
 
     static LogicSpace deterministic(String name, ExecutorService executorService) {
         return new DeterministicLogicSpaceImpl(name, executorService);

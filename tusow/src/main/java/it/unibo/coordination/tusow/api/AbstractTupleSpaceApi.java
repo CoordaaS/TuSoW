@@ -4,10 +4,10 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
-import it.unibo.coordination.linda.core.ExtendedTupleSpace;
 import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.Template;
 import it.unibo.coordination.linda.core.Tuple;
+import it.unibo.coordination.linda.core.TupleSpace;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.NotImplementedError;
 
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-abstract class AbstractTupleSpaceApiTupleSpaceApi<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>, TS extends ExtendedTupleSpace<T, TT, K, V>>
+abstract class AbstractTupleSpaceApiTupleSpaceApi<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>, TS extends TupleSpace<T, TT, K, V>>
         extends AbstractApi implements TupleSpaceApi<T, TT, K, V, M> {
 
     public AbstractTupleSpaceApiTupleSpaceApi(RoutingContext routingContext) {

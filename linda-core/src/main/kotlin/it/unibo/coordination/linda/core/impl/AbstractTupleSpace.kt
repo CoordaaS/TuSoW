@@ -14,7 +14,7 @@ import java.util.function.Function
 import java.util.stream.Stream
 import kotlin.streams.toList
 
-abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?, val executor: ExecutorService) : InspectableExtendedTupleSpace<T, TT, K, V> {
+abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V>(name: String?, val executor: ExecutorService) : InspectableTupleSpace<T, TT, K, V> {
 
     override val name: String = name ?: this.javaClass.simpleName + "_" + System.identityHashCode(this)
 

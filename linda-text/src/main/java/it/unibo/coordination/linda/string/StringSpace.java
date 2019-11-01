@@ -1,15 +1,15 @@
 package it.unibo.coordination.linda.string;
 
 import it.unibo.coordination.Engines;
-import it.unibo.coordination.linda.core.ExtendedTupleSpace;
 import it.unibo.coordination.linda.core.Match;
+import it.unibo.coordination.linda.core.TupleSpace;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 
-public interface StringSpace extends ExtendedTupleSpace<StringTuple, RegexTemplate, Object, String> {
+public interface StringSpace extends TupleSpace<StringTuple, RegexTemplate, Object, String> {
 
     static StringSpace deterministic(String name, ExecutorService executorService) {
         return new DeterministicStringSpace(name, executorService);

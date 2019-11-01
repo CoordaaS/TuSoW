@@ -8,7 +8,7 @@ import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.int
 import it.unibo.coordination.linda.cli.TupleSpaceTypes.LOGIC
 import it.unibo.coordination.linda.cli.TupleSpaceTypes.TEXT
-import it.unibo.coordination.linda.core.ExtendedTupleSpace
+import it.unibo.coordination.linda.core.TupleSpace
 import it.unibo.coordination.linda.logic.remote.RemoteLogicSpace
 import it.unibo.coordination.linda.strings.remote.RemoteStringSpace
 import java.net.URL
@@ -55,18 +55,18 @@ abstract class AbstractTupleSpaceCommand(
     }
 
     companion object {
-        protected val tupleSpaces: MutableMap<TupleSpaceID, ExtendedTupleSpace<*, *, *, *>> = mutableMapOf()
+        protected val TUPLE_SPACES: MutableMap<TupleSpaceID, TupleSpace<*, *, *, *>> = mutableMapOf()
 
-        fun<T : ExtendedTupleSpace<*, *, *, *>> getTupleSpace(id: TupleSpaceID): T {
-            if (id !in tupleSpaces) {
-                tupleSpaces[id] = when (id.type) {
+        fun<T : TupleSpace<*, *, *, *>> getTupleSpace(id: TupleSpaceID): T {
+            if (id !in TUPLE_SPACES) {
+                TUPLE_SPACES[id] = when (id.type) {
                     LOGIC -> RemoteLogicSpace.of(id.host, id.name)
                     TEXT -> RemoteStringSpace.of(id.host, id.name)
                 }
             }
 
             @Suppress("UNCHECKED_CAST")
-            return tupleSpaces[id] as T
+            return TUPLE_SPACES[id] as T
         }
     }
 }

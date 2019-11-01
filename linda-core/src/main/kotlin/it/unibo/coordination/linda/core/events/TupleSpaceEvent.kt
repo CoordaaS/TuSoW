@@ -1,19 +1,19 @@
 package it.unibo.coordination.linda.core.events
 
-import it.unibo.coordination.linda.core.ExtendedTupleSpace
+import it.unibo.coordination.linda.core.LindaTupleSpace
 import it.unibo.coordination.linda.core.Template
 import it.unibo.coordination.linda.core.Tuple
 import it.unibo.coordination.linda.core.TupleSpace
 import java.util.*
 
 abstract class TupleSpaceEvent<T : Tuple, TT : Template>
-    internal constructor(val tupleSpace: TupleSpace<T, TT, *, *>) {
+    internal constructor(val tupleSpace: LindaTupleSpace<T, TT, *, *>) {
 
     val tupleSpaceName: String
         get() = tupleSpace.name
 
-    protected val extendedTupleSpace: ExtendedTupleSpace<T, TT, *, *>
-        get() = tupleSpace as ExtendedTupleSpace<T, TT, *, *>
+    protected val extendedTupleSpace: TupleSpace<T, TT, *, *>
+        get() = tupleSpace as TupleSpace<T, TT, *, *>
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

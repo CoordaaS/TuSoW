@@ -1,9 +1,9 @@
 package it.unibo.coordination.linda.test;
 
-import it.unibo.coordination.linda.core.ExtendedTupleSpace;
 import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.Template;
 import it.unibo.coordination.linda.core.Tuple;
+import it.unibo.coordination.linda.core.TupleSpace;
 import it.unibo.coordination.testing.ActiveObject;
 import it.unibo.coordination.testing.ConcurrentTestHelper;
 import org.apache.commons.collections4.MultiSet;
@@ -18,10 +18,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>, TS extends ExtendedTupleSpace<T, TT, K, V>> extends TestBaseLinda<T, TT, K, V, M> {
+public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>, TS extends TupleSpace<T, TT, K, V>> extends TestBaseLinda<T, TT, K, V, M> {
 
     protected ExecutorService executor;
-    protected ExtendedTupleSpace<T, TT, K, V> tupleSpace;
+    protected TupleSpace<T, TT, K, V> tupleSpace;
     protected ConcurrentTestHelper test;
     protected Random rand;
 

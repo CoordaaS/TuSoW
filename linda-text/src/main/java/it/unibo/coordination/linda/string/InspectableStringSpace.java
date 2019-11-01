@@ -1,11 +1,11 @@
 package it.unibo.coordination.linda.string;
 
 import it.unibo.coordination.Engines;
-import it.unibo.coordination.linda.core.InspectableExtendedTupleSpace;
+import it.unibo.coordination.linda.core.InspectableTupleSpace;
 
 import java.util.concurrent.ExecutorService;
 
-public interface InspectableStringSpace extends StringSpace, InspectableExtendedTupleSpace<StringTuple, RegexTemplate, Object, String> {
+public interface InspectableStringSpace extends StringSpace, InspectableTupleSpace<StringTuple, RegexTemplate, Object, String> {
 
     static InspectableStringSpace deterministic(String name, ExecutorService executorService) {
         return new DeterministicStringSpace(name, executorService);
