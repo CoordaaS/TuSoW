@@ -8,6 +8,9 @@ import it.unibo.coordination.linda.remote.AbstractRemoteTupleSpace
 import java.net.URL
 
 internal class RemoteLogicSpaceImpl(service: URL, name: String) : RemoteLogicSpace, AbstractRemoteTupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch>(service, name) {
+    override val tupleSpaceType: String
+        get() = "logic"
+
     override val tupleClass: Class<LogicTuple>
         get() = LogicTuple::class.java
 

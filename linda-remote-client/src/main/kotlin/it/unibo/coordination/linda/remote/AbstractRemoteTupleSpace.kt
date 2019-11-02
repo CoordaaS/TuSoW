@@ -68,7 +68,9 @@ abstract class AbstractRemoteTupleSpace<T : Tuple, TT : Template, K, V, M : Matc
         }
     }
 
-    val tupleSpacePath: String by lazy { "/tusow/v$tusowApiVersion/tuple-spaces/logic/${this.name}" }
+    val tupleSpacePath: String by lazy { "/tusow/v$tusowApiVersion/tuple-spaces/$tupleSpaceType/$name" }
+
+    abstract val tupleSpaceType: String
 
     override val url: URL by lazy {
         URL(service, tupleSpacePath)

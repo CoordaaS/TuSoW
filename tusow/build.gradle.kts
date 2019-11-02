@@ -52,7 +52,7 @@ configure<JavaPluginConvention> {
 
 task<JavaExec>("tusow") {
     group = "run"
-    dependsOn("classes")
+    dependsOn("classes", "compileKotlin")
     sourceSets {
         main {
             classpath = runtimeClasspath
