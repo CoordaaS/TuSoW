@@ -15,7 +15,7 @@ import java.net.URL
 import java.net.URLEncoder
 
 abstract class AbstractRemoteTupleSpace<T : Tuple, TT : Template, K, V, M : Match<T, TT, K, V>>
-    protected constructor(override val service: URL, _name: String) : RemoteTupleSpace<T, TT, K, V, M> {
+    protected constructor(override val service: URL, name: String) : RemoteTupleSpace<T, TT, K, V, M> {
 
     companion object {
 
@@ -68,13 +68,13 @@ abstract class AbstractRemoteTupleSpace<T : Tuple, TT : Template, K, V, M : Matc
         }
     }
 
-    val tupleSpacePath: String by lazy { "/tusow/v$tusowApiVersion/tuple-spaces/logic/$name" }
+    val tupleSpacePath: String by lazy { "/tusow/v$tusowApiVersion/tuple-spaces/logic/${this.name}" }
 
     override val url: URL by lazy {
         URL(service, tupleSpacePath)
     }
 
-    override val name: String = _name
+    override val name: String = name
 
     protected abstract val tupleClass: Class<T>
     protected abstract val templateClass: Class<TT>

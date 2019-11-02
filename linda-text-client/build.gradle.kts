@@ -14,18 +14,11 @@ val commonsCliVersion: String by project
 val ktFreeCompilerArgs: String by project
 
 dependencies {
-    api(project(":linda-core"))
     api(project(":linda-text"))
-    api(project(":linda-presentation"))
-
-    implementation(project(":utils"))
-    implementation(kotlin("stdlib"))
+    api(project(":linda-remote-client"))
+    implementation(kotlin("stdlib-jdk8"))
 
     api("io.vertx", "vertx-web-client", vertxVersion)
-
-    // Use JUnit test framework
-//    testImplementation("io.vertx", "vertx-unit", vertxVersion)
-//    testImplementation("ch.qos.logback", "logback-classic", vertxVersion)
 
     testImplementation("junit", "junit", junitVersion)
     testImplementation(project(":tusow"))
