@@ -1,24 +1,24 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    java
     `java-library`
     kotlin("jvm")
 }
 
-group = rootProject.group
-version = rootProject.version
-
 val javaVersion: String by project
-val tuprologVersion: String by project
-val apacheCommonsVersion: String by project
+val joolVersion: String by project
 val junitVersion: String by project
+val jacksonVersion: String by project
+val vertxVersion: String by project
+val commonsCliVersion: String by project
 val ktFreeCompilerArgs: String by project
 
 dependencies {
-    api("org.apache.commons", "commons-collections4", apacheCommonsVersion)
-    api(project(":utils"))
+    api(project(":linda-core"))
+    api(project(":linda-presentation"))
     implementation(kotlin("stdlib-jdk8"))
+
+    api("io.vertx", "vertx-web-client", vertxVersion)
 
     testImplementation("junit", "junit", junitVersion)
 }
