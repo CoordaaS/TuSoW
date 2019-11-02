@@ -12,12 +12,16 @@ import it.unibo.coordination.tusow.routes.Path;
 import it.unibo.coordination.tusow.routes.TupleSpacesPath;
 import org.apache.commons.cli.*;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 public class Service extends AbstractVerticle {
     private static final Logger LOGGER = LoggerFactory.getLogger(Service.class);
     private static final int DEFAULT_PORT = 8080;
 
+    private final CompletableFuture<Service> deployment = new CompletableFuture<>();
+    private final CompletableFuture<Void> termination  = new CompletableFuture<>();
     private Router router;
-
     private HttpServer server;
 
     @Override
@@ -37,8 +41,23 @@ public class Service extends AbstractVerticle {
 	        .listen(getPort(), x -> {
                 LOGGER.info("Service listening on port: {0}", "" + getPort());
                 startFuture.complete();
+                deployment.complete(this);
             });
 
+    }
+
+    public Service awaitDeployment() throws ExecutionException, InterruptedException {
+        return deployment.get();
+    }
+
+    @Override
+    public void start() {
+        start(Future.future());
+    }
+
+    @Override
+    public void stop() {
+        stop(Future.future());
     }
 
     @Override
@@ -46,7 +65,12 @@ public class Service extends AbstractVerticle {
         server.close(x -> {
             LOGGER.info("Service is not listening anymore");
             stopFuture.complete();
+            termination.complete(null);
         });
+    }
+
+    public void awaitTermination() throws ExecutionException, InterruptedException {
+        deployment.get();
     }
 
     private int getPort() {
@@ -62,7 +86,7 @@ public class Service extends AbstractVerticle {
         path.attach(router);
     }
 
-    public static void main(String... args) {
+    public static void main(String... args) throws InterruptedException {
         start(args);
     }
 

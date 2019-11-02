@@ -1,10 +1,9 @@
 package it.unibo.coordination.linda.text.remote;
 
-import io.vertx.core.Future;
+import it.unibo.coordination.linda.test.TestTupleSpace;
 import it.unibo.coordination.linda.text.RegexTemplate;
 import it.unibo.coordination.linda.text.RegularMatch;
 import it.unibo.coordination.linda.text.StringTuple;
-import it.unibo.coordination.linda.test.TestTupleSpace;
 import it.unibo.coordination.tusow.Service;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -12,7 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.IntStream;
 
@@ -31,18 +30,15 @@ public class TestRemoteTextualSpace extends TestTupleSpace<StringTuple, RegexTem
     }
 
     @BeforeClass
-    public static void setUpClass() {
-        service = Service.start("-p", Integer.toString(PORT));
+    public static void setUpClass() throws InterruptedException, ExecutionException {
+        service = Service.start("-p", Integer.toString(PORT)).awaitDeployment();
         testCaseIndex = 0;
     }
 
     @AfterClass
-    public static void tearDownClass() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
-        Future<Void> future = Future.future();
-        future.setHandler(x -> latch.countDown());
-        service.stop(future);
-        latch.await();
+    public static void tearDownClass() throws InterruptedException, ExecutionException {
+        service.stop();
+        service.awaitTermination();
     }
 
     @Before
@@ -61,6 +57,6 @@ public class TestRemoteTextualSpace extends TestTupleSpace<StringTuple, RegexTem
 
     @Parameterized.Parameters
     public static Object[][] getParams() {
-        return IntStream.range(0, 5).mapToObj(i -> new Object[] { i }).toArray(Object[][]::new);
+        return IntStream.range(0, 1).mapToObj(i -> new Object[] { i }).toArray(Object[][]::new);
     }
 }

@@ -1,7 +1,6 @@
 package it.unibo.coordination.linda.logic.remote;
 
 import alice.tuprolog.Term;
-import io.vertx.core.Future;
 import it.unibo.coordination.linda.logic.LogicMatch;
 import it.unibo.coordination.linda.logic.LogicTemplate;
 import it.unibo.coordination.linda.logic.LogicTuple;
@@ -13,7 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.IntStream;
 
@@ -32,18 +31,15 @@ public class TestRemoteLogicSpace extends TestTupleSpace<LogicTuple, LogicTempla
     }
 
     @BeforeClass
-    public static void setUpClass() {
-        service = Service.start("-p", Integer.toString(PORT));
+    public static void setUpClass() throws ExecutionException, InterruptedException {
+        service = Service.start("-p", Integer.toString(PORT)).awaitDeployment();
         testCaseIndex = 0;
     }
 
     @AfterClass
-    public static void tearDownClass() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
-        Future<Void> future = Future.future();
-        future.setHandler(x -> latch.countDown());
-        service.stop(future);
-        latch.await();
+    public static void tearDownClass() throws InterruptedException, ExecutionException {
+        service.stop();
+        service.awaitTermination();
     }
 
     @Before
