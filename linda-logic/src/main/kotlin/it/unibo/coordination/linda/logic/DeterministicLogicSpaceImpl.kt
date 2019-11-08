@@ -1,22 +1,14 @@
-package it.unibo.coordination.linda.logic;
+package it.unibo.coordination.linda.logic
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.*
+import java.util.concurrent.ExecutorService
 
-class DeterministicLogicSpaceImpl extends AbstractLogicSpaceImpl implements InspectableLogicSpace {
+internal class DeterministicLogicSpaceImpl(name: String?, executor: ExecutorService) : AbstractLogicSpaceImpl(name, executor), InspectableLogicSpace {
 
-    private final List<PendingRequest> pendingQueue = new LinkedList<>();
+    private val pendingQueue = LinkedList<LogicPendingRequest>()
 
-    public DeterministicLogicSpaceImpl(String name, ExecutorService executor) {
-        super(name, executor);
-    }
-
-    @Override
-    protected Collection<PendingRequest> getPendingRequests() {
-        return pendingQueue;
-    }
+    override val pendingRequests: MutableCollection<LogicPendingRequest>
+        get() = pendingQueue
 
 
 }

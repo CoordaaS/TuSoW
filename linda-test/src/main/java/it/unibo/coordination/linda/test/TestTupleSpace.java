@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public abstract class TestTupleSpace<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>, TS extends TupleSpace<T, TT, K, V, M>> extends TestBaseLinda<T, TT, K, V, M> {
+public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>, K, V, M extends Match<T, TT, K, V>, TS extends TupleSpace<T, TT, K, V, M>> extends TestBaseLinda<T, TT, K, V, M> {
 
     protected ExecutorService executor;
     protected TupleSpace<T, TT, K, V, M> tupleSpace;

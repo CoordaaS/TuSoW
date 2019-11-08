@@ -19,7 +19,7 @@ public class LogicTupleTemplateFactory implements TupleTemplateFactory<LogicTupl
 
     @Override
     public LogicTemplate getATemplate() {
-        return LogicTemplate.of("Template");
+        return LogicTemplate.Companion.of("Template");
     }
 
     @Override
@@ -29,13 +29,13 @@ public class LogicTupleTemplateFactory implements TupleTemplateFactory<LogicTupl
 
     @Override
     public Pair<LogicTuple, LogicTemplate> getATupleAndATemplateMatchingIt() {
-        return Pair.with(LogicTuple.of("a(1)"), LogicTemplate.of("a(X)"));
+        return Pair.with(LogicTuple.of("a(1)"), LogicTemplate.Companion.of("a(X)"));
     }
 
     @Override
     public Triplet<LogicTuple, LogicTemplate, LogicMatch> getSuccessfulMatch() {
         final var tuple = LogicTuple.of("f(1, \"2\", '3', d, e(f), g(h, [4, i]), [x, y, Z])");
-        final var template = LogicTemplate.of("f(1, A, B, C, D, g(E, [F | G]), H)");
+        final var template = LogicTemplate.Companion.of("f(1, A, B, C, D, g(E, [F | G]), H)");
 
         return Triplet.with(tuple, template, template.matchWith(tuple));
     }
@@ -43,16 +43,16 @@ public class LogicTupleTemplateFactory implements TupleTemplateFactory<LogicTupl
     @Override
     public Triplet<LogicTuple, LogicTemplate, LogicMatch> getFailedMatch() {
         final var tuple = LogicTuple.of("g(y)");
-        final var template = LogicTemplate.of("f(X)");
+        final var template = LogicTemplate.Companion.of("f(X)");
 
         return Triplet.with(tuple, template, template.matchWith(tuple));
     }
 
     @Override
     public Pair<LogicTemplate, LogicMatch> getEmptyMatch() {
-        final var template = LogicTemplate.of("f(X)");
+        final var template = LogicTemplate.Companion.of("f(X)");
 
-        return Pair.with(template, LogicMatch.failed(template));
+        return Pair.with(template, LogicMatch.Companion.failed(template));
     }
 
 
@@ -63,12 +63,12 @@ public class LogicTupleTemplateFactory implements TupleTemplateFactory<LogicTupl
 
     @Override
     public LogicTemplate getMessageTemplate(String recipient) {
-        return LogicTemplate.of(String.format("msg('%s', Payload)", recipient));
+        return LogicTemplate.Companion.of(String.format("msg('%s', Payload)", recipient));
     }
 
     @Override
     public LogicTemplate getGeneralMessageTemplate() {
-        return LogicTemplate.of("msg(Recipient, Payload)");
+        return LogicTemplate.Companion.of("msg(Recipient, Payload)");
     }
 
     @Override
@@ -89,7 +89,7 @@ public class LogicTupleTemplateFactory implements TupleTemplateFactory<LogicTupl
                 .mapToObj(i -> String.format("b(%d)", i))
                 .map(LogicTuple::of)
                 .collect(Collectors.toCollection(HashMultiSet::new));
-        return Quartet.with(tuples1, LogicTemplate.of("a(X)"), tuples2, LogicTemplate.of("b(X)"));
+        return Quartet.with(tuples1, LogicTemplate.Companion.of("a(X)"), tuples2, LogicTemplate.Companion.of("b(X)"));
     }
 
     @Override
@@ -98,6 +98,6 @@ public class LogicTupleTemplateFactory implements TupleTemplateFactory<LogicTupl
                 .mapToObj(i -> String.format("f(%d)", i))
                 .map(LogicTuple::of)
                 .collect(Collectors.toCollection(HashMultiSet::new));
-        return Pair.with(tuples, LogicTemplate.of("f(X)"));
+        return Pair.with(tuples, LogicTemplate.Companion.of("f(X)"));
     }
 }

@@ -1,54 +1,59 @@
-package it.unibo.coordination.linda.logic;
+package it.unibo.coordination.linda.logic
 
-import alice.tuprolog.Struct;
-import alice.tuprolog.Term;
-import alice.tuprolog.Var;
-import it.unibo.coordination.linda.core.Template;
-import it.unibo.coordination.linda.core.Tuple;
+import alice.tuprolog.Struct
+import alice.tuprolog.Term
+import alice.tuprolog.Var
+import it.unibo.coordination.linda.core.Template
+import java.util.*
 
-import java.util.Objects;
-import java.util.Optional;
+interface LogicTemplate : Template<LogicTuple> {
 
-public interface LogicTemplate extends Template {
+    val template: Term
 
-    static LogicTemplate of(String template) {
-        return of(Term.createTerm(Objects.requireNonNull(template)));
+    override fun matchWith(tuple: LogicTuple): LogicMatch
+
+    fun asTerm(): Struct
+
+    @JvmDefault
+    fun toTuple(): LogicTuple {
+        return LogicTuple.of(template)
     }
 
-    static LogicTemplate of(Term term) {
-        return new LogicTemplateImpl(term);
-    }
+    companion object {
 
-    static Struct getPattern() {
-        return Struct.of("template", Var.of("T"));
-    }
+        @JvmStatic
+        fun of(template: String): LogicTemplate {
+            return of(Term.createTerm(Objects.requireNonNull(template)))
+        }
 
-    static Struct getPattern(Term term) {
-        return Struct.of("template", Objects.requireNonNull(term));
-    }
+        @JvmStatic
+        fun of(term: Term): LogicTemplate {
+            return LogicTemplateImpl(term)
+        }
 
-    @Override
-    LogicMatch matchWith(Tuple tuple);
+        @JvmStatic
+        val pattern: Struct
+            get() = Struct.of("template", Var.of("T"))
 
-    Struct asTerm();
+        @JvmStatic
+        fun getPattern(term: Term): Struct {
+            return Struct.of("template", Objects.requireNonNull(term))
+        }
 
-    Term getTemplate();
+        @JvmStatic
+        fun equals(t1: LogicTemplate?, t2: LogicTemplate?): Boolean {
+            if (t1 === t2) return true
+            return if (t1 == null || t2 == null) false else t1.asTerm() == t2.asTerm()
+        }
 
-    default LogicTuple toTuple() {
-        return LogicTuple.of(getTemplate());
-    }
+        @JvmStatic
+        fun hashCode(t: LogicTemplate): Int {
+            return Objects.hashCode(t.asTerm().toString())
+        }
 
-    static boolean equals(LogicTemplate t1, LogicTemplate t2) {
-        if (t1 == t2) return true;
-        if (t1 == null || t2 == null) return false;
-        return Objects.equals(t1.asTerm(), t2.asTerm());
-    }
-
-    static int hashCode(LogicTemplate t) {
-        return Objects.hashCode(t.asTerm().toString());
-    }
-
-    static String toString(LogicTemplate template) {
-        return Optional.ofNullable(template).map(LogicTemplate::getTemplate).map(Term::toString).orElse("null");
+        @JvmStatic
+        fun toString(template: LogicTemplate): String {
+            return template.template.toString()
+        }
     }
 }

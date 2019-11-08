@@ -28,7 +28,7 @@ abstract class AbstractLogicSpaceImpl extends AbstractTupleSpace<LogicTuple, Log
 
     @Override
     protected final LogicMatch lookForTuple(LogicTemplate template) {
-        return lookForTuples(template, 1).findAny().orElseGet(() -> LogicMatch.failed(template));
+        return lookForTuples(template, 1).findAny().orElseGet(() -> LogicMatch.Companion.failed(template));
     }
 
     @Override
@@ -43,7 +43,7 @@ abstract class AbstractLogicSpaceImpl extends AbstractTupleSpace<LogicTuple, Log
 
     @Override
     protected final LogicMatch retrieveTuple(LogicTemplate template) {
-        return retrieveTuples(template, 1).findFirst().orElseGet(() -> LogicMatch.failed(template));
+        return retrieveTuples(template, 1).findFirst().orElseGet(() -> LogicMatch.Companion.failed(template));
     }
 
     @Override
@@ -70,7 +70,7 @@ abstract class AbstractLogicSpaceImpl extends AbstractTupleSpace<LogicTuple, Log
 
     @Override
     protected LogicMatch failedMatch(LogicTemplate template) {
-        return LogicMatch.failed(template);
+        return LogicMatch.Companion.failed(template);
     }
 
 

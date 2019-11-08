@@ -1,145 +1,90 @@
-package it.unibo.coordination.linda.logic;
+package it.unibo.coordination.linda.logic
 
-import alice.tuprolog.Term;
-import it.unibo.coordination.Engines;
-import it.unibo.coordination.linda.core.TupleSpace;
+import alice.tuprolog.Term
+import it.unibo.coordination.linda.core.TupleSpace
+import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutorService
 
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
+interface LogicSpace : TupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch> {
 
-public interface LogicSpace extends TupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch> {
-
-    static LogicSpace deterministic(String name, ExecutorService executorService) {
-        return new DeterministicLogicSpaceImpl(name, executorService);
+    @JvmDefault
+    fun write(tuple: Term): CompletableFuture<LogicTuple> {
+        return write(LogicTuple.of(tuple))
     }
 
-    static LogicSpace deterministic(String name) {
-        return deterministic(name, Engines.getDefaultEngine());
+    @JvmDefault
+    fun readTuple(template: Term): CompletableFuture<LogicTuple> {
+        return readTuple(LogicTemplate.of(template))
     }
 
-    static LogicSpace deterministic(ExecutorService executorService) {
-        return deterministic(null, Engines.getDefaultEngine());
+    @JvmDefault
+    fun tryRead(template: Term): CompletableFuture<LogicMatch> {
+        return tryRead(LogicTemplate.of(template))
     }
 
-    static LogicSpace nonDeterministic(String name, ExecutorService executorService) {
-        throw new UnsupportedOperationException("not implemented");
+    @JvmDefault
+    fun tryAbsent(template: Term): CompletableFuture<LogicMatch> {
+        return tryAbsent(LogicTemplate.of(template))
     }
 
-    static LogicSpace nonDeterministic(String name) {
-        return nonDeterministic(name, Engines.getDefaultEngine());
+    @JvmDefault
+    fun tryTake(template: Term): CompletableFuture<LogicMatch> {
+        return tryTake(LogicTemplate.of(template))
     }
 
-    static LogicSpace nonDeterministic(ExecutorService executorService) {
-        return nonDeterministic(null, Engines.getDefaultEngine());
+    @JvmDefault
+    fun read(template: Term): CompletableFuture<LogicMatch> {
+        return read(LogicTemplate.of(template))
     }
 
-
-    default CompletableFuture<LogicTuple> write(String tuple) {
-        return write(LogicTuple.of(tuple));
+    @JvmDefault
+    fun tryReadTuple(template: Term): CompletableFuture<Optional<LogicTuple>> {
+        return tryReadTuple(LogicTemplate.of(template))
     }
 
-    default CompletableFuture<LogicTuple> write(Term tuple) {
-        return write(LogicTuple.of(tuple));
+    @JvmDefault
+    fun takeTuple(template: Term): CompletableFuture<LogicTuple> {
+        return takeTuple(LogicTemplate.of(template))
     }
 
-
-
-    default CompletableFuture<LogicTuple> readTuple(String template) {
-        return readTuple(LogicTemplate.of(template));
+    @JvmDefault
+    fun take(template: Term): CompletableFuture<LogicMatch> {
+        return take(LogicTemplate.of(template))
     }
 
-    default CompletableFuture<LogicTuple> readTuple(Term template) {
-        return readTuple(LogicTemplate.of(template));
+    @JvmDefault
+    fun tryTakeTuple(template: Term): CompletableFuture<Optional<LogicTuple>> {
+        return tryTakeTuple(LogicTemplate.of(template))
     }
 
-    default CompletableFuture<LogicMatch> read(String template) {
-        return read(LogicTemplate.of(template));
+    @JvmDefault
+    fun absent(template: Term): CompletableFuture<LogicMatch> {
+        return absent(LogicTemplate.of(template))
     }
 
-    default CompletableFuture<LogicMatch> tryRead(String template) {
-        return tryRead(LogicTemplate.of(template));
+    @JvmDefault
+    fun tryAbsentTuple(template: Term): CompletableFuture<Optional<LogicTuple>> {
+        return tryAbsentTuple(LogicTemplate.of(template))
     }
 
-    default CompletableFuture<LogicMatch> tryRead(Term template) {
-        return tryRead(LogicTemplate.of(template));
-    }
+    @JvmDefault
+    override fun String.toTuple(): LogicTuple = LogicTuple.of(this)
 
-    default CompletableFuture<LogicMatch> tryAbsent(String template) {
-        return tryAbsent(LogicTemplate.of(template));
-    }
+    @JvmDefault
+    override fun String.toTemplate(): LogicTemplate = LogicTemplate.of(this)
 
-    default CompletableFuture<LogicMatch> tryAbsent(Term template) {
-        return tryAbsent(LogicTemplate.of(template));
-    }
+    companion object {
 
-    default CompletableFuture<LogicMatch> tryTake(String template) {
-        return tryTake(LogicTemplate.of(template));
-    }
+        @JvmStatic
+        fun deterministic(name: String?, executorService: ExecutorService): LogicSpace {
+            return DeterministicLogicSpaceImpl(name, executorService)
+        }
 
-    default CompletableFuture<LogicMatch> tryTake(Term template) {
-        return tryTake(LogicTemplate.of(template));
-    }
+        @JvmStatic
+        fun deterministic(executorService: ExecutorService): LogicSpace {
+            return deterministic(null, executorService)
+        }
 
-    default CompletableFuture<LogicMatch> read(Term template) {
-        return read(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<Optional<LogicTuple>> tryReadTuple(String template) {
-        return tryReadTuple(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<Optional<LogicTuple>> tryReadTuple(Term template) {
-        return tryReadTuple(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<LogicTuple> takeTuple(String template) {
-        return takeTuple(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<LogicTuple> takeTuple(Term template) {
-        return takeTuple(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<LogicMatch> take(String template) {
-        return take(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<LogicMatch> take(Term template) {
-        return take(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<Optional<LogicTuple>> tryTakeTuple(String template) {
-        return tryTakeTuple(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<Optional<LogicTuple>> tryTakeTuple(Term template) {
-        return tryTakeTuple(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<LogicMatch> absent(final String template) {
-        return absent(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<LogicMatch> absent(final Term template) {
-        return absent(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<Optional<LogicTuple>> tryAbsentTuple(String template) {
-        return tryAbsentTuple(LogicTemplate.of(template));
-    }
-
-    default CompletableFuture<Optional<LogicTuple>> tryAbsentTuple(Term template) {
-        return tryAbsentTuple(LogicTemplate.of(template));
-    }
-
-    @Override
-    default LogicTuple toTuple(String $this$toTuple) {
-        return LogicTuple.of($this$toTuple);
-    }
-
-    @Override
-    default LogicTemplate toTemplate(String $this$toTemplate) {
-        return LogicTemplate.of($this$toTemplate);
     }
 }

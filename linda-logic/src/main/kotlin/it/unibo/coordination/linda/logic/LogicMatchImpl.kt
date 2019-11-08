@@ -1,90 +1,48 @@
-package it.unibo.coordination.linda.logic;
+package it.unibo.coordination.linda.logic
 
-import alice.tuprolog.SolveInfo;
-import alice.tuprolog.Term;
-import alice.tuprolog.Var;
-import alice.tuprolog.exceptions.NoSolutionException;
-import it.unibo.coordination.linda.core.Match;
-import it.unibo.coordination.linda.core.Tuple;
+import alice.tuprolog.SolveInfo
+import alice.tuprolog.Term
+import alice.tuprolog.exceptions.NoSolutionException
+import it.unibo.coordination.linda.core.Match
+import java.util.*
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+internal class LogicMatchImpl(override val template: LogicTemplate, private val solveInfo: SolveInfo?, tuple: LogicTuple?) : LogicMatch {
 
-class LogicMatchImpl implements LogicMatch {
+    override val tuple: Optional<LogicTuple> = Optional.ofNullable(tuple)
 
-    private final LogicTemplate logicTemplate;
-    private final SolveInfo solveInfo;
-    private final Tuple tuple;
-    private Map<String, Term> cache = null;
-
-
-    LogicMatchImpl(LogicTemplate logicTemplate, SolveInfo solveInfo, Tuple tuple) {
-        this.logicTemplate = Objects.requireNonNull(logicTemplate);
-        this.solveInfo = solveInfo;
-        this.tuple = tuple;
-    }
-
-    @Override
-    public Optional<LogicTuple> getTuple() {
-        return tuple instanceof LogicTuple ? Optional.of((LogicTuple) tuple) : Optional.empty();
-    }
-
-    @Override
-    public LogicTemplate getTemplate() {
-        return logicTemplate;
-    }
-
-    @Override
-    public boolean isMatching() {
-        return solveInfo != null && solveInfo.isSuccess();
-    }
-
-    @Override
-    public Optional<Term> get(String variableName) {
-        return Optional.ofNullable(toMap().get(variableName));
-    }
-
-    private Map<String, Term> generateMap() {
-        if (solveInfo != null && solveInfo.isSuccess()) {
-            try {
-                return solveInfo.getBindingVars().stream()
-                        .filter(v -> v.getLink() != null)
-                        .collect(
-                                Collectors.toUnmodifiableMap(
-                                        Var::getOriginalName,
-                                        Var::getLink
-                                )
-                        );
-            } catch (NoSolutionException e) {
-                return Map.of();
-            }
-        } else {
-            return Map.of();
+    private val cache: Map<String, Term> by lazy {
+        if (solveInfo == null)
+            emptyMap()
+        else try {
+            val x = solveInfo.bindingVars.asSequence()
+                    .filter { it.link != null }
+                    .map { it.name to it.link }
+                    .toMap()
+            x
+        } catch (e: NoSolutionException) {
+            emptyMap<String, Term>()
         }
     }
 
-    @Override
-    public Map<String, Term> toMap() {
-        if (cache == null) {
-            cache = generateMap();
-        }
-        return cache;
+    override val isMatching: Boolean
+        get() = solveInfo != null && solveInfo.isSuccess
+
+    override fun get(key: String): Optional<Term> {
+        return Optional.ofNullable(toMap()[key])
     }
 
-    @Override
-    public String toString() {
-        return LogicMatch.toString(this);
+
+    override fun toMap(): Map<String, Term> = cache
+
+    override fun toString(): String {
+        return LogicMatch.toString(this)
     }
 
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof LogicMatch && Match.equals(this, (LogicMatch) o);
+    override fun equals(other: Any?): Boolean {
+        return other is LogicMatch && Match.equals(this, other as LogicMatch?)
     }
 
-    @Override
-    public int hashCode() {
-        return Match.hashCode(this);
+    override fun hashCode(): Int {
+        return Match.hashCode(this)
     }
 }

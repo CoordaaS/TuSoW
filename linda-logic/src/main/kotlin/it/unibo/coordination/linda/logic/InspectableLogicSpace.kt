@@ -1,23 +1,28 @@
-package it.unibo.coordination.linda.logic;
+package it.unibo.coordination.linda.logic
 
-import alice.tuprolog.Term;
-import it.unibo.coordination.Engines;
-import it.unibo.coordination.linda.core.InspectableTupleSpace;
+import alice.tuprolog.Term
+import it.unibo.coordination.Engines
+import it.unibo.coordination.linda.core.InspectableTupleSpace
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ExecutorService
 
-public interface InspectableLogicSpace extends LogicSpace, InspectableTupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch> {
+interface InspectableLogicSpace : LogicSpace, InspectableTupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch> {
+    companion object {
 
-    static InspectableLogicSpace create(String name, ExecutorService executorService) {
-        return new DeterministicLogicSpaceImpl(name, executorService);
-    }
+        @JvmStatic
+        fun create(name: String?, executorService: ExecutorService): InspectableLogicSpace {
+            return DeterministicLogicSpaceImpl(name, executorService)
+        }
 
-    static InspectableLogicSpace create(String name) {
-        return create(name, Engines.getDefaultEngine());
-    }
+        @JvmStatic
+        fun create(name: String?): InspectableLogicSpace {
+            return DeterministicLogicSpaceImpl(name, Engines.defaultEngine)
+        }
 
-    static InspectableLogicSpace create(ExecutorService executorService) {
-        return create(null, executorService);
+        @JvmStatic
+        fun create(executorService: ExecutorService): InspectableLogicSpace {
+            return create(null, executorService)
+        }
     }
 
 }

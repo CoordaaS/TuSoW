@@ -8,7 +8,7 @@ import org.javatuples.Pair;
 import org.javatuples.Quartet;
 import org.javatuples.Triplet;
 
-public interface TupleTemplateFactory<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>> {
+public interface TupleTemplateFactory<T extends Tuple<T>, TT extends Template<T>, K, V, M extends Match<T, TT, K, V>> {
     TT getATemplate();
     T getATuple();
 

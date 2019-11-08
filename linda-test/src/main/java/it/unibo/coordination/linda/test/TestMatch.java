@@ -9,7 +9,7 @@ import org.junit.Test;
 import java.util.Map;
 import java.util.Optional;
 
-public class TestMatch<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>> extends TestBaseLinda<T, TT, K, V, M> {
+public class TestMatch<T extends Tuple<T>, TT extends Template<T>, K, V, M extends Match<T, TT, K, V>> extends TestBaseLinda<T, TT, K, V, M> {
 
 
     public TestMatch(TupleTemplateFactory<T, TT, K, V, M> tupleTemplateFactory) {

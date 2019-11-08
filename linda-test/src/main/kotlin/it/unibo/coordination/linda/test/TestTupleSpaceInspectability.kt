@@ -16,7 +16,7 @@ import java.util.*
 import java.util.concurrent.*
 import kotlin.streams.toList
 
-abstract class TestTupleSpaceInspectability<T : Tuple, TT : Template, K, V, M : Match<T, TT, K, V>, TS : InspectableTupleSpace<T, TT, K, V, M>>(tupleTemplateFactory: TupleTemplateFactory<T, TT, K, V, M>) : TestBaseLinda<T, TT, K, V, M>(tupleTemplateFactory) {
+abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>, TS : InspectableTupleSpace<T, TT, K, V, M>>(tupleTemplateFactory: TupleTemplateFactory<T, TT, K, V, M>) : TestBaseLinda<T, TT, K, V, M>(tupleTemplateFactory) {
 
     private lateinit var executor: ExecutorService
     private lateinit var tupleSpace: InspectableTupleSpace<T, TT, K, V, M>

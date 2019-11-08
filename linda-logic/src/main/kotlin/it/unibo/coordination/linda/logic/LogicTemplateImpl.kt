@@ -1,62 +1,48 @@
-package it.unibo.coordination.linda.logic;
+package it.unibo.coordination.linda.logic
 
-import alice.tuprolog.Prolog;
-import alice.tuprolog.SolveInfo;
-import alice.tuprolog.Struct;
-import alice.tuprolog.Term;
-import it.unibo.coordination.linda.core.Tuple;
-import it.unibo.coordination.prologx.PrologUtils;
+import alice.tuprolog.Prolog
+import alice.tuprolog.Struct
+import alice.tuprolog.Term
+import it.unibo.coordination.prologx.PrologUtils
 
-import java.util.Objects;
+internal class LogicTemplateImpl(term: Term) : LogicTemplate {
+    private val term: Struct
 
-final class LogicTemplateImpl implements LogicTemplate {
+    override val template: Term
+        get() = term.getArg(0)
 
-    private static final Prolog ENGINE = new Prolog();
-    private final Struct term;
-
-    LogicTemplateImpl(final Term term) {
-        Objects.requireNonNull(term);
-
-        if (term instanceof Struct && LogicTemplate.getPattern().match(term)) {
-            this.term = (Struct) term;
+    init {
+        if (term is Struct && LogicTemplate.pattern.match(term)) {
+            this.term = term
         } else {
-            this.term = LogicTemplate.getPattern(term);
+            this.term = LogicTemplate.getPattern(term)
         }
     }
 
-    @Override
-    public LogicMatch matchWith(Tuple tuple) {
-        if (tuple instanceof LogicTuple) {
-            final LogicTuple logicTuple = (LogicTuple) tuple;
-            final SolveInfo si = ENGINE.solve(PrologUtils.unificationTerm(getTemplate(), logicTuple.getValue()));
-            return new LogicMatchImpl(this, si, logicTuple);
-        }
-
-        return new LogicMatchImpl(this, null, null);
+    override fun matchWith(tuple: LogicTuple): LogicMatch {
+        val si = ENGINE.solve(PrologUtils.unificationTerm(template, tuple.value))
+        return LogicMatchImpl(this, si, tuple)
     }
 
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof LogicTemplate && LogicTemplate.equals(this, (LogicTemplate) o);
+    override fun equals(other: Any?): Boolean {
+        return other is LogicTemplate && LogicTemplate.equals(this, other as LogicTemplate?)
     }
 
-    @Override
-    public int hashCode() {
-        return LogicTemplate.hashCode(this);
+    override fun hashCode(): Int {
+        return LogicTemplate.hashCode(this)
     }
 
-    @Override
-    public String toString() {
-        return term.toString();
+    override fun toString(): String {
+        return term.toString()
     }
 
-    public Struct asTerm() {
-        return term;
+    override fun asTerm(): Struct {
+        return term
     }
 
-    @Override
-    public Term getTemplate() {
-        return term.getArg(0);
+    companion object {
+
+        private val ENGINE = Prolog()
     }
 
 }

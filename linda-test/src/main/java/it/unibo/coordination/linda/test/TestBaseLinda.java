@@ -10,7 +10,7 @@ import org.javatuples.Triplet;
 
 import java.util.Objects;
 
-public class TestBaseLinda<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>> implements TupleTemplateFactory<T, TT, K, V, M> {
+public class TestBaseLinda<T extends Tuple<T>, TT extends Template<T>, K, V, M extends Match<T, TT, K, V>> implements TupleTemplateFactory<T, TT, K, V, M> {
 
     private final TupleTemplateFactory<T, TT, K, V, M> tupleTemplateFactory;
 
