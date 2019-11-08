@@ -16,8 +16,8 @@ class StringTupleImpl implements StringTuple {
     }
 
     @Override
-    public boolean equals(Object o) {
-        return o instanceof StringTuple && StringTuple.equals(this, (StringTuple) o);
+    public boolean equals(Object other) {
+        return other instanceof StringTuple && StringTuple.equals(this, (StringTuple) other);
     }
 
     @Override

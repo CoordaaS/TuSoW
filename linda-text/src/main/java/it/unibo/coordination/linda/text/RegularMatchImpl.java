@@ -15,9 +15,6 @@ class RegularMatchImpl implements RegularMatch {
     private Map<Object, String> getCache = new HashMap<>();
     private Optional<Map<Object, String>> toMapCache = Optional.empty();
 
-
-
-
     RegularMatchImpl(RegexTemplate template, Matcher matcher, Tuple tuple) {
         this.template = Objects.requireNonNull(template);
         this.matcher = matcher;

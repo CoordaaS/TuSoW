@@ -1,12 +1,11 @@
 package it.unibo.coordination.linda.text;
 
 import it.unibo.coordination.linda.core.Template;
-import it.unibo.coordination.linda.core.Tuple;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-public interface RegexTemplate extends Template {
+public interface RegexTemplate extends Template<StringTuple> {
 
     static RegexTemplate of(String pattern) {
         return new RegexTemplateImpl(com.google.code.regexp.Pattern.compile(pattern));
@@ -19,7 +18,7 @@ public interface RegexTemplate extends Template {
     Pattern getTemplate();
 
     @Override
-    RegularMatch matchWith(Tuple tuple);
+    RegularMatch matchWith(StringTuple tuple);
 
     @Override
     boolean equals(Object other);

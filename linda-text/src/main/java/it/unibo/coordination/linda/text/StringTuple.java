@@ -4,7 +4,7 @@ import it.unibo.coordination.linda.core.Tuple;
 
 import java.util.Objects;
 
-public interface StringTuple extends Tuple {
+public interface StringTuple extends Tuple<StringTuple> {
 
     @Override
     String getValue();
@@ -13,8 +13,8 @@ public interface StringTuple extends Tuple {
         return new StringTupleImpl(string);
     }
 
-    default int compareTo(StringTuple o) {
-        return getValue().compareTo(o.getValue());
+    default int compareTo(StringTuple other) {
+        return getValue().compareTo(other.getValue());
     }
 
     static boolean equals(StringTuple t1, StringTuple t2) {

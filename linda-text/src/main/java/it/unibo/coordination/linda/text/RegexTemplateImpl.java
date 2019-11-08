@@ -1,7 +1,5 @@
 package it.unibo.coordination.linda.text;
 
-import it.unibo.coordination.linda.core.Tuple;
-
 class RegexTemplateImpl implements RegexTemplate {
 
     private final com.google.code.regexp.Pattern pattern;
@@ -24,12 +22,8 @@ class RegexTemplateImpl implements RegexTemplate {
     }
 
     @Override
-    public RegularMatch matchWith(Tuple tuple) {
-        if (tuple instanceof StringTuple) {
-            return new RegularMatchImpl(this, pattern.matcher(((StringTuple) tuple).getValue()), tuple);
-        }
-
-        return RegularMatch.failed(this);
+    public RegularMatch matchWith(StringTuple tuple) {
+        return new RegularMatchImpl(this, pattern.matcher(tuple.getValue()), tuple);
     }
 
     @Override
