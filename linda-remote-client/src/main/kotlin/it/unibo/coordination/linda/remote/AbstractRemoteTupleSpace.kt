@@ -14,7 +14,7 @@ import org.apache.commons.collections4.multiset.HashMultiSet
 import java.net.URL
 import java.net.URLEncoder
 
-abstract class AbstractRemoteTupleSpace<T : Tuple, TT : Template, K, V, M : Match<T, TT, K, V>>
+abstract class AbstractRemoteTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>>
     protected constructor(override val service: URL, name: String) : RemoteTupleSpace<T, TT, K, V, M> {
 
     companion object {
