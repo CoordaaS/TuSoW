@@ -15,7 +15,7 @@ class GetCommand(
         autoCompleteEnvvar: String? = ""
 ) : AbstractTupleSpaceCommand(help, epilog, name, invokeWithoutSubcommand, printHelpOnEmptyArgs, helpTags, autoCompleteEnvvar) {
 
-    private fun <T : Tuple, C : Collection<T>> CompletableFuture<C>.defaultHandler() {
+    private fun <T : Tuple<T>, C : Collection<T>> CompletableFuture<C>.defaultHandler() {
         await {
             println("Success!")
             if (isEmpty()) {

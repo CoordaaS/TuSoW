@@ -6,10 +6,7 @@ interface Tuple<T : Tuple<T>> {
 
     @JvmDefault
     fun matches(template: Template<T>): Boolean {
+        @Suppress("UNCHECKED_CAST")
         return template.matches(this as T)
     }
 }
-
-//fun <T : Tuple<T>> T.matches(template: Template<T>): Boolean {
-//    return template.matches(this)
-//}

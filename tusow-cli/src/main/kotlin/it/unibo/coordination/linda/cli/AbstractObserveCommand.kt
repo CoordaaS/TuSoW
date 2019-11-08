@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import it.unibo.coordination.linda.core.Match
+import it.unibo.coordination.linda.core.Template
 import it.unibo.coordination.linda.core.Tuple
 import java.util.concurrent.CompletableFuture
 
@@ -20,13 +21,13 @@ abstract class AbstractObserveCommand(
     val template: String by argument("TEMPLATE")
     val predicative: Boolean by option("-p", "--predicative").flag(default = false)
 
-    open protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>> M.isSuccess(): Boolean = isMatching
+    open protected fun <T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> M.isSuccess(): Boolean = isMatching
 
-    open protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>> M.getResult(): Any = tuple.get().value
+    open protected fun <T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> M.getResult(): Any = tuple.get().value
 
-    open protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>, C : Collection<M>> C.isSuccess(): Boolean = isNotEmpty()
+    open protected fun <T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>, C : Collection<M>> C.isSuccess(): Boolean = isNotEmpty()
 
-    protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>, C : Collection<M>> CompletableFuture<C>.defaultHandlerForMultipleResult() {
+    protected fun <T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>, C : Collection<M>> CompletableFuture<C>.defaultHandlerForMultipleResult() {
         await {
             if (isSuccess()) {
                 println("Success!")
@@ -47,7 +48,7 @@ abstract class AbstractObserveCommand(
         }
     }
 
-    protected fun <T : Tuple, TT, K, V, M : Match<T, TT, K, V>> CompletableFuture<M>.defaultHandlerForSingleResult() {
+    protected fun <T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> CompletableFuture<M>.defaultHandlerForSingleResult() {
         await {
             if (isSuccess()) {
                 println("Success!")

@@ -20,19 +20,19 @@ abstract class AbstractUpdateCommand(
     val tuples: List<String> by argument("TUPLE").multiple(required = true)
     val asynchronous: Boolean by option("-A", "--asynch").flag(default = false)
 
-    protected fun<T : Tuple> CompletableFuture<T>.defaultHandlerForSingleResult() {
+    protected fun<T : Tuple<T>> CompletableFuture<T>.defaultHandlerForSingleResult() {
         await {
             println("Success!")
             println("\tTuple $value has been inserted")
         }
     }
 
-    protected fun<T : Tuple> CompletableFuture<T>.defaultAsyncHandlerForSingleResult(input: T) {
+    protected fun<T : Tuple<T>> CompletableFuture<T>.defaultAsyncHandlerForSingleResult(input: T) {
         println("Success!")
         println("\tTuple ${input.value} has been inserted")
     }
 
-    protected fun<T : Tuple, C : Collection<T>> CompletableFuture<C>.defaultHandlerForMultipleResult() {
+    protected fun<T : Tuple<T>, C : Collection<T>> CompletableFuture<C>.defaultHandlerForMultipleResult() {
         await {
             println("Success!")
             println("\tThe following tuples have been inserted:")
@@ -42,7 +42,7 @@ abstract class AbstractUpdateCommand(
         }
     }
 
-    protected fun<T : Tuple, C : Collection<T>> CompletableFuture<C>.defaultAsyncHandlerForMultipleResult(input: Collection<T>) {
+    protected fun<T : Tuple<T>, C : Collection<T>> CompletableFuture<C>.defaultAsyncHandlerForMultipleResult(input: Collection<T>) {
         print("Success!")
         println("\tThe following tuples have been inserted:")
         input.forEachIndexed { i, t ->

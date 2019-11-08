@@ -2,8 +2,8 @@ package it.unibo.coordination.linda.cli
 
 import it.unibo.coordination.linda.logic.LogicSpace
 import it.unibo.coordination.linda.logic.LogicTuple
-import it.unibo.coordination.linda.text.TextualSpace
 import it.unibo.coordination.linda.text.StringTuple
+import it.unibo.coordination.linda.text.TextualSpace
 
 class WriteCommand(
         help: String = "",
@@ -31,7 +31,7 @@ class WriteCommand(
                     }
                 }
                 else -> when (type) {
-                    TupleSpaceTypes.LOGIC -> tuples[0].let(LogicTuple::of).let {
+                    TupleSpaceTypes.LOGIC -> tuples[0].let { LogicTuple.of(it) }.let {
                         getTupleSpace<LogicSpace>(tupleSpaceID)
                                 .write(it)
                                 .defaultAsyncHandlerForSingleResult(it)

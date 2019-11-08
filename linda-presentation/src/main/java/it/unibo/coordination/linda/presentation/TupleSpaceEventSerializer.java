@@ -10,7 +10,7 @@ import it.unibo.coordination.linda.core.events.TupleSpaceEvent;
 import java.util.HashMap;
 import java.util.Optional;
 
-class TupleSpaceEventSerializer<T extends Tuple, TT extends Template> extends DynamicSerializer<TupleSpaceEvent> {
+class TupleSpaceEventSerializer<T extends Tuple<T>, TT extends Template<T>> extends DynamicSerializer<TupleSpaceEvent> {
 
     private Class<T> tupleClass;
     private Class<TT> templateClass;

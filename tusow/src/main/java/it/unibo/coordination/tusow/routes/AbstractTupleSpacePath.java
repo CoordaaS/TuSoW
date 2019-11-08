@@ -24,7 +24,7 @@ import java.util.Optional;
 
 import static it.unibo.coordination.linda.presentation.MIMETypes.*;
 
-public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.linda.core.Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>> extends Path {
+public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.linda.core.Tuple<T>, TT extends Template<T>, K, V, M extends Match<T, TT, K, V>> extends Path {
 
     public AbstractTupleSpacePath(String tupleSpaceType) {
         super("/" + Objects.requireNonNull(tupleSpaceType) + "/:tupleSpaceName");

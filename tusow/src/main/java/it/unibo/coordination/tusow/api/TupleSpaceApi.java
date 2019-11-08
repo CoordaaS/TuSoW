@@ -8,7 +8,7 @@ import it.unibo.coordination.linda.core.Tuple;
 
 import java.util.Collection;
 
-public interface TupleSpaceApi<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>> extends Api {
+public interface TupleSpaceApi<T extends Tuple<T>, TT extends Template<T>, K, V, M extends Match<T, TT, K, V>> extends Api {
 
     void createNewTuples(String tupleSpaceName, boolean bulk, Collection<? extends T> tuples, Handler<AsyncResult<Collection<? extends T>>> handler);
 

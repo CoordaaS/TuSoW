@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-abstract class AbstractTupleSpaceApiTupleSpaceApi<T extends Tuple, TT extends Template, K, V, M extends Match<T, TT, K, V>, TS extends TupleSpace<T, TT, K, V, M>>
+abstract class AbstractTupleSpaceApiTupleSpaceApi<T extends Tuple<T>, TT extends Template<T>, K, V, M extends Match<T, TT, K, V>, TS extends TupleSpace<T, TT, K, V, M>>
         extends AbstractApi implements TupleSpaceApi<T, TT, K, V, M> {
 
     public AbstractTupleSpaceApiTupleSpaceApi(RoutingContext routingContext) {

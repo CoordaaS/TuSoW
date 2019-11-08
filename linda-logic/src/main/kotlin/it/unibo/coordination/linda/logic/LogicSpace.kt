@@ -1,6 +1,7 @@
 package it.unibo.coordination.linda.logic
 
 import alice.tuprolog.Term
+import it.unibo.coordination.Engines
 import it.unibo.coordination.linda.core.TupleSpace
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -79,6 +80,11 @@ interface LogicSpace : TupleSpace<LogicTuple, LogicTemplate, String, Term, Logic
         @JvmStatic
         fun deterministic(name: String?, executorService: ExecutorService): LogicSpace {
             return DeterministicLogicSpaceImpl(name, executorService)
+        }
+
+        @JvmStatic
+        fun deterministic(name: String?): LogicSpace {
+            return DeterministicLogicSpaceImpl(name, Engines.defaultEngine)
         }
 
         @JvmStatic
