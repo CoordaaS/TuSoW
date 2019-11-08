@@ -2,17 +2,17 @@ package it.unibo.coordination.linda.core
 
 import java.util.function.Predicate
 
-interface Template : Predicate<Tuple> {
+interface Template<T : Tuple<T>> : Predicate<T> {
 
     @JvmDefault
-    fun matches(tuple: Tuple): Boolean {
-        return matchWith<Tuple, Template, Any, Any>(tuple).isMatching
+    fun matches(tuple: T): Boolean {
+        return matchWith(tuple).isMatching
     }
 
-    fun <T : Tuple, TT : Template, K, V> matchWith(tuple: T): Match<T, TT, K, V>
+    fun matchWith(tuple: T): Match<T, out Template<T>, *, *>
 
     @JvmDefault
-    override fun test(tuple: Tuple): Boolean {
+    override fun test(tuple: T): Boolean {
         return matches(tuple)
     }
 }

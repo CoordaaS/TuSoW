@@ -2,7 +2,7 @@ package it.unibo.coordination.linda.core
 
 import java.util.*
 
-interface Match<T : Tuple, TT : Template, K, V> {
+interface Match<T : Tuple<T>, TT : Template<T>, K, V> {
 
     val tuple: Optional<T>
 
@@ -17,7 +17,7 @@ interface Match<T : Tuple, TT : Template, K, V> {
     companion object {
 
         @JvmStatic
-        fun <T : Tuple, TT : Template, K, V, M : Match<T, TT, K, V>> equals(m1: M?, m2: M?): Boolean {
+        fun <T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> equals(m1: M?, m2: M?): Boolean {
             return when {
                 m1 === m2 -> true
                 m1 == null || m2 == null -> false
@@ -29,7 +29,7 @@ interface Match<T : Tuple, TT : Template, K, V> {
         }
 
         @JvmStatic
-        fun <T : Tuple, TT : Template, K, V, M : Match<T, TT, K, V>> hashCode(match: M): Int {
+        fun <T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> hashCode(match: M): Int {
             return Objects.hash(match.isMatching, match.template, match.tuple)
         }
     }

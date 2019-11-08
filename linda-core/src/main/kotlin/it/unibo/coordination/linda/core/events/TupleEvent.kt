@@ -5,7 +5,7 @@ import it.unibo.coordination.linda.core.Template
 import it.unibo.coordination.linda.core.Tuple
 import java.util.*
 
-class TupleEvent<T : Tuple, TT : Template>
+class TupleEvent<T : Tuple<T>, TT : Template<T>>
     private constructor(tupleSpace: InspectableTupleSpace<T, TT, *, *, *>, val isBefore: Boolean, val effect: Effect, val tuple: T?, val template: TT?)
         : TupleSpaceEvent<T, TT>(tupleSpace) {
 
@@ -44,57 +44,57 @@ class TupleEvent<T : Tuple, TT : Template>
     companion object {
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> of(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, before: Boolean, effect: Effect, tuple: X, template: Y): TupleEvent<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> of(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, before: Boolean, effect: Effect, tuple: X, template: Y): TupleEvent<X, Y> {
             return TupleEvent(tupleSpace, before, effect, tuple, template)
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> beforeWriting(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> beforeWriting(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
             return TupleEvent(tupleSpace, true, Effect.WRITTEN, tuple, null)
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> afterWriting(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> afterWriting(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
             return TupleEvent(tupleSpace, false, Effect.WRITTEN, tuple, null)
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> beforeTaking(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> beforeTaking(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
             return TupleEvent(tupleSpace, true, Effect.TAKEN, tuple, null)
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> afterTaking(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> afterTaking(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
             return TupleEvent(tupleSpace, false, Effect.TAKEN, tuple, null)
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> beforeReading(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> beforeReading(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
             return TupleEvent(tupleSpace, true, Effect.READ, tuple, null)
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> afterReading(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> afterReading(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
             return TupleEvent(tupleSpace, false, Effect.READ, tuple, null)
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> beforeAbsent(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, template: Y): TupleEvent<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> beforeAbsent(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, template: Y): TupleEvent<X, Y> {
             return TupleEvent(tupleSpace, true, Effect.ABSENT, null, template)
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> afterAbsent(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, template: Y): TupleEvent<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> afterAbsent(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, template: Y): TupleEvent<X, Y> {
             return TupleEvent(tupleSpace, false, Effect.ABSENT, null, template)
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> beforeAbsent(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, template: Y, counterexample: X): TupleEvent<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> beforeAbsent(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, template: Y, counterexample: X): TupleEvent<X, Y> {
             return TupleEvent(tupleSpace, true, Effect.ABSENT, counterexample, template)
         }
 
         @JvmStatic
-        fun <X : Tuple, Y : Template> afterAbsent(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, template: Y, counterexample: X): TupleEvent<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> afterAbsent(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, template: Y, counterexample: X): TupleEvent<X, Y> {
             return TupleEvent(tupleSpace, false, Effect.ABSENT, counterexample, template)
         }
     }

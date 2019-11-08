@@ -3,7 +3,7 @@ package it.unibo.coordination.linda.core
 import it.unibo.coordination.Promise
 import java.util.*
 
-interface PredicativeTupleSpace<T : Tuple, TT : Template, K, V, M : Match<T, TT, K, V>> : LindaTupleSpace<T, TT, K, V, M> {
+interface PredicativeTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> : LindaTupleSpace<T, TT, K, V, M> {
     fun tryTake(template: TT): Promise<M>
 
     @JvmDefault

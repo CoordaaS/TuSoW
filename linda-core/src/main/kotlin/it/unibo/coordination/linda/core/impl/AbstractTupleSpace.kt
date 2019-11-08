@@ -15,7 +15,7 @@ import java.util.function.Function
 import java.util.stream.Stream
 import kotlin.streams.toList
 
-abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V, M : Match<T, TT, K, V>>
+abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>>
     constructor(name: String?, val executor: ExecutorService)
     : InspectableTupleSpace<T, TT, K, V, M> {
 
@@ -35,9 +35,9 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V, M : Match<T, T
     override val operationInvoked
         get() = operationInvokedEmitter.eventSource
 
-    protected abstract val pendingRequests: MutableCollection<PendingRequest>
+    protected abstract val pendingRequests: MutableCollection<PendingRequest<T, TT, M>>
 
-    protected open val pendingRequestsIterator: MutableIterator<PendingRequest>
+    protected open val pendingRequestsIterator: MutableIterator<PendingRequest<T, TT, M>>
         get() = pendingRequests.iterator()
 
     protected abstract val allTuples: Stream<T>
@@ -89,7 +89,7 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V, M : Match<T, T
         return Objects.hash(name, executor)
     }
 
-    protected fun addPendingRequest(request: PendingRequest) {
+    protected fun addPendingRequest(request: PendingRequest<T, TT, M>) {
         pendingRequests.add(request)
     }
 
@@ -424,46 +424,12 @@ abstract class AbstractTupleSpace<T : Tuple, TT : Template, K, V, M : Match<T, T
         promise.complete(counterexample)
     }
 
-    private fun newPendingAccessRequest(requestType: RequestTypes, template: TT, promise: Promise<M>): PendingRequest {
+    private fun newPendingAccessRequest(requestType: RequestTypes, template: TT, promise: Promise<M>): PendingRequest<T, TT, M> {
         return PendingRequest(requestType, template, promise)
     }
 
-    private fun newPendingAbsentRequest(template: TT, promise: Promise<M>): PendingRequest {
+    private fun newPendingAbsentRequest(template: TT, promise: Promise<M>): PendingRequest<T, TT, M> {
         return PendingRequest(RequestTypes.ABSENT, template, promise)
-    }
-
-    protected enum class RequestTypes {
-        READ, TAKE, ABSENT
-    }
-
-    protected inner class PendingRequest(requestType: RequestTypes, template: TT, promise: Promise<M>) {
-
-        val requestType: RequestTypes = Objects.requireNonNull(requestType)
-        val template: TT = Objects.requireNonNull(template)
-        val promise: Promise<M> = Objects.requireNonNull(promise)
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other == null || javaClass != other.javaClass) return false
-            val that = other as AbstractTupleSpace<*, *, *, *, *>.PendingRequest
-            return requestType == that.requestType &&
-                    template == that.template &&
-                    promise == that.promise
-        }
-
-        override fun hashCode(): Int {
-            return Objects.hash(requestType, template, promise)
-        }
-
-        override fun toString(): String {
-            return "PendingRequest{" +
-                    "requestType=" + requestType +
-                    ", template=" + template +
-                    ", promiseTuple=" + promise +
-                    '}'
-        }
-
-
     }
 
     companion object {

@@ -3,7 +3,7 @@ package it.unibo.coordination.linda.core
 import it.unibo.coordination.Promise
 import java.util.*
 
-interface NegatedTupleSpace<T : Tuple, TT : Template, K, V, M : Match<T, TT, K, V>> : LindaTupleSpace<T, TT, K, V, M> {
+interface NegatedTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> : LindaTupleSpace<T, TT, K, V, M> {
 
     fun absent(template: TT): Promise<M>
 

@@ -4,7 +4,7 @@ import it.unibo.coordination.linda.core.events.OperationEvent
 import it.unibo.coordination.linda.core.events.TupleEvent
 import it.unibo.coordination.utils.events.EventSource
 
-interface InspectableLindaTupleSpace<T : Tuple, TT : Template, K, V, M : Match<T, TT, K, V>> : LindaTupleSpace<T, TT, K, V, M> {
+interface InspectableLindaTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> : LindaTupleSpace<T, TT, K, V, M> {
     val operationInvoked: EventSource<OperationEvent<T, TT>>
 
     val operationCompleted: EventSource<OperationEvent<T, TT>>

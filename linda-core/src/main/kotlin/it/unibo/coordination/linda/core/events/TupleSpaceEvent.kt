@@ -5,7 +5,7 @@ import it.unibo.coordination.linda.core.Template
 import it.unibo.coordination.linda.core.Tuple
 import java.util.*
 
-abstract class TupleSpaceEvent<T : Tuple, TT : Template>
+abstract class TupleSpaceEvent<T : Tuple<T>, TT : Template<T>>
     internal constructor(val tupleSpace: InspectableTupleSpace<T, TT, *, *, *>) {
 
     val tupleSpaceName: String
