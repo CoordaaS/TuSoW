@@ -1,7 +1,10 @@
 package it.unibo.coordination.linda.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.unibo.coordination.linda.core.*;
+import it.unibo.coordination.linda.core.OperationPhase;
+import it.unibo.coordination.linda.core.OperationType;
+import it.unibo.coordination.linda.core.Template;
+import it.unibo.coordination.linda.core.Tuple;
 import it.unibo.coordination.linda.core.events.OperationEvent;
 import it.unibo.coordination.linda.core.events.TupleEvent;
 import it.unibo.coordination.linda.core.events.TupleSpaceEvent;
@@ -11,12 +14,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-abstract class TupleSpaceEventDeserializer<T extends Tuple<T>, TT extends Template<T>> extends DynamicDeserializer<TupleSpaceEvent> {
+class TupleSpaceEventDeserializer<T extends Tuple<T>, TT extends Template<T>> extends DynamicDeserializer<TupleSpaceEvent> {
 
     private Class<T> tupleClass;
     private Class<TT> templateClass;
-
-    protected abstract InspectableTupleSpace<T, TT, ?, ?, ?> getSpace(String tupleSpace);
 
     public TupleSpaceEventDeserializer(MIMETypes mimeType, ObjectMapper mapper, Class<T> tupleClass, Class<TT> templateClass) {
         super(TupleSpaceEvent.class, mimeType, mapper);
@@ -35,7 +36,7 @@ abstract class TupleSpaceEventDeserializer<T extends Tuple<T>, TT extends Templa
             final var dynamicMap = (Map<String, ?>) dynamicObject;
 
             if (dynamicMap.containsKey("eventType") && dynamicMap.containsKey("tupleSpace")) {
-                final var tupleSpace = getSpace((String) dynamicMap.get("tupleSpace"));
+                final var tupleSpace = (String) dynamicMap.get("tupleSpace");
                 if(dynamicMap.get("eventType").equals(OperationEvent.class.getSimpleName())) {
                     if(dynamicMap.containsKey("operationPhase")
                             && dynamicMap.containsKey("operationType")

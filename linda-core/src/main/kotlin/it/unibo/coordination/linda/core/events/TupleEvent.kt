@@ -1,101 +1,111 @@
 package it.unibo.coordination.linda.core.events
 
-import it.unibo.coordination.linda.core.InspectableTupleSpace
 import it.unibo.coordination.linda.core.Template
 import it.unibo.coordination.linda.core.Tuple
-import java.util.*
 
-class TupleEvent<T : Tuple<T>, TT : Template<T>>
-    private constructor(tupleSpace: InspectableTupleSpace<T, TT, *, *, *>, val isBefore: Boolean, val effect: Effect, val tuple: T?, val template: TT?)
-        : TupleSpaceEvent<T, TT>(tupleSpace) {
+sealed class TupleEvent<T : Tuple<T>, TT : Template<T>>(
+        override val tupleSpaceName: String,
+        open val isBefore: Boolean,
+        val effect: Effect,
+        open val tuple: T?,
+        open val template: TT?
+) : TupleSpaceEvent<T, TT> {
 
     enum class Effect {
-        WRITTEN, READ, TAKEN, ABSENT
+        WRITING, READING, TAKING, MISSING
     }
 
     val isAfter: Boolean
         get() = !isBefore
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        if (!super.equals(other)) return false
-        val that = other as TupleEvent<*, *>?
-        return isBefore == that!!.isBefore &&
-                effect == that.effect &&
-                tuple == that.tuple &&
-                template == that.template
-    }
+    data class Writing<T : Tuple<T>, TT : Template<T>>(
+            override val tupleSpaceName: String,
+            override val isBefore: Boolean = true,
+            override val tuple: T
+    ) : TupleEvent<T, TT>(tupleSpaceName, isBefore, Effect.WRITING, tuple, null)
 
-    override fun toString(): String {
-        return "TupleEvent{" +
-                "tupleSpace=" + tupleSpaceName +
-                ", effect=" + effect +
-                ", before=" + isBefore +
-                ", tuple=" + tuple +
-                ", template=" + template +
-                "}"
-    }
+    data class Reading<T : Tuple<T>, TT : Template<T>>(
+            override val tupleSpaceName: String,
+            override val isBefore: Boolean = true,
+            override val tuple: T
+    ) : TupleEvent<T, TT>(tupleSpaceName, isBefore, Effect.READING, tuple, null)
 
-    override fun hashCode(): Int {
-        return Objects.hash(effect, isBefore, tuple, template)
+    data class Taking<T : Tuple<T>, TT : Template<T>>(
+            override val tupleSpaceName: String,
+            override val isBefore: Boolean = true,
+            override val tuple: T
+    ) : TupleEvent<T, TT>(tupleSpaceName, isBefore, Effect.TAKING, tuple, null)
+
+    data class Missing<T : Tuple<T>, TT : Template<T>>(
+            override val tupleSpaceName: String,
+            override val isBefore: Boolean = true,
+            override val template: TT,
+            override val tuple: T? = null
+    ) : TupleEvent<T, TT>(tupleSpaceName, isBefore, Effect.MISSING, tuple, template) {
+
+        val counterExample
+            get() = tuple
     }
 
     companion object {
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> of(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, before: Boolean, effect: Effect, tuple: X, template: Y): TupleEvent<X, Y> {
-            return TupleEvent(tupleSpace, before, effect, tuple, template)
+        fun <X : Tuple<X>, Y : Template<X>> of(tupleSpaceName: String, before: Boolean, effect: Effect, tuple: X?, template: Y?): TupleEvent<X, Y> =
+                when (effect) {
+                    Effect.WRITING -> Writing(tupleSpaceName, before, tuple!!)
+                    Effect.READING -> Reading(tupleSpaceName, before, tuple!!)
+                    Effect.TAKING -> Taking(tupleSpaceName, before, tuple!!)
+                    Effect.MISSING -> Missing(tupleSpaceName, before, template!!, tuple)
+                }
+
+        @JvmStatic
+        fun <X : Tuple<X>, Y : Template<X>> beforeWriting(tupleSpaceName: String, tuple: X): Writing<X, Y> {
+            return Writing(tupleSpaceName, true, tuple)
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> beforeWriting(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
-            return TupleEvent(tupleSpace, true, Effect.WRITTEN, tuple, null)
+        fun <X : Tuple<X>, Y : Template<X>> afterWriting(tupleSpaceName: String, tuple: X): Writing<X, Y> {
+            return Writing(tupleSpaceName, false, tuple)
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> afterWriting(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
-            return TupleEvent(tupleSpace, false, Effect.WRITTEN, tuple, null)
+        fun <X : Tuple<X>, Y : Template<X>> beforeTaking(tupleSpaceName: String, tuple: X): Taking<X, Y> {
+            return Taking(tupleSpaceName, false, tuple)
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> beforeTaking(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
-            return TupleEvent(tupleSpace, true, Effect.TAKEN, tuple, null)
+        fun <X : Tuple<X>, Y : Template<X>> afterTaking(tupleSpaceName: String, tuple: X): Taking<X, Y> {
+            return Taking(tupleSpaceName, true, tuple)
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> afterTaking(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
-            return TupleEvent(tupleSpace, false, Effect.TAKEN, tuple, null)
+        fun <X : Tuple<X>, Y : Template<X>> beforeReading(tupleSpaceName: String, tuple: X): Reading<X, Y> {
+            return Reading(tupleSpaceName, false, tuple)
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> beforeReading(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
-            return TupleEvent(tupleSpace, true, Effect.READ, tuple, null)
+        fun <X : Tuple<X>, Y : Template<X>> afterReading(tupleSpaceName: String, tuple: X): Reading<X, Y> {
+            return Reading(tupleSpaceName, true, tuple)
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> afterReading(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, tuple: X): TupleEvent<X, Y> {
-            return TupleEvent(tupleSpace, false, Effect.READ, tuple, null)
+        fun <X : Tuple<X>, Y : Template<X>> beforeAbsent(tupleSpaceName: String, template: Y): Missing<X, Y> {
+            return Missing(tupleSpaceName, false, template)
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> beforeAbsent(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, template: Y): TupleEvent<X, Y> {
-            return TupleEvent(tupleSpace, true, Effect.ABSENT, null, template)
+        fun <X : Tuple<X>, Y : Template<X>> afterAbsent(tupleSpaceName: String, template: Y): Missing<X, Y> {
+            return Missing(tupleSpaceName, true, template)
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> afterAbsent(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, template: Y): TupleEvent<X, Y> {
-            return TupleEvent(tupleSpace, false, Effect.ABSENT, null, template)
+        fun <X : Tuple<X>, Y : Template<X>> beforeAbsent(tupleSpaceName: String, template: Y, counterexample: X): Missing<X, Y> {
+            return Missing(tupleSpaceName, false, template, counterexample)
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> beforeAbsent(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, template: Y, counterexample: X): TupleEvent<X, Y> {
-            return TupleEvent(tupleSpace, true, Effect.ABSENT, counterexample, template)
-        }
-
-        @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> afterAbsent(tupleSpace: InspectableTupleSpace<X, Y, *, *, *>, template: Y, counterexample: X): TupleEvent<X, Y> {
-            return TupleEvent(tupleSpace, false, Effect.ABSENT, counterexample, template)
+        fun <X : Tuple<X>, Y : Template<X>> afterAbsent(tupleSpaceName: String, template: Y, counterexample: X): Missing<X, Y> {
+            return Missing(tupleSpaceName, true, template, counterexample)
         }
     }
 }

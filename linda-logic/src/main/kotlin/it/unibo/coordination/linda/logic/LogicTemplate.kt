@@ -48,7 +48,7 @@ interface LogicTemplate : Template<LogicTuple> {
 
         @JvmStatic
         fun hashCode(t: LogicTemplate): Int {
-            return Objects.hashCode(t.asTerm().toString())
+            return Objects.hashCode(t.asTerm())
         }
 
         @JvmStatic

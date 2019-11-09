@@ -5,6 +5,7 @@ import it.unibo.coordination.linda.core.events.OperationEvent
 import it.unibo.coordination.linda.core.events.TupleEvent
 import it.unibo.coordination.linda.core.events.TupleSpaceEvent
 import it.unibo.coordination.testing.ConcurrentTestHelper
+import it.unibo.coordination.utils.indexOf
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -43,7 +44,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val template = aTemplate
 
-        val expectedEvent = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.READ, template)
+        val expectedEvent = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.READ, template)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
         tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
@@ -69,7 +70,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val template = aTemplate
 
-        val expectedEvent = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TAKE, template)
+        val expectedEvent = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TAKE, template)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
         tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
@@ -94,8 +95,8 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val tuple = aTuple
 
-        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, tuple)
-        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace, tuple)
+        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace.name, OperationType.WRITE, tuple)
+        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace.name, tuple)
         val expectedEvent3 = expectedEvent1.toTupleReturningCompletion(tuple)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
@@ -120,11 +121,11 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val tupleTemplate = aTupleAndATemplateMatchingIt
 
-        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, tupleTemplate.value0)
-        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace, tupleTemplate.value0)
+        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace.name, OperationType.WRITE, tupleTemplate.value0)
+        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace.name, tupleTemplate.value0)
         val expectedEvent3 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.value0)
-        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.READ, tupleTemplate.value1)
-        val expectedEvent5 = TupleEvent.afterReading(tupleSpace, tupleTemplate.value0)
+        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.READ, tupleTemplate.value1)
+        val expectedEvent5 = TupleEvent.afterReading(tupleSpace.name, tupleTemplate.value0)
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
@@ -153,10 +154,10 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val tupleTemplate = aTupleAndATemplateMatchingIt
 
-        val expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.READ, tupleTemplate.value1)
-        val expectedEvent2 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, tupleTemplate.value0)
-        val expectedEvent3 = TupleEvent.afterWriting(tupleSpace, tupleTemplate.value0)
-        val expectedEvent4 = TupleEvent.afterReading(tupleSpace, tupleTemplate.value0)
+        val expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.READ, tupleTemplate.value1)
+        val expectedEvent2 = OperationEvent.tupleAcceptingInvocation(tupleSpace.name, OperationType.WRITE, tupleTemplate.value0)
+        val expectedEvent3 = TupleEvent.afterWriting(tupleSpace.name, tupleTemplate.value0)
+        val expectedEvent4 = TupleEvent.afterReading(tupleSpace.name, tupleTemplate.value0)
         val expectedEvent5 = expectedEvent2.toTupleReturningCompletion(tupleTemplate.value0)
         val expectedEvent6 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.value0)
 
@@ -185,7 +186,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val template = aTemplate
 
-        val expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TRY_READ, template)
+        val expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TRY_READ, template)
         val expectedEvent2 = expectedEvent1.toTuplesReturningCompletion()
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
@@ -208,11 +209,11 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val tupleTemplate = aTupleAndATemplateMatchingIt
 
-        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, tupleTemplate.value0)
-        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace, tupleTemplate.value0)
+        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace.name, OperationType.WRITE, tupleTemplate.value0)
+        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace.name, tupleTemplate.value0)
         val expectedEvent3 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.value0)
-        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TRY_READ, tupleTemplate.value1)
-        val expectedEvent5 = TupleEvent.afterReading(tupleSpace, tupleTemplate.value0)
+        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TRY_READ, tupleTemplate.value1)
+        val expectedEvent5 = TupleEvent.afterReading(tupleSpace.name, tupleTemplate.value0)
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
@@ -240,11 +241,11 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val tupleTemplate = aTupleAndATemplateMatchingIt
 
-        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, tupleTemplate.value0)
-        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace, tupleTemplate.value0)
+        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace.name, OperationType.WRITE, tupleTemplate.value0)
+        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace.name, tupleTemplate.value0)
         val expectedEvent3 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.value0)
-        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TAKE, tupleTemplate.value1)
-        val expectedEvent5 = TupleEvent.afterTaking(tupleSpace, tupleTemplate.value0)
+        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TAKE, tupleTemplate.value1)
+        val expectedEvent5 = TupleEvent.afterTaking(tupleSpace.name, tupleTemplate.value0)
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
@@ -272,10 +273,10 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val tupleTemplate = aTupleAndATemplateMatchingIt
 
-        val expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TAKE, tupleTemplate.value1)
-        val expectedEvent2 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, tupleTemplate.value0)
-        val expectedEvent3 = TupleEvent.afterWriting(tupleSpace, tupleTemplate.value0)
-        val expectedEvent4 = TupleEvent.afterTaking(tupleSpace, tupleTemplate.value0)
+        val expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TAKE, tupleTemplate.value1)
+        val expectedEvent2 = OperationEvent.tupleAcceptingInvocation(tupleSpace.name, OperationType.WRITE, tupleTemplate.value0)
+        val expectedEvent3 = TupleEvent.afterWriting(tupleSpace.name, tupleTemplate.value0)
+        val expectedEvent4 = TupleEvent.afterTaking(tupleSpace.name, tupleTemplate.value0)
         val expectedEvent5 = expectedEvent2.toTupleReturningCompletion(tupleTemplate.value0)
         val expectedEvent6 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.value0)
 
@@ -304,11 +305,11 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val tupleTemplate = aTupleAndATemplateMatchingIt
 
-        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, tupleTemplate.value0)
-        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace, tupleTemplate.value0)
+        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace.name, OperationType.WRITE, tupleTemplate.value0)
+        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace.name, tupleTemplate.value0)
         val expectedEvent3 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.value0)
-        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TRY_TAKE, tupleTemplate.value1)
-        val expectedEvent5 = TupleEvent.afterTaking(tupleSpace, tupleTemplate.value0)
+        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TRY_TAKE, tupleTemplate.value1)
+        val expectedEvent5 = TupleEvent.afterTaking(tupleSpace.name, tupleTemplate.value0)
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
@@ -337,7 +338,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val template = aTemplate
 
-        val expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TRY_TAKE, template)
+        val expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TRY_TAKE, template)
         val expectedEvent2 = expectedEvent1.toTuplesReturningCompletion()
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
@@ -361,9 +362,9 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val tuples = someTuples
 
-        val expectedEvent1 = OperationEvent.tuplesAcceptingInvocation(tupleSpace, OperationType.WRITE_ALL, tuples)
+        val expectedEvent1 = OperationEvent.tuplesAcceptingInvocation(tupleSpace.name, OperationType.WRITE_ALL, tuples)
         val expectedEvents2 = tuples.stream()
-                .map { TupleEvent.afterWriting(tupleSpace, it) }
+                .map { TupleEvent.afterWriting(tupleSpace.name, it) }
                 .toList()
 
         val expectedEvent3 = expectedEvent1.toTuplesReturningCompletion(tuples)
@@ -391,14 +392,14 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val tuples = someTuples
 
-        val expectedEvent1 = OperationEvent.tuplesAcceptingInvocation(tupleSpace, OperationType.WRITE_ALL, tuples)
+        val expectedEvent1 = OperationEvent.tuplesAcceptingInvocation(tupleSpace.name, OperationType.WRITE_ALL, tuples)
         val expectedEvents2 = tuples.stream()
-                .map { TupleEvent.afterWriting(tupleSpace, it) }
+                .map { TupleEvent.afterWriting(tupleSpace.name, it) }
                 .toList()
         val expectedEvent3 = expectedEvent1.toTuplesReturningCompletion(tuples)
-        val expectedEvent4 = OperationEvent.nothingAcceptingInvocation(tupleSpace, OperationType.GET)
+        val expectedEvent4 = OperationEvent.nothingAcceptingInvocation<T, TT>(tupleSpace.name, OperationType.GET)
         val expectedEvents5 = tuples.stream()
-                .map { TupleEvent.afterReading(tupleSpace, it) }
+                .map { TupleEvent.afterReading(tupleSpace.name, it) }
                 .toList()
         val expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples)
 
@@ -432,14 +433,14 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val tuples = someTuplesOfOneSort
 
-        val expectedEvent1 = OperationEvent.tuplesAcceptingInvocation(tupleSpace, OperationType.WRITE_ALL, tuples.value0)
+        val expectedEvent1 = OperationEvent.tuplesAcceptingInvocation(tupleSpace.name, OperationType.WRITE_ALL, tuples.value0)
         val expectedEvents2 = tuples.value0.stream()
-                .map { TupleEvent.afterWriting(tupleSpace, it) }
+                .map { TupleEvent.afterWriting(tupleSpace.name, it) }
                 .toList()
         val expectedEvent3 = expectedEvent1.toTuplesReturningCompletion(tuples.value0)
-        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.READ_ALL, tuples.value1)
+        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.READ_ALL, tuples.value1)
         val expectedEvents5 = tuples.value0.stream()
-                .map { TupleEvent.afterReading(tupleSpace, it) }
+                .map { TupleEvent.afterReading(tupleSpace.name, it) }
                 .toList()
         val expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples.value0)
 
@@ -473,14 +474,14 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 //
 //        val tuples = someTuplesOfOneSort
 //
-//        val expectedEvent1 = OperationEvent.tuplesAcceptingInvocation(tupleSpace, OperationType.WRITE_ALL, tuples.value0)
+//        val expectedEvent1 = OperationEvent.tuplesAcceptingInvocation(tupleSpace.name, OperationType.WRITE_ALL, tuples.value0)
 //        val expectedEvents2 = tuples.value0.stream()
-//                .map { TupleEvent.afterWriting(tupleSpace, it) }
+//                .map { TupleEvent.afterWriting(tupleSpace.name, it) }
 //                .toList()
 //        val expectedEvent3 = expectedEvent1.toTuplesReturningCompletion(tuples.value0)
-//        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.READ_ALL, tuples.value1)
+//        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.READ_ALL, tuples.value1)
 //        val expectedEvents5 = tuples.value0.stream()
-//                .map { TupleEvent.afterReading(tupleSpace, it) }
+//                .map { TupleEvent.afterReading(tupleSpace.name, it) }
 //                .toList()
 //        val expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples.value0)
 //
@@ -514,14 +515,14 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val tuples = someTuplesOfOneSort
 
-        val expectedEvent1 = OperationEvent.tuplesAcceptingInvocation(tupleSpace, OperationType.WRITE_ALL, tuples.value0)
+        val expectedEvent1 = OperationEvent.tuplesAcceptingInvocation(tupleSpace.name, OperationType.WRITE_ALL, tuples.value0)
         val expectedEvents2 = tuples.value0.stream()
-                .map { TupleEvent.afterWriting(tupleSpace, it) }
+                .map { TupleEvent.afterWriting(tupleSpace.name, it) }
                 .toList()
         val expectedEvent3 = expectedEvent1.toTuplesReturningCompletion(tuples.value0)
-        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TAKE_ALL, tuples.value1)
+        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TAKE_ALL, tuples.value1)
         val expectedEvents5 = tuples.value0.stream()
-                .map { TupleEvent.afterTaking(tupleSpace, it) }
+                .map { TupleEvent.afterTaking(tupleSpace.name, it) }
                 .toList()
         val expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples.value0)
 
@@ -555,14 +556,14 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 //
 //        val tuples = someTuplesOfOneSort
 //
-//        val expectedEvent1 = OperationEvent.tuplesAcceptingInvocation(tupleSpace, OperationType.WRITE_ALL, tuples.value0)
+//        val expectedEvent1 = OperationEvent.tuplesAcceptingInvocation(tupleSpace.name, OperationType.WRITE_ALL, tuples.value0)
 //        val expectedEvents2 = tuples.value0.stream()
-//                .map { TupleEvent.afterWriting(tupleSpace, it) }
+//                .map { TupleEvent.afterWriting(tupleSpace.name, it) }
 //                .toList()
 //        val expectedEvent3 = expectedEvent1.toTuplesReturningCompletion(tuples.value0)
-//        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TAKE_ALL, tuples.value1)
+//        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TAKE_ALL, tuples.value1)
 //        val expectedEvents5 = tuples.value0.stream()
-//                .map { TupleEvent.afterTaking(tupleSpace, it) }
+//                .map { TupleEvent.afterTaking(tupleSpace.name, it) }
 //                .toList()
 //        val expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples.getValue0());
 //
@@ -596,10 +597,10 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val tupleTemplate = aTupleAndATemplateMatchingIt
 
-        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, tupleTemplate.value0)
-        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace, tupleTemplate.value0)
+        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace.name, OperationType.WRITE, tupleTemplate.value0)
+        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace.name, tupleTemplate.value0)
         val expectedEvent3 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.value0)
-        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.ABSENT, tupleTemplate.value1)
+        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.ABSENT, tupleTemplate.value1)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
         tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
@@ -626,8 +627,8 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val template = aTemplate
 
-        val expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.ABSENT, template)
-        val expectedEvent2 = TupleEvent.afterAbsent(tupleSpace, template)
+        val expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.ABSENT, template)
+        val expectedEvent2 = TupleEvent.afterAbsent(tupleSpace.name, template)
         val expectedEvent3 = expectedEvent1.toTemplateReturningCompletion(template)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
@@ -651,14 +652,14 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val tupleTemplate = aTupleAndATemplateMatchingIt
 
-        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, tupleTemplate.value0)
-        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace, tupleTemplate.value0)
+        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace.name, OperationType.WRITE, tupleTemplate.value0)
+        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace.name, tupleTemplate.value0)
         val expectedEvent3 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.value0)
-        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.ABSENT, tupleTemplate.value1)
-        val expectedEvent5 = TupleEvent.afterAbsent(tupleSpace, tupleTemplate.value1)
+        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.ABSENT, tupleTemplate.value1)
+        val expectedEvent5 = TupleEvent.afterAbsent(tupleSpace.name, tupleTemplate.value1)
         val expectedEvent6 = expectedEvent4.toTemplateReturningCompletion(tupleTemplate.value1)
-        val expectedEvent7 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TAKE, tupleTemplate.value1)
-        val expectedEvent8 = TupleEvent.afterTaking(tupleSpace, tupleTemplate.value0)
+        val expectedEvent7 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TAKE, tupleTemplate.value1)
+        val expectedEvent8 = TupleEvent.afterTaking(tupleSpace.name, tupleTemplate.value0)
         val expectedEvent9 = expectedEvent7.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
@@ -694,7 +695,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val template = aTemplate
 
-        val expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TRY_ABSENT, template)
+        val expectedEvent1 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TRY_ABSENT, template)
         val expectedEvent2 = expectedEvent1.toTuplesReturningCompletion()
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
@@ -717,11 +718,11 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 
         val tupleTemplate = aTupleAndATemplateMatchingIt
 
-        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace, OperationType.WRITE, tupleTemplate.value0)
-        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace, tupleTemplate.value0)
+        val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace.name, OperationType.WRITE, tupleTemplate.value0)
+        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace.name, tupleTemplate.value0)
         val expectedEvent3 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.value0)
-        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace, OperationType.TRY_ABSENT, tupleTemplate.value1)
-        val expectedEvent5 = TupleEvent.afterAbsent(tupleSpace, tupleTemplate.value1, tupleTemplate.value0)
+        val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TRY_ABSENT, tupleTemplate.value1)
+        val expectedEvent5 = TupleEvent.afterAbsent(tupleSpace.name, tupleTemplate.value1, tupleTemplate.value0)
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }

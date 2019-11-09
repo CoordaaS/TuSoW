@@ -22,3 +22,11 @@ fun <X> Iterable<X>.toMultiSet(): MultiSet<X> {
 
 fun <X> Sequence<X>.toMultiSet(): MultiSet<X> =
         this.asIterable().toMultiSet()
+
+fun <X> emptyMultiSet(): MultiSet<X> = HashMultiSet()
+
+fun <X> multiSetOf(vararg items: X): MultiSet<X> = HashMultiSet<X>().also {
+    for (item in items) {
+        it.add(item)
+    }
+}

@@ -10,4 +10,5 @@ interface InspectableLindaTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : M
     val operationCompleted: EventSource<OperationEvent<T, TT>>
 
     val tupleSpaceChanged: EventSource<TupleEvent<T, TT>>
+
 }

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.unibo.coordination.linda.core.events.TupleSpaceEvent;
-import it.unibo.coordination.linda.logic.InspectableLogicSpace;
 import it.unibo.coordination.linda.logic.LogicMatch;
 import it.unibo.coordination.linda.logic.LogicTemplate;
 import it.unibo.coordination.linda.logic.LogicTuple;
@@ -180,12 +179,7 @@ public class Presentation {
         registerDynamicDeserializers(LogicMatch.class, LogicMatchDeserializer::new);
         registerDynamicDeserializers(Term.class, (klass, targetType, obj) ->
                 PrologUtils.dynamicObjectToTerm(obj));
-        registerDynamicDeserializers(TupleSpaceEvent.class, (mimeType, mapper) -> new TupleSpaceEventDeserializer(mimeType, mapper, LogicTuple.class, LogicTemplate.class) {
-            @Override
-            protected InspectableLogicSpace getSpace(String tupleSpaceName) {
-                return InspectableLogicSpace.create(tupleSpaceName);
-            }
-        });
+        registerDynamicDeserializers(TupleSpaceEvent.class, (mimeType, mapper) -> new TupleSpaceEventDeserializer(mimeType, mapper, LogicTuple.class, LogicTemplate.class));
 
 
         registerDynamicSerializers(StringTuple.class, StringTupleSerializer::new);

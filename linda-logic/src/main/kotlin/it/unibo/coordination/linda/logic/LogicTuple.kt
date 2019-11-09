@@ -45,12 +45,12 @@ interface LogicTuple : Tuple<LogicTuple>, Comparable<LogicTuple> {
         @JvmStatic
         fun equals(t1: LogicTuple?, t2: LogicTuple?): Boolean {
             if (t1 === t2) return true
-            return if (t1 == null || t2 == null) false else t1.asTerm() == t2.asTerm()
+            return if (t1 == null || t2 == null) false else t1 == t2
         }
 
         @JvmStatic
         fun hashCode(t: LogicTuple): Int {
-            return Objects.hashCode(t.asTerm().toString())
+            return Objects.hashCode(t.asTerm())
         }
     }
 }
