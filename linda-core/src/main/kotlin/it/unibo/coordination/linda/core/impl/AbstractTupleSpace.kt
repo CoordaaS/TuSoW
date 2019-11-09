@@ -35,9 +35,9 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
     override val operationInvoked
         get() = operationInvokedEmitter.eventSource
 
-    protected abstract val pendingRequests: MutableCollection<PendingRequest<T, TT, M>>
+    protected abstract val pendingRequests: MutableCollection<LocalPendingRequest<T, TT, M>>
 
-    protected open val pendingRequestsIterator: MutableIterator<PendingRequest<T, TT, M>>
+    protected open val pendingRequestsIterator: MutableIterator<LocalPendingRequest<T, TT, M>>
         get() = pendingRequests.iterator()
 
     protected abstract val allTuples: Stream<T>
@@ -89,7 +89,7 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
         return Objects.hash(name, executor)
     }
 
-    protected fun addPendingRequest(request: PendingRequest<T, TT, M>) {
+    protected fun addPendingRequest(request: LocalPendingRequest<T, TT, M>) {
         pendingRequests.add(request)
     }
 
@@ -424,12 +424,12 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
         promise.complete(counterexample)
     }
 
-    private fun newPendingAccessRequest(requestType: RequestTypes, template: TT, promise: Promise<M>): PendingRequest<T, TT, M> {
-        return PendingRequest(requestType, template, promise)
+    private fun newPendingAccessRequest(requestType: RequestTypes, template: TT, promise: Promise<M>): LocalPendingRequest<T, TT, M> {
+        return LocalPendingRequest(requestType, template, promise)
     }
 
-    private fun newPendingAbsentRequest(template: TT, promise: Promise<M>): PendingRequest<T, TT, M> {
-        return PendingRequest(RequestTypes.ABSENT, template, promise)
+    private fun newPendingAbsentRequest(template: TT, promise: Promise<M>): LocalPendingRequest<T, TT, M> {
+        return LocalPendingRequest(RequestTypes.ABSENT, template, promise)
     }
 
     companion object {

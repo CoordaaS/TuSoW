@@ -1,7 +1,7 @@
 package it.unibo.coordination.linda.text;
 
-import it.unibo.coordination.linda.core.PendingRequest;
 import it.unibo.coordination.linda.core.impl.AbstractTupleSpace;
+import it.unibo.coordination.linda.core.impl.LocalPendingRequest;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 
@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 class DeterministicTextualSpace extends AbstractTupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch> implements InspectableTextualSpace {
 
-    private final MultiSet<PendingRequest<StringTuple, RegexTemplate, RegularMatch>> pendingRequests = new HashMultiSet<>();
+    private final MultiSet<LocalPendingRequest<StringTuple, RegexTemplate, RegularMatch>> pendingRequests = new HashMultiSet<>();
     private final MultiSet<StringTuple> tuples = new HashMultiSet<>();
 
     public DeterministicTextualSpace(String name, ExecutorService executor) {
@@ -19,7 +19,7 @@ class DeterministicTextualSpace extends AbstractTupleSpace<StringTuple, RegexTem
     }
 
     @Override
-    protected Collection<PendingRequest<StringTuple, RegexTemplate, RegularMatch>> getPendingRequests() {
+    protected Collection<LocalPendingRequest<StringTuple, RegexTemplate, RegularMatch>> getPendingRequests() {
         return pendingRequests;
     }
 

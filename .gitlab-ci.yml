@@ -5,7 +5,7 @@ variables:
 
 build:
   stage: build
-  script: gradle clean assemble javadoc $GOPTS
+  script: gradle clean assemble $GOPTS
 
 test:
   stage: test
