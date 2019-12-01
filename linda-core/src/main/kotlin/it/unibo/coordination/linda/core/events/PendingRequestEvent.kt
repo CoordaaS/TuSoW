@@ -11,7 +11,7 @@ sealed class PendingRequestEvent<T : Tuple<T>, TT : Template<T>>(
 ) : TupleSpaceEvent<T, TT> {
 
     enum class Effect {
-        SUSPENDING, RELEASING
+        SUSPENDING, RESUMING
     }
 
     data class Suspending<T : Tuple<T>, TT : Template<T>>(
@@ -19,10 +19,10 @@ sealed class PendingRequestEvent<T : Tuple<T>, TT : Template<T>>(
             override val pendingRequest: PendingRequest<T, TT>
     ) : PendingRequestEvent<T, TT>(tupleSpaceName, Effect.SUSPENDING, pendingRequest)
 
-    data class Releasing<T : Tuple<T>, TT : Template<T>>(
+    data class Resuming<T : Tuple<T>, TT : Template<T>>(
             override val tupleSpaceName: String,
             override val pendingRequest: PendingRequest<T, TT>
-    ) : PendingRequestEvent<T, TT>(tupleSpaceName, Effect.RELEASING, pendingRequest)
+    ) : PendingRequestEvent<T, TT>(tupleSpaceName, Effect.RESUMING, pendingRequest)
 
     companion object {
 
@@ -30,7 +30,7 @@ sealed class PendingRequestEvent<T : Tuple<T>, TT : Template<T>>(
         fun <X : Tuple<X>, Y : Template<X>> of(tupleSpaceName: String, effect: Effect, pendingRequest: PendingRequest<X, Y>): PendingRequestEvent<X, Y> =
                 when (effect) {
                     Effect.SUSPENDING -> Suspending(tupleSpaceName, pendingRequest)
-                    Effect.RELEASING -> Releasing(tupleSpaceName, pendingRequest)
+                    Effect.RESUMING -> Resuming(tupleSpaceName, pendingRequest)
                 }
     }
 }

@@ -3,7 +3,9 @@ package it.unibo.coordination.linda.core.impl
 import it.unibo.coordination.Promise
 import it.unibo.coordination.linda.core.*
 import it.unibo.coordination.linda.core.events.OperationEvent
+import it.unibo.coordination.linda.core.events.PendingRequestEvent
 import it.unibo.coordination.linda.core.events.TupleEvent
+import it.unibo.coordination.utils.events.EventSource
 import it.unibo.coordination.utils.events.SyncEventEmitter
 import it.unibo.coordination.utils.toMultiSet
 import org.apache.commons.collections4.MultiSet
@@ -27,13 +29,21 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
     override val tupleSpaceChanged
         get() = tupleSpaceChangedEmitter.eventSource
     
-    private val operationCompletedEmitter: SyncEventEmitter<OperationEvent<T, TT>> = SyncEventEmitter.ordered()
+    private val operationCompletedEmitter: SyncEventEmitter<OperationEvent.Completion<T, TT>> = SyncEventEmitter.ordered()
     override val operationCompleted
         get() = operationCompletedEmitter.eventSource
     
-    private val operationInvokedEmitter: SyncEventEmitter<OperationEvent<T, TT>> = SyncEventEmitter.ordered()
+    private val operationInvokedEmitter: SyncEventEmitter<OperationEvent.Invocation<T, TT>> = SyncEventEmitter.ordered()
     override val operationInvoked
         get() = operationInvokedEmitter.eventSource
+
+    private val operationSuspendedEmitter: SyncEventEmitter<PendingRequestEvent.Suspending<T, TT>> = SyncEventEmitter.ordered()
+    override val operationSuspended: EventSource<PendingRequestEvent.Suspending<T, TT>>
+        get() = operationSuspendedEmitter.eventSource
+
+    private val operationResumedEmitter: SyncEventEmitter<PendingRequestEvent.Resuming<T, TT>> = SyncEventEmitter.ordered()
+    override val operationResumed: EventSource<PendingRequestEvent.Resuming<T, TT>>
+        get() = operationResumedEmitter.eventSource
 
     protected abstract val pendingRequests: MutableCollection<LocalPendingRequest<T, TT, M>>
 

@@ -13,7 +13,9 @@ interface InspectableLindaTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : M
 
     val tupleSpaceChanged: EventSource<TupleEvent<T, TT>>
 
-    val pendingRequestsChanged: EventSource<PendingRequestEvent<T, TT>>
+    val operationSuspended: EventSource<PendingRequestEvent.Suspending<T, TT>>
+
+    val operationResumed: EventSource<PendingRequestEvent.Resuming<T, TT>>
 
     fun getAllPendingRequests(): Promise<PendingRequest<T, TT>>
 }
