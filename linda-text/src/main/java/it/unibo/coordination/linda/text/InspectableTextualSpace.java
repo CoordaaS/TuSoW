@@ -7,16 +7,20 @@ import java.util.concurrent.ExecutorService;
 
 public interface InspectableTextualSpace extends TextualSpace, InspectableTupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch> {
 
-    static InspectableTextualSpace deterministic(String name, ExecutorService executorService) {
-        return new DeterministicTextualSpace(name, executorService);
+    static InspectableTextualSpace local(String name, ExecutorService executorService) {
+        return new TextualSpaceImpl(name, executorService);
     }
 
-    static InspectableTextualSpace deterministic(String name) {
-        return deterministic(name, Engines.getDefaultEngine());
+    static InspectableTextualSpace local(String name) {
+        return local(name, Engines.getDefaultEngine());
     }
 
-    static InspectableTextualSpace deterministic(ExecutorService executorService) {
-        return deterministic(null, Engines.getDefaultEngine());
+    static InspectableTextualSpace local(ExecutorService executorService) {
+        return local(null, executorService);
+    }
+
+    static InspectableTextualSpace local() {
+        return local(null, Engines.getDefaultEngine());
     }
 
 }

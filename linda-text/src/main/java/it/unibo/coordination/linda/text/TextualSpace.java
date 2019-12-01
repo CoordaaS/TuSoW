@@ -10,104 +10,60 @@ import java.util.regex.Pattern;
 
 public interface TextualSpace extends TupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch> {
 
-    static TextualSpace deterministic(String name, ExecutorService executorService) {
-        return new DeterministicTextualSpace(name, executorService);
+    static TextualSpace local(String name, ExecutorService executorService) {
+        return new TextualSpaceImpl(name, executorService);
     }
 
-    static TextualSpace deterministic(String name) {
-        return deterministic(name, Engines.getDefaultEngine());
+    static TextualSpace local(String name) {
+        return local(name, Engines.getDefaultEngine());
     }
 
-    static TextualSpace deterministic(ExecutorService executorService) {
-        return deterministic(null, Engines.getDefaultEngine());
+    static TextualSpace local(ExecutorService executorService) {
+        return local(null, executorService);
     }
 
-    default CompletableFuture<StringTuple> write(String template) {
-        return write(StringTuple.of(template));
-    }
-
-    default CompletableFuture<StringTuple> readTuple(String template) {
-        return readTuple(RegexTemplate.of(template));
+    static TextualSpace local() {
+        return local(null, Engines.getDefaultEngine());
     }
 
     default CompletableFuture<StringTuple> readTuple(Pattern template) {
         return readTuple(RegexTemplate.of(template));
     }
 
-    default CompletableFuture<RegularMatch> read(String template) {
-        return read(RegexTemplate.of(template));
-    }
-
     default CompletableFuture<RegularMatch> read(Pattern template) {
         return read(RegexTemplate.of(template));
-    }
-
-    default CompletableFuture<Optional<StringTuple>> tryReadTuple(String template) {
-        return tryReadTuple(RegexTemplate.of(template));
     }
 
     default CompletableFuture<Optional<StringTuple>> tryReadTuple(Pattern template) {
         return tryReadTuple(RegexTemplate.of(template));
     }
 
-    default CompletableFuture<StringTuple> takeTuple(String template) {
-        return takeTuple(RegexTemplate.of(template));
-    }
-
     default CompletableFuture<StringTuple> takeTuple(Pattern template) {
         return takeTuple(RegexTemplate.of(template));
-    }
-
-    default CompletableFuture<RegularMatch> take(String template) {
-        return take(RegexTemplate.of(template));
     }
 
     default CompletableFuture<RegularMatch> take(Pattern template) {
         return take(RegexTemplate.of(template));
     }
 
-    default CompletableFuture<Optional<StringTuple>> tryTakeTuple(String template) {
-        return tryTakeTuple(RegexTemplate.of(template));
-    }
-
     default CompletableFuture<Optional<StringTuple>> tryTakeTuple(Pattern template) {
         return tryTakeTuple(RegexTemplate.of(template));
-    }
-
-    default CompletableFuture<RegularMatch> absent(final String template) {
-        return absent(RegexTemplate.of(template));
     }
 
     default CompletableFuture<RegularMatch> absent(final Pattern template) {
         return absent(RegexTemplate.of(template));
     }
 
-    default CompletableFuture<Optional<StringTuple>> tryAbsentTuple(String template) {
-        return tryAbsentTuple(RegexTemplate.of(template));
-    }
-
     default CompletableFuture<Optional<StringTuple>> tryAbsentTuple(Pattern template) {
         return tryAbsentTuple(RegexTemplate.of(template));
-    }
-
-    default CompletableFuture<RegularMatch> tryRead(String template) {
-        return tryRead(RegexTemplate.of(template));
     }
 
     default CompletableFuture<RegularMatch> tryRead(Pattern template) {
         return tryRead(RegexTemplate.of(template));
     }
 
-    default CompletableFuture<RegularMatch> tryTake(String template) {
-        return tryTake(RegexTemplate.of(template));
-    }
-
     default CompletableFuture<RegularMatch> tryTake(Pattern template) {
         return tryTake(RegexTemplate.of(template));
-    }
-
-    default CompletableFuture<RegularMatch> tryAbsent(String template) {
-        return tryAbsent(RegexTemplate.of(template));
     }
 
     default CompletableFuture<RegularMatch> tryAbsent(Pattern template) {

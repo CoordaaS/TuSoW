@@ -12,7 +12,7 @@ public class TestTextualSpaceInspectability extends TestTupleSpaceInspectability
 
     @Override
     protected InspectableTextualSpace getTupleSpace(ExecutorService executor) {
-        return InspectableTextualSpace.deterministic(executor);
+        return InspectableTextualSpace.local(executor);
     }
 
 

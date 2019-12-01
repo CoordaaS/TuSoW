@@ -9,7 +9,7 @@ public class TestLogicSpaceInspectability extends TestTupleSpaceInspectability<L
 
     @Override
     protected InspectableLogicSpace getTupleSpace(ExecutorService executor) {
-        return InspectableLogicSpace.create(executor);
+        return InspectableLogicSpace.local(executor);
     }
 
     public TestLogicSpaceInspectability() {

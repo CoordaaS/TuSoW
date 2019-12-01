@@ -9,12 +9,12 @@ import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
-class DeterministicTextualSpace extends AbstractTupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch> implements InspectableTextualSpace {
+class TextualSpaceImpl extends AbstractTupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch> implements InspectableTextualSpace {
 
     private final MultiSet<LocalPendingRequest<StringTuple, RegexTemplate, RegularMatch>> pendingRequests = new HashMultiSet<>();
     private final MultiSet<StringTuple> tuples = new HashMultiSet<>();
 
-    public DeterministicTextualSpace(String name, ExecutorService executor) {
+    public TextualSpaceImpl(String name, ExecutorService executor) {
         super(name, executor);
     }
 
