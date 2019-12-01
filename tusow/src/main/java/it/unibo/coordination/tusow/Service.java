@@ -35,14 +35,20 @@ public class Service extends AbstractVerticle {
         Json.mapper.registerModule(new JavaTimeModule());
 
         attach(router, new TupleSpacesPath("1", "tuple-spaces"));
-        
+
         server = getVertx().createHttpServer()
-	        .requestHandler(router)
-	        .listen(getPort(), x -> {
-                LOGGER.info("Service listening on port: {0}", "" + getPort());
-                startFuture.complete();
-                deployment.complete(this);
-            });
+                .requestHandler(router::accept)
+                .listen(getPort(), x -> {
+                    if (x.succeeded()) {
+                        LOGGER.info("Service listening on port: {0}", "" + getPort());
+                        startFuture.complete();
+                        deployment.complete(this);
+                    } else {
+                        LOGGER.info("Failure in starting the server on port {0}", "" + getPort());
+                        startFuture.fail(x.cause());
+                        deployment.completeExceptionally(x.cause());
+                    }
+                });
 
     }
 
@@ -63,14 +69,21 @@ public class Service extends AbstractVerticle {
     @Override
     public void stop(Future<Void> stopFuture) {
         server.close(x -> {
-            LOGGER.info("Service is not listening anymore");
-            stopFuture.complete();
-            termination.complete(null);
+            if (x.succeeded()) {
+                LOGGER.info("Service is not listening anymore");
+                stopFuture.complete();
+                termination.complete(null);
+            } else {
+                LOGGER.info("Failure in shutting down the service");
+                stopFuture.fail(x.cause());
+                termination.completeExceptionally(x.cause());
+            }
         });
     }
 
+
     public void awaitTermination() throws ExecutionException, InterruptedException {
-        deployment.get();
+        termination.get();
     }
 
     private int getPort() {
