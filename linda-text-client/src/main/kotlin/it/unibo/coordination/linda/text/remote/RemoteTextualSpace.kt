@@ -9,20 +9,26 @@ import java.net.URL
 
 interface RemoteTextualSpace : TextualSpace, RemoteTupleSpace<StringTuple, RegexTemplate, Any, String, RegularMatch> {
     companion object {
-        @JvmStatic fun of(address: String = "localhost", port: Int = 8080, name: String = "default"): RemoteTextualSpace {
+        @JvmStatic
+        @JvmOverloads
+        fun of(address: String = "localhost", port: Int = 8080, name: String = "default"): RemoteTextualSpace {
             return of(URL("http", address, port, ""), name)
         }
 
-        @JvmStatic fun of(url: URL, name: String = "default"): RemoteTextualSpace {
+        @JvmStatic
+        @JvmOverloads
+        fun of(url: URL, name: String = "default"): RemoteTextualSpace {
             return RemoteTextualSpaceImpl(url, name)
         }
     }
 }
 
-fun TextualSpace.remoteOf(address: String = "localhost", port: Int = 8080, name: String = "default"): RemoteTextualSpace {
+@JvmOverloads
+fun TextualSpace.remote(address: String = "localhost", port: Int = 8080, name: String = "default"): RemoteTextualSpace {
     return RemoteTextualSpace.of(address, port, name)
 }
 
-fun TextualSpace.remoteOf(url: URL, name: String = "default"): RemoteTextualSpace {
+@JvmOverloads
+fun TextualSpace.remote(url: URL, name: String = "default"): RemoteTextualSpace {
     return RemoteTextualSpace.of(url, name)
 }
