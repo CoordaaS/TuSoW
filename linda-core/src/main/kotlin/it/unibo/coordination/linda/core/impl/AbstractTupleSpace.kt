@@ -187,17 +187,34 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
         return retrieveTuples(template, Integer.MAX_VALUE)
     }
 
+    override fun getAllPendingRequests(): Promise<Collection<PendingRequest<T, TT>>> {
+        log("Invoked `getAllPendingRequests` operation")
+        return postpone(this::handleGetAllPendingRequests).map {
+            it.also {
+                log("Completed `getAllPendingRequests` operation, result: %s", it)
+            }
+        }
+    }
+
+    private fun handleGetAllPendingRequests(result: Promise<Collection<PendingRequest<T, TT>>>) {
+        val requests = pendingRequests
+                .stream()
+                .map { PendingRequest.wrap(it) }
+                .toMultiSet()
+        result.complete(requests)
+    }
+
     protected abstract fun retrieveTuples(template: TT, limit: Int): Stream<out M>
 
     protected abstract fun retrieveTuple(template: TT): M
 
     override fun write(tuple: T): Promise<T> {
-        val invocationEvent = OperationEvent.tupleAcceptingInvocation(name, OperationType.WRITE, tuple)
-        operationInvokedEmitter.syncEmit(invocationEvent as OperationEvent<T, TT>)
+        val invocationEvent = OperationEvent.tupleAcceptingInvocation<T, TT>(name, OperationType.WRITE, tuple)
+        operationInvokedEmitter.syncEmit(invocationEvent)
         log("Invoked `write` operation for of: %s", tuple)
         return postpone(this::handleWrite, tuple).map {
             it.also {
-                operationCompletedEmitter.syncEmit(invocationEvent.toTupleReturningCompletion(it) as OperationEvent<T, TT>)
+                operationCompletedEmitter.syncEmit(invocationEvent.toTupleReturningCompletion(it))
                 log("Completed `write` operation on tuple '%s', result: %s", tuple, it)
             }
         }
@@ -314,12 +331,12 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
     }
 
     override fun writeAll(tuples: Collection<T>): Promise<Collection<T>> {
-        val invocationEvent = OperationEvent.tuplesAcceptingInvocation(name, OperationType.WRITE_ALL, tuples)
-        operationInvokedEmitter.syncEmit(invocationEvent as OperationEvent<T, TT>)
+        val invocationEvent = OperationEvent.tuplesAcceptingInvocation<T, TT>(name, OperationType.WRITE_ALL, tuples)
+        operationInvokedEmitter.syncEmit(invocationEvent)
         log("Invoked `writeAll` operation on tuples: %s", tuples)
         return postpone(this::handleWriteAll, tuples).map { ts ->
             ts.also {
-                operationCompletedEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(ts) as OperationEvent<T, TT>)
+                operationCompletedEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(ts))
                 log("Completed `writeAll` operation on tuples %s, result: %s", tuples, ts)
             }
         }
