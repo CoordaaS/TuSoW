@@ -16,7 +16,7 @@ public class TestTextualSpace extends TestTupleSpace<StringTuple, RegexTemplate,
 
     @Override
     protected TextualSpace getTupleSpace(ExecutorService executor) {
-        return TextualSpace.deterministic(executor);
+        return TextualSpace.local(executor);
     }
 
     @Parameterized.Parameters

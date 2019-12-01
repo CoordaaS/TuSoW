@@ -35,10 +35,10 @@ class TakeCommand(
             }
             else -> when (type) {
                 LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
-                        .read(template)
+                        .take(template)
                         .defaultHandlerForSingleResult()
                 TEXT -> getTupleSpace<TextualSpace>(tupleSpaceID)
-                        .read(template)
+                        .take(template)
                         .defaultHandlerForSingleResult()
             }
         }

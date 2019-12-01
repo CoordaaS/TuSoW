@@ -78,19 +78,23 @@ interface LogicSpace : TupleSpace<LogicTuple, LogicTemplate, String, Term, Logic
     companion object {
 
         @JvmStatic
-        fun deterministic(name: String?, executorService: ExecutorService): LogicSpace {
-            return DeterministicLogicSpaceImpl(name, executorService)
+        fun local(name: String?, executorService: ExecutorService): LogicSpace {
+            return LogicSpaceImpl(name, executorService)
         }
 
         @JvmStatic
-        fun deterministic(name: String?): LogicSpace {
-            return DeterministicLogicSpaceImpl(name, Engines.defaultEngine)
+        fun local(name: String?): LogicSpace {
+            return local(name, Engines.defaultEngine)
         }
 
         @JvmStatic
-        fun deterministic(executorService: ExecutorService): LogicSpace {
-            return deterministic(null, executorService)
+        fun local(executorService: ExecutorService): LogicSpace {
+            return local(null, executorService)
         }
 
+        @JvmStatic
+        fun local(): LogicSpace {
+            return local(null, Engines.defaultEngine)
+        }
     }
 }

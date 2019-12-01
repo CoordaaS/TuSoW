@@ -10,18 +10,23 @@ interface InspectableLogicSpace : LogicSpace, InspectableTupleSpace<LogicTuple, 
     companion object {
 
         @JvmStatic
-        fun create(name: String?, executorService: ExecutorService): InspectableLogicSpace {
-            return DeterministicLogicSpaceImpl(name, executorService)
+        fun local(name: String?, executorService: ExecutorService): InspectableLogicSpace {
+            return LogicSpaceImpl(name, executorService)
         }
 
         @JvmStatic
-        fun create(name: String?): InspectableLogicSpace {
-            return DeterministicLogicSpaceImpl(name, Engines.defaultEngine)
+        fun local(name: String?): InspectableLogicSpace {
+            return local(name, Engines.defaultEngine)
         }
 
         @JvmStatic
-        fun create(executorService: ExecutorService): InspectableLogicSpace {
-            return create(null, executorService)
+        fun local(executorService: ExecutorService): InspectableLogicSpace {
+            return local(null, executorService)
+        }
+
+        @JvmStatic
+        fun local(): InspectableLogicSpace {
+            return local(null, Engines.defaultEngine)
         }
     }
 

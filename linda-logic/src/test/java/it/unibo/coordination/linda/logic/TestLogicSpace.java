@@ -17,7 +17,7 @@ public class TestLogicSpace extends TestTupleSpace<LogicTuple, LogicTemplate, St
 
     @Override
     protected LogicSpace getTupleSpace(ExecutorService executor) {
-        return LogicSpace.deterministic(executor);
+        return LogicSpace.local(executor);
     }
 
     @Parameterized.Parameters

@@ -15,14 +15,14 @@ public final class TupleSpaces {
 
     public static LogicSpace getLogicSpace(String name) {
         if (!logicSpaces.containsKey(name)) {
-            logicSpaces.put(name, LogicSpace.deterministic(name));
+            logicSpaces.put(name, LogicSpace.local(name));
         }
         return logicSpaces.get(name);
     }
 
     public static TextualSpace getTextualSpace(String name) {
         if (!textualSpaces.containsKey(name)) {
-            textualSpaces.put(name, TextualSpace.deterministic(name));
+            textualSpaces.put(name, TextualSpace.local(name));
         }
         return textualSpaces.get(name);
     }
