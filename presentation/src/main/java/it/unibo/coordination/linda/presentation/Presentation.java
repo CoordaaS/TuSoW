@@ -112,8 +112,8 @@ public class Presentation {
             register(type, f.apply(t, mapper));
         }
     }
-
     public static <T> void register(Class<T> type, Deserializer<? extends T> deserializer) {
+
         final Tuple2<Class<?>, MIMETypes> key = Tuple.tuple(type, deserializer.getSupportedMIMEType());
         if (deserializers.containsKey(key)) {
             throw new IllegalArgumentException("Class-MIMEType combo already registered: " + type.getName() + " <-- " + deserializer.getSupportedMIMEType());
