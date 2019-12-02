@@ -4,12 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import it.unibo.coordination.linda.presentation.Presentation
 import java.util.*
 
 
 private val serializers: MutableMap<Pair<Class<*>, MIMETypes>, Serializer<*>> = mutableMapOf()
+
 private val deserializers: MutableMap<Pair<Class<*>, MIMETypes>, Deserializer<*>> = mutableMapOf()
+
 private val mappers: MutableMap<MIMETypes, ObjectMapper> = mutableMapOf(
         MIMETypes.APPLICATION_JSON to createMapper(ObjectMapper::class.java),
         MIMETypes.APPLICATION_XML to createMapper(XmlMapper::class.java),
