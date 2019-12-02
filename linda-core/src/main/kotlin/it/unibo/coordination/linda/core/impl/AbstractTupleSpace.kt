@@ -10,6 +10,9 @@ import it.unibo.coordination.utils.events.SyncEventEmitter
 import it.unibo.coordination.utils.toMultiSet
 import org.apache.commons.collections4.MultiSet
 import org.apache.commons.collections4.multiset.HashMultiSet
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.locks.ReentrantLock
@@ -17,9 +20,15 @@ import java.util.function.Function
 import java.util.stream.Stream
 import kotlin.streams.toList
 
+
 abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>>
     constructor(name: String?, val executor: ExecutorService)
     : InspectableTupleSpace<T, TT, K, V, M> {
+
+    companion object {
+        @JvmStatic
+        private val LOGGER: Logger = LoggerFactory.getLogger(this::class.java.name)
+    }
 
     override val name: String = name ?: this.javaClass.simpleName + "_" + System.identityHashCode(this)
 
@@ -82,9 +91,11 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
         return promise
     }
 
+
+
     protected fun log(format: String, vararg args: Any) {
-        if (DEBUG) {
-            println(String.format("[$name] $format\n", *args))
+        if (LOGGER.isInfoEnabled) {
+            LOGGER.info(String.format("[$name] $format", *args))
         }
     }
 
@@ -457,12 +468,6 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
 
     private fun newPendingAbsentRequest(template: TT, promise: Promise<M>): LocalPendingRequest<T, TT, M> {
         return LocalPendingRequest(RequestTypes.ABSENT, template, promise)
-    }
-
-    companion object {
-
-        private val DEBUG = true
-
     }
 }
 

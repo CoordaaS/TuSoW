@@ -28,6 +28,7 @@ dependencies {
 
     api("io.vertx", "vertx-core", vertxVersion)
     api("io.vertx", "vertx-web", vertxVersion)
+    runtimeOnly("ch.qos.logback", "logback-classic", logbackVersion)
 
     implementation("commons-cli", "commons-cli", commonsCliVersion)
     implementation("com.fasterxml.jackson.core", "jackson-core", jacksonVersion)
@@ -38,7 +39,6 @@ dependencies {
 
     // Use JUnit test framework
     testImplementation("io.vertx", "vertx-unit", vertxVersion)
-    testImplementation("ch.qos.logback", "logback-classic", logbackVersion)
 
     testImplementation("junit", "junit", junitVersion)
     testImplementation(project(":test-utils"))
