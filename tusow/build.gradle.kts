@@ -1,13 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-plugins {
-    `java-library`
-    kotlin("jvm")
-}
-
-group = rootProject.group
-version = rootProject.version
-
 val javaVersion: String by project
 val joolVersion: String by project
 val junitVersion: String by project
@@ -20,7 +10,6 @@ val ktFreeCompilerArgs: String by project
 dependencies {
     api(project(":linda-core"))
     api(project(":linda-logic"))
-//    api(project(":linda-objects"))
     api(project(":linda-presentation"))
 
     implementation(project(":utils"))
@@ -45,11 +34,6 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 }
 
-configure<JavaPluginConvention> {
-    targetCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
-    sourceCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
-}
-
 task<JavaExec>("tusow") {
     group = "run"
     dependsOn("classes", "compileKotlin")
@@ -63,14 +47,4 @@ task<JavaExec>("tusow") {
         args = listOf("-p", project.property("port").toString())
     }
     standardInput = System.`in`
-}
-repositories {
-    mavenCentral()
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = javaVersion
-        freeCompilerArgs = ktFreeCompilerArgs.split(";").toList()
-    }
 }

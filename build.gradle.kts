@@ -7,6 +7,9 @@ plugins {
     id ("org.danilopianini.git-sensitive-semantic-versioning") version "0.2.2"
 }
 
+val javaVersion: String by project
+val ktFreeCompilerArgs: String by project
+
 group = "it.unibo.coordination"
 
 gitSemVer {
@@ -63,26 +66,33 @@ subprojects {
     group = rootProject.group
     version = rootProject.version
 
-    // ** NOTE ** legacy plugin application, because the new "plugins" block is not available inside "subprojects" scope yet
-    // when it will be available it should be moved here
     apply(plugin = "maven-publish")
     apply(plugin = "signing")
     apply(plugin = "com.jfrog.bintray")
+    apply(plugin = "java-library")
+    apply(plugin = "org.jetbrains.kotlin.jvm")
 
-// https://central.sonatype.org/pages/requirements.html
+    configure<JavaPluginConvention> {
+        targetCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
+        sourceCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
+    }
+
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = javaVersion
+            freeCompilerArgs = ktFreeCompilerArgs.split(";").toList()
+        }
+    }
+
+    // https://central.sonatype.org/pages/requirements.html
     // https://docs.gradle.org/current/userguide/signing_plugin.html
     publishing {
-        publications.withType<MavenPublication> {
+
+        publications.create<MavenPublication>("maven") {
             groupId = project.group.toString()
             version = project.version.toString()
 
-//            val docArtifact = "packDokka${capitalize(name)}"
-//
-//            if (docArtifact in tasks.names) {
-//                artifact(tasks.getByName(docArtifact)) {
-//                    classifier = "javadoc"
-//                }
-//            }
+            from(components["java"])
 
             pom {
                 name.set("Coordination -- Module `${this@subprojects.name}`")
@@ -113,25 +123,10 @@ subprojects {
 
         }
 
-//        repositories {
-//            val mavenRepoUrl = if (version.toString().contains("SNAPSHOT")) {
-//                "https://oss.sonatype.org/content/repositories/snapshots/"
-//            } else {
-//                "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-//            }
-//
-//            maven(mavenRepoUrl) {
-//                credentials {
-//                    username = project.property("ossrhUsername").toString()
-//                    password = project.property("ossrhPassword").toString()
-//                }
-//            }
-//        }
-
         bintray {
             user = bintrayUser
             key = bintrayKey
-//            setPublications(*publications.toList().toTypedArray())
+            setPublications("maven")
             override = true
             with(pkg) {
                 repo = "coordination"
@@ -152,12 +147,8 @@ subprojects {
 
     signing {
         useInMemoryPgpKeys(signingKey, signingPassword)
-
+//        useGpgCmd()
         sign(publishing.publications)
-
-//        println("Configuring signing for the following publications: ${
-//            publishing.publications.names.map { project.name + "-" + it }.joinToString(", ")
-//        }")
     }
 
     publishing {

@@ -33,7 +33,7 @@ Automatically publish to Bintray (dev):
   script: $GCMD $BEFORE_TASK $BINTRAY_TASK $AFTER_TASK $GOPTS
   environment: &BintrayEnv
     name: Bintray
-    url: "https://bintray.com/pika-lab/tuprolog"
+    url: "https://bintray.com/pika-lab/coordination"
   only:
     - /^develop$/
 
