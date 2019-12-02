@@ -1,12 +1,23 @@
-group = "it.unibo.coordination"
-version = "0.1.1"
 
 plugins {
     kotlin("jvm") version "1.3.50"
     `maven-publish`
     signing
     id("com.jfrog.bintray") version "1.8.4"
+    id ("org.danilopianini.git-sensitive-semantic-versioning") version "0.2.2"
 }
+
+group = "it.unibo.coordination"
+
+gitSemVer {
+    minimumVersion.set("0.1.0")
+    developmentIdentifier.set("dev")
+    noTagIdentifier.set("archeo")
+    developmentCounterLength.set(2) // How many digits after `dev`
+    version = computeGitSemVer() // THIS IS MANDATORY, AND MUST BE LAST IN THIS BLOCK!
+}
+
+println("Coordination, version: $version")
 
 allprojects {
     // In this section you declare where to find the dependencies of all projects
