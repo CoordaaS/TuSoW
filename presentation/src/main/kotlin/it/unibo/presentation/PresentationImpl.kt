@@ -69,6 +69,14 @@ internal class PresentationImpl : Presentation {
         }
     }
 
+    override fun <T> registerDynamicSerializers(type: Class<T>, f: (Class<T>, ObjectMapper) -> Serializer<T>) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun <T> registerDynamicSerializers(type: Class<T>, types: EnumSet<MIMETypes>, f: (Class<T>, ObjectMapper) -> Serializer<T>) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun <T> registerDynamicSerializers(type: Class<T>, f: (Class<T>, ObjectMapper, T) -> Any) {
         registerDynamicSerializers(type, EnumSet.allOf(MIMETypes::class.java), f)
     }
@@ -107,5 +115,13 @@ internal class PresentationImpl : Presentation {
 
             })
         }
+    }
+
+    override fun <T> registerDynamicDeserializers(type: Class<T>, f: (Class<T>, ObjectMapper) -> Deserializer<T>) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun <T> registerDynamicDeserializers(type: Class<T>, types: EnumSet<MIMETypes>, f: (Class<T>, ObjectMapper) -> Deserializer<T>) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }
