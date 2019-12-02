@@ -4,18 +4,18 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.ErrorHandler;
-import io.vertx.ext.web.handler.LoggerHandler;
 import it.unibo.coordination.linda.presentation.MIMETypes;
 import it.unibo.coordination.linda.presentation.Serializer;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -38,13 +38,20 @@ public abstract class Path {
 	protected abstract void setupRoutes();
 	
 	protected Route addRoute(HttpMethod method, String path, Handler<RoutingContext> handler) {
-	    LOGGER.info("Add route: {0} {1}", method, getPath() + path);
+	    LOGGER.info("Add route: {} {}", method, getPath() + path);
 		return router.route(method, getPath() + path)
-	        .handler(LoggerHandler.create())
-	    	.handler(BodyHandler.create())
+//	        .handler(LoggerHandler.create())
+			.handler(this::log)
+			.handler(BodyHandler.create())
 	    	.handler(handler)
-	    	.handler(ErrorHandler.create());
-    }
+			.handler(ErrorHandler.create());
+	}
+
+	private void log(RoutingContext routingContext) {
+		final HttpServerRequest req = routingContext.request();
+		LOGGER.info("{} {}", req.method(), req.absoluteURI());
+		routingContext.next();
+	}
 
 	protected Route addRoute(HttpMethod method, Handler<RoutingContext> handler) {
 		return addRoute(method, "", handler);
@@ -100,7 +107,7 @@ public abstract class Path {
     }
 
     private void handleException(RoutingContext routingContext, Throwable e) {
-	    LOGGER.debug(e.getMessage(), e);
+	    LOGGER.warn(e.getMessage(), e);
         if (e instanceof HttpError) {
             final HttpError exception = (HttpError) e;
             routingContext.response()
@@ -149,19 +156,10 @@ public abstract class Path {
 		return x -> {
 			if (!handleException(routingContext, x)) {
 				try {
-//					final MIMETypes mimeType = MIMETypes.parse(routingContext.getAcceptableContentType());
-//					final String result = MIMETypes.APPLICATION_XML == mimeType
-//							? String.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<number value=\"%s\"/>", x)
-//							: x.toString();
-
-
 					routingContext.response()
-//							.putHeader(HttpHeaders.CONTENT_TYPE, mimeType.toString())
 							.putHeader(header, x.result().toString())
 							.setStatusCode(200)
 							.end();
-//							.end(x.result().toString());
-//							.end(result);
 				} catch (Throwable e)  {
 					handleException(routingContext, e);
 				}
