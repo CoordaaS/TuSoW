@@ -22,6 +22,8 @@ dependencies {
     implementation(project(":utils"))
     implementation(project(":prologx"))
 
+    implementation(kotlin("stdlib-jdk8"))
+
     implementation("com.fasterxml.jackson.core", "jackson-core", jacksonVersion)
     implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", jacksonVersion)
     implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-xml", jacksonVersion)
@@ -31,7 +33,6 @@ dependencies {
     testImplementation("junit", "junit", junitVersion)
     testImplementation(project(":test-utils"))
     testImplementation(project(":linda-test"))
-    implementation(kotlin("stdlib-jdk8"))
 }
 
 configure<JavaPluginConvention> {
