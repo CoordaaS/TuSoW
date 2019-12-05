@@ -1,7 +1,7 @@
-package it.unibo.coordination.prologx;
+package it.unibo.coordination.prologx
 
-import alice.tuprolog.Term;
+import alice.tuprolog.Term
 
-public interface PrologSerializable {
-    Term toTerm();
+interface PrologSerializable {
+    fun toTerm(): Term
 }

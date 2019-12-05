@@ -14,9 +14,9 @@ class StringTupleDeserializer extends DynamicDeserializer<StringTuple> {
     @Override
     public StringTuple fromDynamicObject(Object dynamicObject) {
         if (dynamicObject instanceof Map) {
-            var map = (Map<String, ?>) dynamicObject;
+            Map<String, ?> map = (Map<String, ?>) dynamicObject;
             if (map.containsKey("tuple")) {
-                var tuple = map.get("tuple");
+                Object tuple = map.get("tuple");
                 if (tuple instanceof String) {
                     return StringTuple.of((String) tuple);
                 }

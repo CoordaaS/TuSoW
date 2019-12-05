@@ -1,6 +1,6 @@
 
 plugins {
-    kotlin("jvm") version "1.3.50"
+    kotlin("jvm") version "1.3.60"
     `maven-publish`
     signing
     id("com.jfrog.bintray") version "1.8.4"
@@ -79,6 +79,7 @@ subprojects {
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
+//            jvmTarget = "1.$javaVersion"
             jvmTarget = javaVersion
             freeCompilerArgs = ktFreeCompilerArgs.split(";").toList()
         }

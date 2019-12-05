@@ -4,7 +4,13 @@ import com.google.code.regexp.Matcher;
 import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.Tuple;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.unmodifiableMap;
 
 class RegularMatchImpl implements RegularMatch {
 
@@ -74,12 +80,12 @@ class RegularMatchImpl implements RegularMatch {
                 for (int i = 0; i < matcher.groupCount(); i++) {
                     map.put(i, matcher.group(i));
                 }
-                for (final var group : matcher.namedPattern().groupNames()) {
+                for (final String group : matcher.namedPattern().groupNames()) {
                     map.put(group, matcher.group(group));
                 }
-                toMapCache = Optional.of(Collections.unmodifiableMap(map));
+                toMapCache = Optional.of(unmodifiableMap(map));
             } else {
-                toMapCache = Optional.of(Map.of());
+                toMapCache = Optional.of(unmodifiableMap(emptyMap()));
             }
         }
         return toMapCache.get();

@@ -47,7 +47,7 @@ public enum MIMETypes {
     public static boolean match(MIMETypes mime, String other) {
         if (other == null || !other.contains("/")) return false;
 
-        final var parts = other.split("/");
+        final String[] parts = other.split("/");
 
         if (parts.length != 2) return false;
 

@@ -33,10 +33,10 @@ class TupleSpaceEventDeserializer<T extends Tuple<T>, TT extends Template<T>> ex
             }
         }
         if (dynamicObject instanceof Map) {
-            final var dynamicMap = (Map<String, ?>) dynamicObject;
+            final Map<String, ?> dynamicMap = (Map<String, ?>) dynamicObject;
 
             if (dynamicMap.containsKey("eventType") && dynamicMap.containsKey("tupleSpace")) {
-                final var tupleSpace = (String) dynamicMap.get("tupleSpace");
+                final String tupleSpace = (String) dynamicMap.get("tupleSpace");
                 if(dynamicMap.get("eventType").equals(OperationEvent.class.getSimpleName())) {
                     if(dynamicMap.containsKey("operationPhase")
                             && dynamicMap.containsKey("operationType")

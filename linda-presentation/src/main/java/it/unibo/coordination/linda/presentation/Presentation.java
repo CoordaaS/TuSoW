@@ -31,11 +31,14 @@ public class Presentation {
     private static final Map<Tuple2<Class<?>, MIMETypes>, Serializer<?>> serializers = new HashMap<>();
     private static final Map<Tuple2<Class<?>, MIMETypes>, Deserializer<?>> deserializers = new HashMap<>();
 
-    private static final Map<MIMETypes, ObjectMapper> mappers = Map.of(
-        MIMETypes.APPLICATION_JSON, createMapper(ObjectMapper.class),
-        MIMETypes.APPLICATION_YAML, createMapper(YAMLMapper.class),
-        MIMETypes.APPLICATION_XML, createMapper(XmlMapper.class)
-    );
+    private static final Map<MIMETypes, ObjectMapper> mappers;
+
+    static {
+        mappers = new HashMap<>();
+        mappers.put(MIMETypes.APPLICATION_JSON, createMapper(ObjectMapper.class));
+        mappers.put(MIMETypes.APPLICATION_YAML, createMapper(YAMLMapper.class));
+        mappers.put(MIMETypes.APPLICATION_XML, createMapper(XmlMapper.class));
+    }
 
     public static <OM extends ObjectMapper> OM createMapper(Class<OM> mapperClass) {
         try {
@@ -48,7 +51,7 @@ public class Presentation {
     }
 
     public static <T> Serializer<T> getSerializer(Class<T> type, MIMETypes mimeType) {
-        var result = serializers.get(Tuple.tuple(type, mimeType));
+        final Serializer<?> result = serializers.get(Tuple.tuple(type, mimeType));
         if (result == null) {
             throw new IllegalArgumentException("Class-MIMEType combo not supported: " + type.getName() + " --> " + mimeType);
         }
@@ -56,7 +59,7 @@ public class Presentation {
     }
 
     public static <T> Deserializer<T> getDeserializer(Class<T> type, MIMETypes mimeType) {
-        var result = deserializers.get(Tuple.tuple(type, mimeType));
+        final Deserializer<?> result = deserializers.get(Tuple.tuple(type, mimeType));
         if (result == null) {
             throw new IllegalArgumentException("Class-MIMEType combo not supported: " + type.getName() + " <-- " + mimeType);
         }
@@ -76,8 +79,8 @@ public class Presentation {
     }
 
     public static <T> void registerSimpleSerializers(Class<T> type, EnumSet<MIMETypes> types) {
-        for (var t : types) {
-            final var mapper = mappers.get(t);
+        for (MIMETypes t : types) {
+            final ObjectMapper mapper = mappers.get(t);
             if (mapper == null) throw new IllegalArgumentException("No mapper for MIMEType " + t);
             register(type, new SimpleSerializer<>(t, mapper));
         }
@@ -88,8 +91,8 @@ public class Presentation {
     }
 
     public static <T> void registerDynamicSerializers(Class<T> type, EnumSet<MIMETypes> types, Function3<Class<T>, MIMETypes, T, Object> f) {
-        for (var t : types) {
-            final var mapper = mappers.get(t);
+        for (MIMETypes t : types) {
+            final ObjectMapper mapper = mappers.get(t);
             if (mapper == null) throw new IllegalArgumentException("No mapper for MIMEType " + t);
             register(type, new DynamicSerializer<T>(t, mapper) {
                 @Override
@@ -105,8 +108,8 @@ public class Presentation {
     }
 
     public static <T> void registerDynamicSerializers(Class<T> type, EnumSet<MIMETypes> types, Function2<MIMETypes, ObjectMapper, DynamicSerializer<T>> f) {
-        for (var t : types) {
-            final var mapper = mappers.get(t);
+        for (MIMETypes t : types) {
+            final ObjectMapper mapper = mappers.get(t);
             if (mapper == null) throw new IllegalArgumentException("No mapper for MIMEType " + t);
             register(type, f.apply(t, mapper));
         }
@@ -125,8 +128,8 @@ public class Presentation {
     }
 
     public static <T> void registerSimpleDeserializers(Class<T> type, EnumSet<MIMETypes> types) {
-        for (var t : types) {
-            final var mapper = mappers.get(t);
+        for (MIMETypes t : types) {
+            final ObjectMapper mapper = mappers.get(t);
             if (mapper == null) throw new IllegalArgumentException("No mapper for MIMEType " + t);
             register(type, new SimpleDeserializer<>(type, t, mapper));
         }
@@ -137,8 +140,8 @@ public class Presentation {
     }
 
     public static <T> void registerDynamicDeserializers(Class<T> type, EnumSet<MIMETypes> types, Function3<Class<T>, MIMETypes, Object, T> f) {
-        for (var t : types) {
-            final var mapper = mappers.get(t);
+        for (MIMETypes t : types) {
+            final ObjectMapper mapper = mappers.get(t);
             if (mapper == null) throw new IllegalArgumentException("No mapper for MIMEType " + t);
             register(type, new DynamicDeserializer<T>(type, t, mapper) {
 
@@ -155,8 +158,8 @@ public class Presentation {
     }
 
     public static <T> void registerDynamicDeserializers(Class<T> type, EnumSet<MIMETypes> types, Function2<MIMETypes, ObjectMapper, DynamicDeserializer<T>> f) {
-        for (var t : types) {
-            final var mapper = mappers.get(t);
+        for (MIMETypes t : types) {
+            final ObjectMapper mapper = mappers.get(t);
             if (mapper == null) throw new IllegalArgumentException("No mapper for MIMEType " + t);
             register(type, f.apply(t, mapper));
         }

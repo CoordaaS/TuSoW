@@ -5,6 +5,7 @@ import it.unibo.coordination.linda.text.RegularMatch;
 import it.unibo.coordination.linda.text.StringTuple;
 
 import java.util.HashMap;
+import java.util.Map;
 
 class RegularMatchSerializer extends DynamicSerializer<RegularMatch> {
 
@@ -15,7 +16,7 @@ class RegularMatchSerializer extends DynamicSerializer<RegularMatch> {
 
     @Override
     public Object toDynamicObject(RegularMatch object) {
-        final var matchMap = new HashMap<String, Object>();
+        final Map<String, Object> matchMap = new HashMap<String, Object>();
 
         matchMap.put("tuple", object.getTuple().map(StringTuple::getValue).orElse(null));
         matchMap.put("template", object.getTemplate().getTemplate().pattern());
