@@ -12,9 +12,9 @@ public class TestRegularMatches extends TestMatch<StringTuple, RegexTemplate, Ob
 
     @Test
     public void testVarRetrievalSuccessfulMatch() {
-        final var tuple = StringTuple.of("name: Giovanni, surname: Ciatto");
-        final var template = RegexTemplate.of("name: ([A-Za-z]+), surname: (?<surname>[A-Za-z]+)");
-        final var match = template.matchWith(tuple);
+        final StringTuple tuple = StringTuple.of("name: Giovanni, surname: Ciatto");
+        final RegexTemplate template = RegexTemplate.of("name: ([A-Za-z]+), surname: (?<surname>[A-Za-z]+)");
+        final RegularMatch match = template.matchWith(tuple);
 
         Assert.assertTrue(template.matches(tuple));
         Assert.assertEquals(template.matchWith(tuple), match);

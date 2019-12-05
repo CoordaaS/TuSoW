@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-abstract class AbstractTupleSpaceApiTupleSpaceApi<T extends Tuple<T>, TT extends Template<T>, K, V, M extends Match<T, TT, K, V>, TS extends TupleSpace<T, TT, K, V, M>>
+abstract class AbstractTupleSpaceApi<T extends Tuple<T>, TT extends Template<T>, K, V, M extends Match<T, TT, K, V>, TS extends TupleSpace<T, TT, K, V, M>>
         extends AbstractApi implements TupleSpaceApi<T, TT, K, V, M> {
 
-    public AbstractTupleSpaceApiTupleSpaceApi(RoutingContext routingContext) {
+    public AbstractTupleSpaceApi(RoutingContext routingContext) {
         super(routingContext);
     }
 
@@ -28,7 +28,7 @@ abstract class AbstractTupleSpaceApiTupleSpaceApi<T extends Tuple<T>, TT extends
     @Override
     public void createNewTuples(String tupleSpaceName, boolean bulk, Collection<? extends T> tuples, Handler<AsyncResult<Collection<? extends T>>> handler) {
 
-        final var tupleSpace = getTupleSpaceByName(tupleSpaceName);
+        final TS tupleSpace = getTupleSpaceByName(tupleSpaceName);
 
         if (bulk) {
             tupleSpace.writeAll(tuples).thenAcceptAsync(ts -> {
@@ -47,7 +47,7 @@ abstract class AbstractTupleSpaceApiTupleSpaceApi<T extends Tuple<T>, TT extends
 
     @Override
     public void observeTuples(String tupleSpaceName, boolean bulk, boolean predicative, boolean negated, TT template, Handler<AsyncResult<Collection<? extends M>>> handler) {
-        final var tupleSpace = getTupleSpaceByName(tupleSpaceName);
+        final TS tupleSpace = getTupleSpaceByName(tupleSpaceName);
 
         if (bulk && predicative) throw new BadContentError();
 
@@ -76,7 +76,7 @@ abstract class AbstractTupleSpaceApiTupleSpaceApi<T extends Tuple<T>, TT extends
 
     @Override
     public void consumeTuples(String tupleSpaceName, boolean bulk, boolean predicative, TT template, Handler<AsyncResult<Collection<? extends M>>> handler) {
-        final var tupleSpace = getTupleSpaceByName(tupleSpaceName);
+        final TS tupleSpace = getTupleSpaceByName(tupleSpaceName);
 
         if (bulk && predicative) throw new BadContentError();
 

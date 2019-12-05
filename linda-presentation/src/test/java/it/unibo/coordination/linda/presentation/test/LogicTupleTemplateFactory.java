@@ -34,23 +34,23 @@ public class LogicTupleTemplateFactory implements TupleTemplateFactory<LogicTupl
 
     @Override
     public Triplet<LogicTuple, LogicTemplate, LogicMatch> getSuccessfulMatch() {
-        final var tuple = LogicTuple.of("f(1, \"2\", '3', d, e(f), g(h, [4, i]), [x, y, Z])");
-        final var template = LogicTemplate.of("f(1, A, B, C, D, g(E, [F | G]), H)");
+        final LogicTuple tuple = LogicTuple.of("f(1, \"2\", '3', d, e(f), g(h, [4, i]), [x, y, Z])");
+        final LogicTemplate template = LogicTemplate.of("f(1, A, B, C, D, g(E, [F | G]), H)");
 
         return Triplet.with(tuple, template, template.matchWith(tuple));
     }
 
     @Override
     public Triplet<LogicTuple, LogicTemplate, LogicMatch> getFailedMatch() {
-        final var tuple = LogicTuple.of("g(y)");
-        final var template = LogicTemplate.of("f(X)");
+        final LogicTuple tuple = LogicTuple.of("g(y)");
+        final LogicTemplate template = LogicTemplate.of("f(X)");
 
         return Triplet.with(tuple, template, template.matchWith(tuple));
     }
 
     @Override
     public Pair<LogicTemplate, LogicMatch> getEmptyMatch() {
-        final var template = LogicTemplate.of("f(X)");
+        final LogicTemplate template = LogicTemplate.of("f(X)");
 
         return Pair.with(template, LogicMatch.failed(template));
     }
@@ -81,11 +81,11 @@ public class LogicTupleTemplateFactory implements TupleTemplateFactory<LogicTupl
 
     @Override
     public Quartet<MultiSet<LogicTuple>, LogicTemplate, MultiSet<LogicTuple>, LogicTemplate> getSomeTuplesOfTwoSorts() {
-        var tuples1 = IntStream.range(1, 6)
+        HashMultiSet<LogicTuple> tuples1 = IntStream.range(1, 6)
                 .mapToObj(i -> String.format("a(%d)", i))
                 .map(LogicTuple::of)
                 .collect(Collectors.toCollection(HashMultiSet::new));
-        var tuples2 = IntStream.range(1, 6)
+        HashMultiSet<LogicTuple> tuples2 = IntStream.range(1, 6)
                 .mapToObj(i -> String.format("b(%d)", i))
                 .map(LogicTuple::of)
                 .collect(Collectors.toCollection(HashMultiSet::new));
@@ -94,7 +94,7 @@ public class LogicTupleTemplateFactory implements TupleTemplateFactory<LogicTupl
 
     @Override
     public Pair<MultiSet<LogicTuple>, LogicTemplate> getSomeTuplesOfOneSort() {
-        var tuples = IntStream.range(1, 6)
+        HashMultiSet<LogicTuple> tuples = IntStream.range(1, 6)
                 .mapToObj(i -> String.format("f(%d)", i))
                 .map(LogicTuple::of)
                 .collect(Collectors.toCollection(HashMultiSet::new));

@@ -79,8 +79,8 @@ subprojects {
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
-//            jvmTarget = "1.$javaVersion"
-            jvmTarget = javaVersion
+            jvmTarget = "1.$javaVersion"
+//            jvmTarget = javaVersion
             freeCompilerArgs = ktFreeCompilerArgs.split(";").toList()
         }
     }
