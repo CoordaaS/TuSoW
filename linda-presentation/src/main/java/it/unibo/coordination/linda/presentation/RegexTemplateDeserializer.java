@@ -14,9 +14,9 @@ class RegexTemplateDeserializer extends DynamicDeserializer<RegexTemplate> {
     @Override
     public RegexTemplate fromDynamicObject(Object dynamicObject) {
         if (dynamicObject instanceof Map) {
-            var map = (Map<String, ?>) dynamicObject;
+            Map<String, ?> map = (Map<String, ?>) dynamicObject;
             if (map.containsKey("template")) {
-                var tuple = map.get("template");
+                Object tuple = map.get("template");
                 if (tuple instanceof String) {
                     return RegexTemplate.of((String) tuple);
                 }

@@ -68,7 +68,7 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
     protected abstract <N extends Number> T numberToTuple(N x);
 
     public void post(RoutingContext routingContext) {
-        final var api = getTupleSpaceApi(routingContext);
+        final TupleSpaceApi<T, TT, K, V, M> api = getTupleSpaceApi(routingContext);
         final Future<Collection<? extends T>> result = Future.future();
         result.setHandler(responseHandlerWithNoContent(routingContext));
 
@@ -91,7 +91,7 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
     }
 
     public void head(RoutingContext routingContext) {
-        final var api = getTupleSpaceApi(routingContext);
+        final TupleSpaceApi<T, TT, K, V, M> api = getTupleSpaceApi(routingContext);
         final Future<Integer> result = Future.future();
         result.setHandler(responseHandlerWithNumericContent(routingContext, "X-TUPLE-SPACE-SIZE"));
 
@@ -111,7 +111,7 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
     }
 
     private Tuple3<String, Boolean, List<T>> validateInputsForPost(String tupleSpaceName, Optional<Boolean> bulk, List<T> tuples) {
-        final var bulkValue = bulk.orElse(false);
+        final Boolean bulkValue = bulk.orElse(false);
 
         if (!bulkValue && tuples.size() != 1) {
             throw new BadContentError();
@@ -135,7 +135,7 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
     }
 
     public void delete(RoutingContext routingContext) {
-        final var api = getTupleSpaceApi(routingContext);
+        final TupleSpaceApi<T, TT, K, V, M> api = getTupleSpaceApi(routingContext);
         final Future<Collection<? extends M>> result = Future.future();
         result.setHandler(responseHandlerWithNoContent(routingContext));
 
@@ -190,16 +190,16 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
     }
 
     public void get(RoutingContext routingContext) {
-        final var api = getTupleSpaceApi(routingContext);
+        final TupleSpaceApi<T, TT, K, V, M> api = getTupleSpaceApi(routingContext);
         Future<?> result = Future.future();
         result.setHandler(responseHandlerWithNoContent(routingContext));
 
         try {
-            final var tupleSpaceName = routingContext.pathParam("tupleSpaceName");
-            final var bulk = Optional.ofNullable(routingContext.queryParams().get("bulk")).map(Boolean::parseBoolean);
-            final var predicative = Optional.ofNullable(routingContext.queryParams().get("predicative")).map(Boolean::parseBoolean);
-            final var negated = Optional.ofNullable(routingContext.queryParams().get("negated")).map(Boolean::parseBoolean);
-            final var all = Optional.ofNullable(routingContext.queryParams().get("all")).map(Boolean::parseBoolean);
+            final String tupleSpaceName = routingContext.pathParam("tupleSpaceName");
+            final Optional<Boolean> bulk = Optional.ofNullable(routingContext.queryParams().get("bulk")).map(Boolean::parseBoolean);
+            final Optional<Boolean> predicative = Optional.ofNullable(routingContext.queryParams().get("predicative")).map(Boolean::parseBoolean);
+            final Optional<Boolean> negated = Optional.ofNullable(routingContext.queryParams().get("negated")).map(Boolean::parseBoolean);
+            final Optional<Boolean> all = Optional.ofNullable(routingContext.queryParams().get("all")).map(Boolean::parseBoolean);
 
             final MIMETypes mimeType = MIMETypes.parse(routingContext.parsedHeaders().contentType().value());
 
@@ -208,7 +208,7 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
                 template = getTemplatesUnmarshaller(mimeType).fromString(routingContext.getBodyAsString());
             }
 
-            final var cleanInputs = validateInputsForGet(tupleSpaceName, bulk, predicative, negated, all, template);
+            final Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT> cleanInputs = validateInputsForGet(tupleSpaceName, bulk, predicative, negated, all, template);
 
             if (cleanInputs.v5()) {
                 final Future<Collection<? extends T>> res = Future.future();

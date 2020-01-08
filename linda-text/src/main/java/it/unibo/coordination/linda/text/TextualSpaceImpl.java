@@ -6,6 +6,7 @@ import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
@@ -41,13 +42,13 @@ class TextualSpaceImpl extends AbstractTupleSpace<StringTuple, RegexTemplate, Ob
 
     @Override
     protected Stream<? extends RegularMatch> retrieveTuples(RegexTemplate template, int limit) {
-        final var i = tuples.iterator();
+        final Iterator<StringTuple> i = tuples.iterator();
         Stream.Builder<RegularMatch> result = Stream.builder();
-        var j = 0;
+        int j = 0;
 
         while (j < limit && i.hasNext()) {
-            final var tuple = i.next();
-            final var match = template.matchWith(tuple);
+            final StringTuple tuple = i.next();
+            final RegularMatch match = template.matchWith(tuple);
 
             if (match.isMatching()) {
                 result.accept(match);

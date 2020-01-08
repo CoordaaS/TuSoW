@@ -22,7 +22,7 @@ class LogicMatchDeserializer extends DynamicDeserializer<LogicMatch> {
             }
         }
         if (dynamicObject instanceof Map) {
-            final var dynamicMap = (Map<String, ?>) dynamicObject;
+            final Map<String, ?> dynamicMap = (Map<String, ?>) dynamicObject;
 
             if (dynamicMap.containsKey("template")) {
                 final LogicTemplate template = getDeserializer(LogicTemplate.class).fromDynamicObject(dynamicMap.get("template"));

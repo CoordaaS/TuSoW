@@ -15,11 +15,11 @@ public class Prolog2JSON {
                 System.out.print("prolog > ");
                 final String line;
                 line = reader.readLine();
-                final var term = Term.createTerm(line);
+                final Term term = Term.createTerm(line);
                 System.out.println();
                 System.out.println("json > " + term);
                 System.out.println();
-                final var yaml = Presentation.getSerializer(Term.class, MIMETypes.APPLICATION_JSON).toString(term);
+                final String yaml = Presentation.getSerializer(Term.class, MIMETypes.APPLICATION_JSON).toString(term);
                 System.out.print("json > ");
                 System.out.println(yaml.trim().replace("\n", "\njson > "));
                 System.out.println();

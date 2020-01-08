@@ -32,23 +32,23 @@ public class TextualTupleTemplateFactory implements TupleTemplateFactory<StringT
 
     @Override
     public Triplet<StringTuple, RegexTemplate, RegularMatch> getSuccessfulMatch() {
-        final var tuple = StringTuple.of("name: Giovanni, surname: Ciatto");
-        final var template = RegexTemplate.of("name: ([A-Za-z]+), surname: (?<surname>[A-Za-z]+)");
+        final StringTuple tuple = StringTuple.of("name: Giovanni, surname: Ciatto");
+        final RegexTemplate template = RegexTemplate.of("name: ([A-Za-z]+), surname: (?<surname>[A-Za-z]+)");
 
         return Triplet.with(tuple, template, template.matchWith(tuple));
     }
 
     @Override
     public Triplet<StringTuple, RegexTemplate, RegularMatch> getFailedMatch() {
-        final var tuple = StringTuple.of("name: G10v4nn1, surname: C14tt0");
-        final var template = RegexTemplate.of("name: ([A-Za-z]+), surname: (?<surname>[A-Za-z]+)");
+        final StringTuple tuple = StringTuple.of("name: G10v4nn1, surname: C14tt0");
+        final RegexTemplate template = RegexTemplate.of("name: ([A-Za-z]+), surname: (?<surname>[A-Za-z]+)");
 
         return Triplet.with(tuple, template, template.matchWith(tuple));
     }
 
     @Override
     public Pair<RegexTemplate, RegularMatch> getEmptyMatch() {
-        final var template = RegexTemplate.of("name: ([A-Za-z]+), surname: (?<surname>[A-Za-z]+)");
+        final RegexTemplate template = RegexTemplate.of("name: ([A-Za-z]+), surname: (?<surname>[A-Za-z]+)");
 
         return Pair.with(template, RegularMatch.failed(template));
     }
@@ -82,11 +82,11 @@ public class TextualTupleTemplateFactory implements TupleTemplateFactory<StringT
 
     @Override
     public Quartet<MultiSet<StringTuple>, RegexTemplate, MultiSet<StringTuple>, RegexTemplate> getSomeTuplesOfTwoSorts() {
-        var tuples1 = IntStream.range(0, 5)
+        HashMultiSet<StringTuple> tuples1 = IntStream.range(0, 5)
                 .mapToObj(i -> new String(new char[] { (char)(i + 'a') }))
                 .map(StringTuple::of)
                 .collect(Collectors.toCollection(HashMultiSet::new));
-        var tuples2 = IntStream.range(1, 6)
+        HashMultiSet<StringTuple> tuples2 = IntStream.range(1, 6)
                 .mapToObj(String::valueOf)
                 .map(StringTuple::of)
                 .collect(Collectors.toCollection(HashMultiSet::new));
