@@ -4,6 +4,7 @@ import it.unibo.coordination.linda.remote.AbstractRemoteTupleSpace
 import it.unibo.coordination.linda.text.RegexTemplate
 import it.unibo.coordination.linda.text.RegularMatch
 import it.unibo.coordination.linda.text.StringTuple
+import it.unibo.presentation.Presentation
 import java.net.URL
 
 internal class RemoteTextualSpaceImpl(service: URL, name: String) : RemoteTextualSpace, AbstractRemoteTupleSpace<StringTuple, RegexTemplate, Any, String, RegularMatch>(service, name) {
@@ -18,4 +19,7 @@ internal class RemoteTextualSpaceImpl(service: URL, name: String) : RemoteTextua
 
     override val matchClass: Class<RegularMatch>
         get() = RegularMatch::class.java
+
+    override val presentation: Presentation
+        get() = it.unibo.coordination.linda.text.Presentation
 }

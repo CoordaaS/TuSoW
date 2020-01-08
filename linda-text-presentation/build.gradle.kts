@@ -7,9 +7,8 @@ val commonsCliVersion: String by project
 val ktFreeCompilerArgs: String by project
 
 dependencies {
-    api(project(":linda-logic"))
+    api(project(":linda-text"))
     api(project(":presentation"))
-    implementation(project(":prologx"))
     implementation(kotlin("stdlib-jdk8"))
 
     testImplementation("junit", "junit", junitVersion)
