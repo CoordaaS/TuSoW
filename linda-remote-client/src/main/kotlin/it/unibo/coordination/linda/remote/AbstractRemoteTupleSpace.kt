@@ -7,14 +7,15 @@ import it.unibo.coordination.Promise
 import it.unibo.coordination.linda.core.Match
 import it.unibo.coordination.linda.core.Template
 import it.unibo.coordination.linda.core.Tuple
-import it.unibo.coordination.linda.presentation.Deserializer
-import it.unibo.coordination.linda.presentation.MIMETypes
-import it.unibo.coordination.linda.presentation.Serializer
+import it.unibo.presentation.MIMETypes
+import it.unibo.presentation.Presentation
 import org.apache.commons.collections4.multiset.HashMultiSet
 import java.net.URL
 import java.net.URLEncoder
+import java.util.*
 
 abstract class AbstractRemoteTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>>
+
     protected constructor(override val service: URL, name: String) : RemoteTupleSpace<T, TT, K, V, M> {
 
     companion object {
@@ -56,16 +57,6 @@ abstract class AbstractRemoteTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M 
                 future.completeExceptionally(it)
             }
         }
-
-        @JvmStatic
-        protected fun <X> String.parseAs(clazz: Class<X>, type: MIMETypes): X {
-            return Deserializer.of(clazz, type).fromString(this)
-        }
-
-        @JvmStatic
-        protected fun <X> String.parseAsListOf(clazz: Class<X>, type: MIMETypes): List<X> {
-            return Deserializer.of(clazz, type).listFromString(this)
-        }
     }
 
     val tupleSpacePath: String by lazy { "/tusow/v$tusowApiVersion/tuple-spaces/$tupleSpaceType/$name" }
@@ -81,12 +72,30 @@ abstract class AbstractRemoteTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M 
     protected abstract val tupleClass: Class<T>
     protected abstract val templateClass: Class<TT>
     protected abstract val matchClass: Class<M>
+    protected abstract val presentation: Presentation
+
+    private val Any.type: Any
+        get() = this::class.java
+
+    protected fun <X> String.parseAs(clazz: Class<X>, type: MIMETypes): X {
+        return presentation.deserializerOf(clazz, type).fromString(this).also {
+            require(Objects.equals(it?.type, clazz))
+        }
+    }
+
+    protected fun <X> String.parseAsListOf(clazz: Class<X>, type: MIMETypes): List<X> {
+        return presentation.deserializerOf(clazz, type).listFromString(this).also { l ->
+            l.forEach {
+                require(Objects.equals(it?.type, clazz))
+            }
+        }
+    }
 
     protected fun Collection<T>.convertTo(type: MIMETypes): String =
-            Serializer.of(tupleClass, type).toString(this)
+            presentation.serializerOf(tupleClass, type).toString(this)
 
     protected fun TT.convertTo(type: MIMETypes): String =
-            Serializer.of(templateClass, type).toString(this)
+            presentation.serializerOf(templateClass, type).toString(this)
     
 
     override fun tryTake(template: TT): Promise<M> {

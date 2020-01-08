@@ -3,7 +3,7 @@ package it.unibo.presentation
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.Reader
 
-internal abstract class DynamicDeserializer<T>(clazz: Class<T>, mimeType: MIMETypes, mapper: ObjectMapper) : SimpleDeserializer<T>(clazz!!, mimeType!!, mapper!!) {
+abstract class DynamicDeserializer<T>(clazz: Class<T>, mimeType: MIMETypes, mapper: ObjectMapper) : SimpleDeserializer<T>(clazz, mimeType, mapper) {
 
     abstract override fun fromDynamicObject(dynamicObject: Any): T
 

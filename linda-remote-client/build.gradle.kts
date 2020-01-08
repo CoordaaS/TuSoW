@@ -8,7 +8,7 @@ val ktFreeCompilerArgs: String by project
 
 dependencies {
     api(project(":linda-core"))
-    api(project(":linda-presentation"))
+    api(project(":presentation"))
     implementation(kotlin("stdlib-jdk8"))
 
     api("io.vertx", "vertx-web-client", vertxVersion)

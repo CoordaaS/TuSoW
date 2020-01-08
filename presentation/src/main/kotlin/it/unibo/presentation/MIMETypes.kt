@@ -1,5 +1,7 @@
 package it.unibo.presentation
 
+import java.util.*
+
 enum class MIMETypes(val type: String, val subtype: String) {
     APPLICATION_JSON("application", "json"),
     APPLICATION_YAML("application", "yaml"),
@@ -18,6 +20,9 @@ enum class MIMETypes(val type: String, val subtype: String) {
     }
 
     companion object {
+
+        val XML_JSON_YAML = EnumSet.of(APPLICATION_XML, APPLICATION_JSON, APPLICATION_YAML)
+
         @JvmStatic
         fun match(mime: MIMETypes, other: String?): Boolean {
             if (other == null || !other.contains("/")) return false

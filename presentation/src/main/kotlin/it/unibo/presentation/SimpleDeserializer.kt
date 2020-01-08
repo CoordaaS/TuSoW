@@ -6,7 +6,7 @@ import java.io.IOException
 import java.io.Reader
 import java.io.StringReader
 
-internal open class SimpleDeserializer<T>(override val supportedType: Class<T>, override val supportedMIMEType: MIMETypes, protected val mapper: ObjectMapper) : Deserializer<T> {
+open class SimpleDeserializer<T>(override val supportedType: Class<T>, override val supportedMIMEType: MIMETypes, protected val mapper: ObjectMapper) : Deserializer<T> {
 
     override fun fromDynamicObject(dynamicObject: Any): T {
         throw UnsupportedOperationException()

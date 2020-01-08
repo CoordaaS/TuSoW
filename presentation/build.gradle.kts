@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     `java-library`
     kotlin("jvm")
@@ -19,23 +17,11 @@ dependencies {
 
     implementation(kotlin("stdlib-jdk8"))
 
-    implementation("com.fasterxml.jackson.core", "jackson-core", jacksonVersion)
-    implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", jacksonVersion)
-    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-xml", jacksonVersion)
-    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml", jacksonVersion)
+    api("com.fasterxml.jackson.core", "jackson-core", jacksonVersion)
+    api("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", jacksonVersion)
+    api("com.fasterxml.jackson.dataformat", "jackson-dataformat-xml", jacksonVersion)
+    api("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml", jacksonVersion)
 
     testImplementation("junit", "junit", junitVersion)
     testImplementation(project(":test-utils"))
-}
-
-configure<JavaPluginConvention> {
-    targetCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
-    sourceCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = javaVersion
-        freeCompilerArgs = ktFreeCompilerArgs.split(";").toList()
-    }
 }

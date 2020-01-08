@@ -59,7 +59,7 @@ internal class PresentationImpl : Presentation {
     }
 
     override fun <T> registerSimpleSerializers(type: Class<T>) {
-        registerSimpleSerializers(type, EnumSet.allOf(MIMETypes::class.java))
+        registerSimpleSerializers(type, MIMETypes.XML_JSON_YAML)
     }
 
     override fun <T> registerSimpleSerializers(type: Class<T>, types: EnumSet<MIMETypes>) {
@@ -69,22 +69,24 @@ internal class PresentationImpl : Presentation {
         }
     }
 
-    override fun <T> registerDynamicSerializers(type: Class<T>, f: (Class<T>, ObjectMapper) -> Serializer<T>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun <T> registerDynamicSerializers(type: Class<T>, f: (MIMETypes, ObjectMapper) -> Serializer<T>) {
+        registerDynamicSerializers(type, MIMETypes.XML_JSON_YAML, f)
     }
 
-    override fun <T> registerDynamicSerializers(type: Class<T>, types: EnumSet<MIMETypes>, f: (Class<T>, ObjectMapper) -> Serializer<T>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun <T> registerDynamicSerializers(type: Class<T>, types: EnumSet<MIMETypes>, f: (MIMETypes, ObjectMapper) -> Serializer<T>) {
+        for (mime in types) {
+            register(type, f(mime, mappers[mime] ?: throw IllegalArgumentException("No mapper for MIMEType $mime")))
+        }
     }
 
     override fun <T> registerDynamicSerializers(type: Class<T>, f: (Class<T>, ObjectMapper, T) -> Any) {
-        registerDynamicSerializers(type, EnumSet.allOf(MIMETypes::class.java), f)
+        registerDynamicSerializers(type, MIMETypes.XML_JSON_YAML, f)
     }
 
-    override fun <T> registerDynamicSerializers(type: Class<T>, types: EnumSet<MIMETypes>, f: (Class<T>, ObjectMapper, T)->Any) {
+    override fun <T> registerDynamicSerializers(type: Class<T>, types: EnumSet<MIMETypes>, f: (Class<T>, ObjectMapper, T) -> Any) {
         for (t in types) {
             val mapper = mappers[t] ?: throw IllegalArgumentException("No mapper for MIMEType $t")
-            register(type, serializer = object : DynamicSerializer<T>(t, mapper){
+            register(type, serializer = object : DynamicSerializer<T>(t, mapper) {
                 override fun toDynamicObject(`object`: T): Any =
                         f(type, mapper, `object`)
             })
@@ -92,7 +94,7 @@ internal class PresentationImpl : Presentation {
     }
 
     override fun <T> registerSimpleDeserializers(type: Class<T>) {
-        registerSimpleDeserializers(type, EnumSet.allOf(MIMETypes::class.java))
+        registerSimpleDeserializers(type, MIMETypes.XML_JSON_YAML)
     }
 
     override fun <T> registerSimpleDeserializers(type: Class<T>, types: EnumSet<MIMETypes>) {
@@ -103,13 +105,13 @@ internal class PresentationImpl : Presentation {
     }
 
     override fun <T> registerDynamicDeserializers(type: Class<T>, f: (Class<T>, ObjectMapper, Any) -> T) {
-        registerDynamicDeserializers(type, EnumSet.allOf(MIMETypes::class.java), f)
+        registerDynamicDeserializers(type, MIMETypes.XML_JSON_YAML, f)
     }
 
-    override fun <T> registerDynamicDeserializers(type: Class<T>, types: EnumSet<MIMETypes>, f: (Class<T>, ObjectMapper, Any)->T) {
+    override fun <T> registerDynamicDeserializers(type: Class<T>, types: EnumSet<MIMETypes>, f: (Class<T>, ObjectMapper, Any) -> T) {
         for (t in types) {
             val mapper = mappers[t] ?: throw IllegalArgumentException("No mapper for MIMEType $t")
-            register(type, deserializer = object : DynamicDeserializer<T>(type, t, mapper){
+            register(type, deserializer = object : DynamicDeserializer<T>(type, t, mapper) {
                 override fun fromDynamicObject(dynamicObject: Any): T =
                         f(type, mapper, dynamicObject)
 
@@ -117,11 +119,13 @@ internal class PresentationImpl : Presentation {
         }
     }
 
-    override fun <T> registerDynamicDeserializers(type: Class<T>, f: (Class<T>, ObjectMapper) -> Deserializer<T>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun <T> registerDynamicDeserializers(type: Class<T>, f: (MIMETypes, ObjectMapper) -> Deserializer<T>) {
+        registerSimpleDeserializers(type, MIMETypes.XML_JSON_YAML)
     }
 
-    override fun <T> registerDynamicDeserializers(type: Class<T>, types: EnumSet<MIMETypes>, f: (Class<T>, ObjectMapper) -> Deserializer<T>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun <T> registerDynamicDeserializers(type: Class<T>, types: EnumSet<MIMETypes>, f: (MIMETypes, ObjectMapper) -> Deserializer<T>) {
+        for (mime in types) {
+            register(type, f(mime, mappers[mime] ?: throw IllegalArgumentException("No mapper for MIMEType $mime")))
+        }
     }
 }

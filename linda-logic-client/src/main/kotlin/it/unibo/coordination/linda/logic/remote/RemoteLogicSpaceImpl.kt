@@ -5,6 +5,7 @@ import it.unibo.coordination.linda.logic.LogicMatch
 import it.unibo.coordination.linda.logic.LogicTemplate
 import it.unibo.coordination.linda.logic.LogicTuple
 import it.unibo.coordination.linda.remote.AbstractRemoteTupleSpace
+import it.unibo.presentation.Presentation
 import java.net.URL
 
 internal class RemoteLogicSpaceImpl(service: URL, name: String) : RemoteLogicSpace, AbstractRemoteTupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch>(service, name) {
@@ -19,4 +20,7 @@ internal class RemoteLogicSpaceImpl(service: URL, name: String) : RemoteLogicSpa
 
     override val matchClass: Class<LogicMatch>
         get() = LogicMatch::class.java
+
+    override val presentation: Presentation
+        get() = it.unibo.coordination.linda.logic.Presentation
 }
