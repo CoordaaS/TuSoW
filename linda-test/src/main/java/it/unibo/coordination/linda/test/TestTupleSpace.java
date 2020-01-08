@@ -8,12 +8,15 @@ import it.unibo.coordination.testing.ActiveObject;
 import it.unibo.coordination.testing.ConcurrentTestHelper;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
+import org.javatuples.Pair;
+import org.javatuples.Quartet;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -114,7 +117,7 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testWriteGenerativeSemantics() throws Exception {
         test.setThreadCount(1);
 
-        final var tuple = getATuple();
+        final T tuple = getATuple();
 
         final ActiveObject alice = new ActiveObject("Alice") {
 
@@ -141,7 +144,7 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testReadIsIdempotent1() throws Exception {
         test.setThreadCount(2);
 
-        final var tupleAndTemplate = getATupleAndATemplateMatchingIt();
+        final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
 
         final ActiveObject bob = new ActiveObject("Bob") {
 
@@ -186,7 +189,7 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testReadIsIdempotent2() throws Exception {
         test.setThreadCount(2);
 
-        final var tupleAndTemplate = getATupleAndATemplateMatchingIt();
+        final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
 
         final ActiveObject alice = new ActiveObject("Alice") {
 
@@ -234,7 +237,7 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testTakeIsNotIdempotent1() throws Exception {
         test.setThreadCount(2);
 
-        final var tupleAndTemplate = getATupleAndATemplateMatchingIt();
+        final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
 
         final ActiveObject bob = new ActiveObject("Bob") {
 
@@ -277,7 +280,7 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testTakeIsNotIdempotent2() throws Exception {
         test.setThreadCount(2);
 
-        final var tupleAndTemplate = getATupleAndATemplateMatchingIt();
+        final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
 
         final ActiveObject alice = new ActiveObject("Alice") {
 
@@ -298,7 +301,7 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
 
             @Override
             protected void loop() throws Exception {
-                final var toBeWritten = tupleSpace.takeTuple(tupleAndTemplate.getValue1());
+                final CompletableFuture<T> toBeWritten = tupleSpace.takeTuple(tupleAndTemplate.getValue1());
                 alice.start();
                 test.assertEquals(toBeWritten, tupleAndTemplate.getValue0());
                 test.assertBlocksIndefinitely(tupleSpace.takeTuple(tupleAndTemplate.getValue1()));
@@ -386,7 +389,7 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testGetSize() throws Exception {
         test.setThreadCount(1);
 
-        final var tupleAndTemplate = getATupleAndATemplateMatchingIt();
+        final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
 
         final ActiveObject alice = new ActiveObject("Alice") {
 
@@ -428,7 +431,7 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
             @Override
             protected void loop() throws Exception {
 
-                for (var tuple : expected) {
+                for (T tuple : expected) {
                     test.assertEventuallyReturns(tupleSpace.write(tuple));
                 }
 
@@ -483,7 +486,7 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testWriteAllResumesSuspendedOperations() throws Exception {
         test.setThreadCount(2);
 
-        final var someTuplesOfTwoSorts = getSomeTuplesOfTwoSorts();
+        final Quartet<MultiSet<T>, TT, MultiSet<T>, TT> someTuplesOfTwoSorts = getSomeTuplesOfTwoSorts();
         final MultiSet<T> tuples1 = someTuplesOfTwoSorts.getValue0();
         final MultiSet<T> tuples2 = someTuplesOfTwoSorts.getValue2();
         final MultiSet<T> tuples = new HashMultiSet<>(tuples1);
@@ -511,8 +514,8 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
 
             @Override
             protected void loop() throws Exception {
-                final var toBeRead = tupleSpace.readTuple(template1);
-                final var toBeTaken = tupleSpace.takeTuple(template2);
+                final CompletableFuture<T> toBeRead = tupleSpace.readTuple(template1);
+                final CompletableFuture<T> toBeTaken = tupleSpace.takeTuple(template2);
 
                 alice.start();
 
@@ -538,7 +541,7 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testReadAll() throws Exception {
         test.setThreadCount(1);
 
-        final var someTuplesOfTwoSorts = getSomeTuplesOfTwoSorts();
+        final Quartet<MultiSet<T>, TT, MultiSet<T>, TT> someTuplesOfTwoSorts = getSomeTuplesOfTwoSorts();
 
         final MultiSet<T> tuples = new HashMultiSet<>(someTuplesOfTwoSorts.getValue0());
         tuples.addAll(someTuplesOfTwoSorts.getValue2());
@@ -575,9 +578,9 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testTryRead() throws Exception {
         test.setThreadCount(1);
 
-        final var tupleAndTemplate = getATupleAndATemplateMatchingIt();
-        final var tuple = tupleAndTemplate.getValue0();
-        final var template = tupleAndTemplate.getValue1();
+        final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
+        final T tuple = tupleAndTemplate.getValue0();
+        final TT template = tupleAndTemplate.getValue1();
 
         final ActiveObject alice = new ActiveObject("Alice") {
 
@@ -608,9 +611,9 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testTryTake() throws Exception {
         test.setThreadCount(1);
 
-        final var tupleAndTemplate = getATupleAndATemplateMatchingIt();
-        final var tuple = tupleAndTemplate.getValue0();
-        final var template = tupleAndTemplate.getValue1();
+        final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
+        final T tuple = tupleAndTemplate.getValue0();
+        final TT template = tupleAndTemplate.getValue1();
 
         final ActiveObject alice = new ActiveObject("Alice") {
 
@@ -640,7 +643,7 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testTakeAll() throws Exception {
         test.setThreadCount(1);
 
-        final var someTuplesOfTwoSorts = getSomeTuplesOfTwoSorts();
+        final Quartet<MultiSet<T>, TT, MultiSet<T>, TT> someTuplesOfTwoSorts = getSomeTuplesOfTwoSorts();
 
         final MultiSet<T> tuples = new HashMultiSet<>(someTuplesOfTwoSorts.getValue0());
         tuples.addAll(someTuplesOfTwoSorts.getValue2());
@@ -701,9 +704,9 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testAbsentSuspends() throws Exception {
         test.setThreadCount(1);
 
-        final var tupleAndTemplate = getATupleAndATemplateMatchingIt();
-        final var tuple = tupleAndTemplate.getValue0();
-        final var template = tupleAndTemplate.getValue1();
+        final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
+        final T tuple = tupleAndTemplate.getValue0();
+        final TT template = tupleAndTemplate.getValue1();
 
         final ActiveObject alice = new ActiveObject("Alice") {
 
@@ -752,9 +755,9 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testTryAbsentFails() throws Exception {
         test.setThreadCount(1);
 
-        final var tupleAndTemplate = getATupleAndATemplateMatchingIt();
-        final var tuple = tupleAndTemplate.getValue0();
-        final var template = tupleAndTemplate.getValue1();
+        final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
+        final T tuple = tupleAndTemplate.getValue0();
+        final TT template = tupleAndTemplate.getValue1();
 
         final ActiveObject alice = new ActiveObject("Alice") {
 
@@ -781,14 +784,14 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testTakeResumesAbsent() throws Exception {
         test.setThreadCount(2);
 
-        final var tupleAndTemplate = getATupleAndATemplateMatchingIt();
-        final var tuple = tupleAndTemplate.getValue0();
-        final var template = tupleAndTemplate.getValue1();
+        final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
+        final T tuple = tupleAndTemplate.getValue0();
+        final TT template = tupleAndTemplate.getValue1();
 
         final ActiveObject bob = new ActiveObject("Bob") {
 
             @Override
-            protected void loop() throws Exception {
+            protected void loop() {
                 test.assertEquals(tupleSpace.takeTuple(template), tuple);
                 stop();
             }
@@ -827,9 +830,9 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testTryTakeResumesAbsent() throws Exception {
         test.setThreadCount(2);
 
-        final var tupleAndTemplate = getATupleAndATemplateMatchingIt();
-        final var tuple = tupleAndTemplate.getValue0();
-        final var template = tupleAndTemplate.getValue1();
+        final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
+        final T tuple = tupleAndTemplate.getValue0();
+        final TT template = tupleAndTemplate.getValue1();
 
         final ActiveObject bob = new ActiveObject("Bob") {
 
@@ -873,7 +876,7 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testTakeAllResumesAbsent() throws Exception {
         test.setThreadCount(2);
 
-        final var someTuplesOfASort = getSomeTuplesOfOneSort();
+        final Pair<MultiSet<T>, TT> someTuplesOfASort = getSomeTuplesOfOneSort();
         final MultiSet<T> tuples = someTuplesOfASort.getValue0();
         final TT template = someTuplesOfASort.getValue1();
 

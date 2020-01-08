@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.singletonList;
+
 public interface Deserializer<T> {
 
     Class<T> getSupportedType();
@@ -18,7 +20,7 @@ public interface Deserializer<T> {
             throw new IllegalArgumentException();
         }
 
-        var list = (dynamicObject instanceof List) ? (List<?>) dynamicObject : List.of((Map<?, ?>) dynamicObject);
+        List<?> list = (dynamicObject instanceof List) ? (List<?>) dynamicObject : singletonList((Map<?, ?>) dynamicObject);
 
         return list.stream().map(this::fromDynamicObject).collect(Collectors.toList());
     }

@@ -16,14 +16,14 @@ class RegularMatchDeserializer extends DynamicDeserializer<RegularMatch> {
     @Override
     public RegularMatch fromDynamicObject(Object dynamicObject) {
         if (dynamicObject instanceof Map) {
-            final var dynamicMap = (Map<String, ?>) dynamicObject;
+            final Map<String, ?> dynamicMap = (Map<String, ?>) dynamicObject;
 
             if (dynamicMap.get("template") instanceof String) {
-                final var template = RegexTemplate.of((String) dynamicMap.get("template"));
+                final RegexTemplate template = RegexTemplate.of((String) dynamicMap.get("template"));
 
                 final Object tupleObject;
                 if ((tupleObject = dynamicMap.get("tuple")) instanceof String) {
-                    final var tuple = StringTuple.of((String) tupleObject);
+                    final StringTuple tuple = StringTuple.of((String) tupleObject);
 
                     return template.matchWith(tuple);
                 }

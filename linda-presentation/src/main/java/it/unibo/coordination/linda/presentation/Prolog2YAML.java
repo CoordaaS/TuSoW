@@ -15,11 +15,11 @@ public class Prolog2YAML {
                 System.out.print("prolog > ");
                 final String line;
                 line = reader.readLine();
-                final var term = Term.createTerm(line);
+                final Term term = Term.createTerm(line);
                 System.out.println();
                 System.out.println("prolog > " + term);
                 System.out.println();
-                final var yaml = Presentation.getSerializer(Term.class, MIMETypes.APPLICATION_YAML).toString(term);
+                final String yaml = Presentation.getSerializer(Term.class, MIMETypes.APPLICATION_YAML).toString(term);
                 System.out.print("yaml > ");
                 System.out.println(yaml.trim().replace("\n", "\nyaml > "));
                 System.out.println();

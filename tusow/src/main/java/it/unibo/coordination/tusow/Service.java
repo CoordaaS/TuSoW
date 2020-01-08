@@ -40,11 +40,11 @@ public class Service extends AbstractVerticle {
                 .requestHandler(router::accept)
                 .listen(getPort(), x -> {
                     if (x.succeeded()) {
-                        LOGGER.info("Service listening on port: {0}", "" + getPort());
+                        LOGGER.info("Service listening on port: {}", "" + getPort());
                         startFuture.complete();
                         deployment.complete(this);
                     } else {
-                        LOGGER.info("Failure in starting the server on port {0}", "" + getPort());
+                        LOGGER.info("Failure in starting the server on port {}", "" + getPort());
                         startFuture.fail(x.cause());
                         deployment.completeExceptionally(x.cause());
                     }

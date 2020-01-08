@@ -13,8 +13,8 @@ public class TestLogicMatches extends TestMatch<LogicTuple, LogicTemplate, Strin
 
     @Test
     public void testVarRetrievalSuccessfulMatch() {
-        final var tuple = LogicTuple.of("f(1, \"2\", '3', d, e(f), g(h, [4, i]), [x, y, Z])");
-        final var template = LogicTemplate.of("f(1, A, B, C, D, g(E, [F | G]), H)");
+        final LogicTuple tuple = LogicTuple.of("f(1, \"2\", '3', d, e(f), g(h, [4, i]), [x, y, Z])");
+        final LogicTemplate template = LogicTemplate.of("f(1, A, B, C, D, g(E, [F | G]), H)");
         final LogicMatch match = template.matchWith(tuple);
 
         Assert.assertTrue(template.matches(tuple));

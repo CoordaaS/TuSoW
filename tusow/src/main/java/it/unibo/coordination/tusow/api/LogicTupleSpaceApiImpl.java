@@ -9,7 +9,7 @@ import it.unibo.coordination.linda.logic.LogicTemplate;
 import it.unibo.coordination.linda.logic.LogicTuple;
 import it.unibo.coordination.tusow.linda.TupleSpaces;
 
-class LogicTupleSpaceApiImpl extends AbstractTupleSpaceApiTupleSpaceApi<LogicTuple, LogicTemplate, String, Term, LogicMatch, LogicSpace>
+class LogicTupleSpaceApiImpl extends AbstractTupleSpaceApi<LogicTuple, LogicTemplate, String, Term, LogicMatch, LogicSpace>
         implements LogicTupleSpaceApi {
 
     LogicTupleSpaceApiImpl(RoutingContext routingContext) {

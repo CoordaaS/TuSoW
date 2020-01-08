@@ -8,6 +8,7 @@ import it.unibo.coordination.linda.core.events.TupleEvent;
 import it.unibo.coordination.linda.core.events.TupleSpaceEvent;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 class TupleSpaceEventSerializer<T extends Tuple<T>, TT extends Template<T>> extends DynamicSerializer<TupleSpaceEvent> {
@@ -23,9 +24,9 @@ class TupleSpaceEventSerializer<T extends Tuple<T>, TT extends Template<T>> exte
 
     @Override
     public Object toDynamicObject(TupleSpaceEvent object) {
-        final var tupleSpaceEventMap = new HashMap<String, Object>();
+        final Map<String, Object> tupleSpaceEventMap = new HashMap<>();
         if(object instanceof TupleEvent) {
-            var tupleEvent = (TupleEvent<T, TT>) object;
+            TupleEvent<T, TT> tupleEvent = (TupleEvent<T, TT>) object;
             tupleSpaceEventMap.put("eventType", TupleEvent.class.getSimpleName());
             tupleSpaceEventMap.put("tupleSpace", tupleEvent.getTupleSpaceName());
             tupleSpaceEventMap.put("effect", tupleEvent.getEffect());
@@ -33,7 +34,7 @@ class TupleSpaceEventSerializer<T extends Tuple<T>, TT extends Template<T>> exte
             tupleSpaceEventMap.put("tuple", Optional.ofNullable(tupleEvent.getTuple()).map(t -> getSerializer(tupleClass).toDynamicObject((T) t)).orElse(null));
             tupleSpaceEventMap.put("template", Optional.ofNullable(tupleEvent.getTemplate()).map(t -> getSerializer(templateClass).toDynamicObject((TT) t)).orElse(null));
         } else if(object instanceof OperationEvent) {
-            var operationEvent = (OperationEvent<T, TT>) object;
+            OperationEvent<T, TT> operationEvent = (OperationEvent<T, TT>) object;
             tupleSpaceEventMap.put("eventType", OperationEvent.class.getSimpleName());
             tupleSpaceEventMap.put("tupleSpace", operationEvent.getTupleSpaceName());
             tupleSpaceEventMap.put("operationType", operationEvent.getOperationType());

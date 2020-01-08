@@ -6,6 +6,7 @@ import it.unibo.coordination.linda.logic.LogicTemplate;
 import it.unibo.coordination.linda.logic.LogicTuple;
 import it.unibo.coordination.prologx.PrologUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,7 +20,7 @@ class LogicMatchSerializer extends DynamicSerializer<LogicMatch> {
 
     @Override
     public Object toDynamicObject(LogicMatch object) {
-        final var matchMap = new HashMap<String, Object>();
+        final Map<String, Object> matchMap = new HashMap<String, Object>();
 
         matchMap.put("tuple", object.getTuple().map(t -> getSerializer(LogicTuple.class).toDynamicObject(t)).orElse(null));
 
@@ -27,15 +28,15 @@ class LogicMatchSerializer extends DynamicSerializer<LogicMatch> {
 
         matchMap.put("match", object.isMatching());
 
-        final var map = object.toMap().entrySet().stream()
+        final Map<String, Object> map = object.toMap().entrySet().stream()
                 .collect(
-                        Collectors.toUnmodifiableMap(
+                        Collectors.toMap(
                                 Map.Entry::getKey,
                                 entry -> PrologUtils.termToDynamicObject(entry.getValue())
                         )
                 );
 
-        matchMap.put("map", map);
+        matchMap.put("map", Collections.unmodifiableMap(map));
 
         return matchMap;
     }

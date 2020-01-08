@@ -15,7 +15,7 @@ public class CollectionUtils {
         if (list.isEmpty()) {
             return list.iterator();
         } else {
-            return new Iterator<>() {
+            return new Iterator<T>() {
 
                 private PrimitiveIterator.OfInt iterator = RAND.ints(0, list.size())
                         .distinct()
@@ -37,7 +37,7 @@ public class CollectionUtils {
 
                 @Override
                 public void remove() {
-                    final var currentIndex = lastIndex;
+                    final int currentIndex = lastIndex;
                     iterator = mapIf(iterator, i -> i - 1, i -> i >= currentIndex);
                     list.remove(lastIndex);
                 }
