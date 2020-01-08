@@ -6,6 +6,7 @@ import it.unibo.coordination.linda.core.Tuple;
 import it.unibo.coordination.linda.core.TupleSpace;
 import it.unibo.coordination.testing.ActiveObject;
 import it.unibo.coordination.testing.ConcurrentTestHelper;
+import it.unibo.coordination.utils.CollectionUtils;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 import org.javatuples.Pair;
@@ -364,7 +365,7 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
                 test.assertEventuallyReturns(tupleSpace.write(tuple4Bob), "Alice should eventually be able to insert " + tuple4Bob);
                 test.assertEventuallyReturns(tupleSpace.write(tuple4Carl), "Alice should eventually be able to insert " + tuple4Carl);
 
-                final Set<T> ts = Set.of(tuple4Bob, tuple4Carl);
+                final Set<T> ts = CollectionUtils.setOf(tuple4Bob, tuple4Carl);
 
                 test.assertOneOf(tupleSpace.takeTuple(getGeneralMessageTemplate()), ts, "The first tuple taken by Alice should be equal to any of" + ts);
                 test.assertOneOf(tupleSpace.takeTuple(getGeneralMessageTemplate()), ts, "The second tuple taken by Alice should be equal to any of" + ts);

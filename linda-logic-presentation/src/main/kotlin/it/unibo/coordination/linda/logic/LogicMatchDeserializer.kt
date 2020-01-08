@@ -18,10 +18,12 @@ internal class LogicMatchDeserializer(mimeType: MIMETypes, mapper: ObjectMapper)
 
             val dynamicMap = dynamicObject as Map<String, *>
             if (dynamicMap.containsKey("template")) {
+                val templateObj = dynamicMap["template"]
+                        ?: error("Missing template field in parsing a ${LogicMatch::class.simpleName}")
                 val template = Presentation.deserializerOf(LogicTemplate::class.java, supportedMIMEType)
-                        .fromDynamicObject(dynamicMap["template"]!!)
-                var tupleObject: Any
-                if (dynamicMap["tuple"].also { tupleObject = it!! } != null) {
+                        .fromDynamicObject(templateObj)
+                val tupleObject = dynamicMap["tuple"]
+                if (tupleObject != null) {
                     val tuple = Presentation.deserializerOf(LogicTuple::class.java, supportedMIMEType)
                             .fromDynamicObject(tupleObject)
                     return template.matchWith(tuple)

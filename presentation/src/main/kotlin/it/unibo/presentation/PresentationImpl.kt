@@ -120,7 +120,7 @@ internal class PresentationImpl : Presentation {
     }
 
     override fun <T> registerDynamicDeserializers(type: Class<T>, f: (MIMETypes, ObjectMapper) -> Deserializer<T>) {
-        registerSimpleDeserializers(type, MIMETypes.XML_JSON_YAML)
+        registerDynamicDeserializers(type, MIMETypes.XML_JSON_YAML, f)
     }
 
     override fun <T> registerDynamicDeserializers(type: Class<T>, types: EnumSet<MIMETypes>, f: (MIMETypes, ObjectMapper) -> Deserializer<T>) {

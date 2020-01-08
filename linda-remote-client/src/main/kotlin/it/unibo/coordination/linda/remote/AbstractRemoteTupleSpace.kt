@@ -12,7 +12,6 @@ import it.unibo.presentation.Presentation
 import org.apache.commons.collections4.multiset.HashMultiSet
 import java.net.URL
 import java.net.URLEncoder
-import java.util.*
 
 abstract class AbstractRemoteTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>>
 
@@ -74,19 +73,19 @@ abstract class AbstractRemoteTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M 
     protected abstract val matchClass: Class<M>
     protected abstract val presentation: Presentation
 
-    private val Any.type: Any
-        get() = this::class.java
+    private val Any.type: Class<*>
+        get() = this.javaClass
 
     protected fun <X> String.parseAs(clazz: Class<X>, type: MIMETypes): X {
         return presentation.deserializerOf(clazz, type).fromString(this).also {
-            require(Objects.equals(it?.type, clazz))
+            require(clazz.isAssignableFrom(it!!.type))
         }
     }
 
     protected fun <X> String.parseAsListOf(clazz: Class<X>, type: MIMETypes): List<X> {
         return presentation.deserializerOf(clazz, type).listFromString(this).also { l ->
             l.forEach {
-                require(Objects.equals(it?.type, clazz))
+                require(clazz.isAssignableFrom(it!!.type))
             }
         }
     }

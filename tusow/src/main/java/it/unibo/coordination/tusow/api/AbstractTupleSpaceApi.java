@@ -12,9 +12,10 @@ import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.NotImplementedError;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import static it.unibo.coordination.utils.CollectionUtils.listOf;
 
 abstract class AbstractTupleSpaceApi<T extends Tuple<T>, TT extends Template<T>, K, V, M extends Match<T, TT, K, V>, TS extends TupleSpace<T, TT, K, V, M>>
         extends AbstractApi implements TupleSpaceApi<T, TT, K, V, M> {
@@ -40,7 +41,7 @@ abstract class AbstractTupleSpaceApi<T extends Tuple<T>, TT extends Template<T>,
             }
 
             tupleSpace.write(tuples.stream().findFirst().get()).thenAcceptAsync(t -> {
-                handler.handle(Future.succeededFuture(List.of(t)));
+                handler.handle(Future.succeededFuture(listOf(t)));
             });
         }
     }
@@ -96,7 +97,7 @@ abstract class AbstractTupleSpaceApi<T extends Tuple<T>, TT extends Template<T>,
     protected abstract M ensureCorrectTypeForMatch(Match<T, TT, K, V> match);
 
     private Consumer<Match<T, TT, K, V>> singleMatchHandler(Handler<AsyncResult<Collection<? extends M>>> handler) {
-        return t -> handler.handle(Future.succeededFuture(List.of(ensureCorrectTypeForMatch(t))));
+        return t -> handler.handle(Future.succeededFuture(listOf(ensureCorrectTypeForMatch(t))));
     }
 
     @Override

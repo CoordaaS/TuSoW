@@ -3,7 +3,7 @@ package it.unibo.coordination.linda.presentation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unibo.coordination.linda.text.StringTuple;
 
-import java.util.Map;
+import static it.unibo.coordination.utils.CollectionUtils.mapOf;
 
 class StringTupleSerializer extends DynamicSerializer<StringTuple> {
 
@@ -13,6 +13,6 @@ class StringTupleSerializer extends DynamicSerializer<StringTuple> {
 
     @Override
     public Object toDynamicObject(StringTuple object) {
-        return Map.of("tuple", object.getValue());
+        return mapOf("tuple", object.getValue());
     }
 }
