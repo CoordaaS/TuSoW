@@ -47,7 +47,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.READ, template)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         try {
@@ -73,7 +73,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TAKE, template)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         try {
@@ -96,20 +96,21 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val tuple = aTuple
 
         val expectedEvent1 = OperationEvent.tupleAcceptingInvocation(tupleSpace.name, OperationType.WRITE, tuple)
-        val expectedEvent2 = TupleEvent.afterWriting(tupleSpace.name, tuple)
-        val expectedEvent3 = expectedEvent1.toTupleReturningCompletion(tuple)
+        val expectedEvent2 = TupleEvent.beforeWriting(tupleSpace.name, tuple)
+        val expectedEvent3 = TupleEvent.afterWriting(tupleSpace.name, tuple)
+        val expectedEvent4 = expectedEvent1.toTupleReturningCompletion(tuple)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tuple))
 
         await(executor)
 
-        assertEquals(3, observableBehaviour.size.toLong())
+        assertEquals(4, observableBehaviour.size.toLong())
         assertEquals(
-                listOf(expectedEvent1, expectedEvent2, expectedEvent3),
+                listOf(expectedEvent1, expectedEvent2, expectedEvent3, expectedEvent4),
                 observableBehaviour
         )
     }

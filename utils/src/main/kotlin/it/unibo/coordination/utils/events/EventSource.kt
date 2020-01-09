@@ -19,6 +19,7 @@ interface EventSource<T> {
 
     fun <U> map(f: (T) -> U): EventSource<U>
 
+    @Suppress("UNCHECKED_CAST")
     @JvmDefault
     fun <U> cast(): EventSource<U> = map { it as U }
 

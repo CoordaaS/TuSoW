@@ -70,42 +70,42 @@ sealed class TupleEvent<T : Tuple<T>, TT : Template<T>>(
 
         @JvmStatic
         fun <X : Tuple<X>, Y : Template<X>> beforeTaking(tupleSpaceName: String, tuple: X): Taking<X, Y> {
-            return Taking(tupleSpaceName, false, tuple)
-        }
-
-        @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> afterTaking(tupleSpaceName: String, tuple: X): Taking<X, Y> {
             return Taking(tupleSpaceName, true, tuple)
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> beforeReading(tupleSpaceName: String, tuple: X): Reading<X, Y> {
-            return Reading(tupleSpaceName, false, tuple)
+        fun <X : Tuple<X>, Y : Template<X>> afterTaking(tupleSpaceName: String, tuple: X): Taking<X, Y> {
+            return Taking(tupleSpaceName, false, tuple)
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> afterReading(tupleSpaceName: String, tuple: X): Reading<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> beforeReading(tupleSpaceName: String, tuple: X): Reading<X, Y> {
             return Reading(tupleSpaceName, true, tuple)
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> beforeAbsent(tupleSpaceName: String, template: Y): Missing<X, Y> {
-            return Missing(tupleSpaceName, false, template)
+        fun <X : Tuple<X>, Y : Template<X>> afterReading(tupleSpaceName: String, tuple: X): Reading<X, Y> {
+            return Reading(tupleSpaceName, false, tuple)
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> afterAbsent(tupleSpaceName: String, template: Y): Missing<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> beforeAbsent(tupleSpaceName: String, template: Y): Missing<X, Y> {
             return Missing(tupleSpaceName, true, template)
         }
 
         @JvmStatic
+        fun <X : Tuple<X>, Y : Template<X>> afterAbsent(tupleSpaceName: String, template: Y): Missing<X, Y> {
+            return Missing(tupleSpaceName, false, template)
+        }
+
+        @JvmStatic
         fun <X : Tuple<X>, Y : Template<X>> beforeAbsent(tupleSpaceName: String, template: Y, counterexample: X): Missing<X, Y> {
-            return Missing(tupleSpaceName, false, template, counterexample)
+            return Missing(tupleSpaceName, true, template, counterexample)
         }
 
         @JvmStatic
         fun <X : Tuple<X>, Y : Template<X>> afterAbsent(tupleSpaceName: String, template: Y, counterexample: X): Missing<X, Y> {
-            return Missing(tupleSpaceName, true, template, counterexample)
+            return Missing(tupleSpaceName, false, template, counterexample)
         }
     }
 }

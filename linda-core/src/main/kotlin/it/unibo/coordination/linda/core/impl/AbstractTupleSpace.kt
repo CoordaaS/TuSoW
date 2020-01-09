@@ -230,7 +230,7 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
     }
 
     private fun onReading(tuple: T) {
-        tupleEventEmitter.syncEmit(TupleEvent.beforeTaking(name, tuple))
+        tupleEventEmitter.syncEmit(TupleEvent.beforeReading(name, tuple))
     }
 
     private fun onRead(tuple: T) {
@@ -238,7 +238,7 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
     }
 
     private fun onWriting(tuple: T) {
-        tupleEventEmitter.syncEmit(TupleEvent.beforeTaking(name, tuple))
+        tupleEventEmitter.syncEmit(TupleEvent.beforeWriting(name, tuple))
         resumePendingAccessRequests(tuple).ifPresent { insertTuple(it) }
     }
 
@@ -254,12 +254,12 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
         tupleEventEmitter.syncEmit(TupleEvent.beforeAbsent(name, template, counterExample))
     }
 
-    private fun onMissed(template: TT, counterExample: T) {
-        tupleEventEmitter.syncEmit(TupleEvent.afterAbsent(name, template, counterExample))
-    }
-
     private fun onMissed(template: TT) {
         tupleEventEmitter.syncEmit(TupleEvent.afterAbsent(name, template))
+    }
+
+    private fun onMissed(template: TT, counterExample: T) {
+        tupleEventEmitter.syncEmit(TupleEvent.afterAbsent(name, template, counterExample))
     }
 
     protected open fun retrieveTuples(template: TT): Stream<out M> {
@@ -474,6 +474,7 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
         val read = lookForTuple(template)
         read.tuple.ifPresent { onReading(it) }
         promise.complete(read)
+        read.tuple.ifPresent { onRead(it) }
     }
 
     override fun toString(): String {
