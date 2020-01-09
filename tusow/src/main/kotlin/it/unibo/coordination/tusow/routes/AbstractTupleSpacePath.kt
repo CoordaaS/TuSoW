@@ -23,7 +23,7 @@ import java.util.*
 abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>>(tupleSpaceType: String) : Path("/$tupleSpaceType/:tupleSpaceName") {
 
     override fun setupRoutes() {
-        addRoute(HttpMethod.DELETE, Handler { routingContext: RoutingContext -> delete(routingContext) })
+        addRoute(HttpMethod.DELETE, Handler { delete(it) })
                 .consumes(MIMETypes.APPLICATION_JSON.toString())
                 .consumes(MIMETypes.APPLICATION_XML.toString())
                 .consumes(MIMETypes.APPLICATION_YAML.toString())
@@ -31,7 +31,7 @@ abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : 
                 .produces(MIMETypes.APPLICATION_XML.toString())
                 .produces(MIMETypes.APPLICATION_YAML.toString())
 
-        addRoute(HttpMethod.GET, Handler { routingContext: RoutingContext -> this[routingContext] })
+        addRoute(HttpMethod.GET, Handler { get(it) })
                 .consumes(MIMETypes.APPLICATION_JSON.toString())
                 .consumes(MIMETypes.APPLICATION_XML.toString())
                 .consumes(MIMETypes.APPLICATION_YAML.toString())
@@ -39,7 +39,7 @@ abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : 
                 .produces(MIMETypes.APPLICATION_XML.toString())
                 .produces(MIMETypes.APPLICATION_YAML.toString())
 
-        addRoute(HttpMethod.POST, Handler { routingContext: RoutingContext -> post(routingContext) })
+        addRoute(HttpMethod.POST, Handler { post(it) })
                 .consumes(MIMETypes.APPLICATION_JSON.toString())
                 .consumes(MIMETypes.APPLICATION_XML.toString())
                 .consumes(MIMETypes.APPLICATION_YAML.toString())
@@ -47,7 +47,7 @@ abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : 
                 .produces(MIMETypes.APPLICATION_XML.toString())
                 .produces(MIMETypes.APPLICATION_YAML.toString())
 
-        addRoute(HttpMethod.HEAD, Handler { routingContext: RoutingContext -> head(routingContext) })
+        addRoute(HttpMethod.HEAD, Handler { head(it) })
                 .consumes(MIMETypes.ANY.toString())
                 .produces(MIMETypes.APPLICATION_JSON.toString())
                 .produces(MIMETypes.APPLICATION_XML.toString())
@@ -209,7 +209,7 @@ abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : 
                         }
                 )
                 result = res
-                api.observeTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), cleanInputs.v4(), cleanInputs.v6(), res)
+                api.observeTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), cleanInputs.v4(), cleanInputs.v6()!!, res)
             }
         } catch (e: HttpError) {
             result.fail(e)
@@ -218,7 +218,7 @@ abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : 
         }
     }
 
-    private fun validateInputsForGet(tupleSpaceName: String, bulk: Optional<Boolean>, predicative: Optional<Boolean>, negated: Optional<Boolean>, all: Optional<Boolean>, template: TT?): Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT> {
+    private fun validateInputsForGet(tupleSpaceName: String, bulk: Optional<Boolean>, predicative: Optional<Boolean>, negated: Optional<Boolean>, all: Optional<Boolean>, template: TT?): Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT?> {
         if (template == null && Optional.of(true) != all) {
             throw BadContentError("The lack of body for GET is only supported in case query parameter `all` is true")
         }
@@ -232,22 +232,22 @@ abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : 
         )
     }
 
-    private fun <TL : Collection<M>> validateOutputsForGet(inputs: Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT>, output: TL): TL {
+    private fun <TL : Collection<M>> validateOutputsForGet(inputs: Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT?>, output: TL): TL {
         return validateOutputsForGet(inputs.v1(), inputs.v2(), inputs.v3(), inputs.v4(), inputs.v5(), inputs.v6(), output)
     }
 
-    private fun <TL : Collection<M>> validateOutputsForGet(tupleSpaceName: String, bulk: Boolean, predicative: Boolean, negated: Boolean, all: Boolean, template: TT, output: TL): TL {
+    private fun <TL : Collection<M>> validateOutputsForGet(tupleSpaceName: String, bulk: Boolean, predicative: Boolean, negated: Boolean, all: Boolean, template: TT?, output: TL): TL {
         if (!bulk && !all && output.size > 1) {
             throw InternalServerError()
         }
         return output
     }
 
-    private fun <TL : Collection<T>> validateOutputsForGetAll(inputs: Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT>, output: TL): TL {
+    private fun <TL : Collection<T>> validateOutputsForGetAll(inputs: Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT?>, output: TL): TL {
         return validateOutputsForGetAll(inputs.v1(), inputs.v2(), inputs.v3(), inputs.v4(), inputs.v5(), inputs.v6(), output)
     }
 
-    private fun <TL : Collection<T>> validateOutputsForGetAll(tupleSpaceName: String, bulk: Boolean, predicative: Boolean, negated: Boolean, all: Boolean, template: TT, output: TL): TL {
+    private fun <TL : Collection<T>> validateOutputsForGetAll(tupleSpaceName: String, bulk: Boolean, predicative: Boolean, negated: Boolean, all: Boolean, template: TT?, output: TL): TL {
         if (!bulk && !all && output.size > 1) {
             throw InternalServerError()
         }
