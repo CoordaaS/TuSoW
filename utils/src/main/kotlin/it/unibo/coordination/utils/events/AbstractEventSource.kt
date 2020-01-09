@@ -43,4 +43,11 @@ internal abstract class AbstractEventSource<T> : EventSource<T> {
         privateEventListeners.add(propagator)
         return result.eventSource
     }
+
+    override fun filter(predicate: (T) -> Boolean): EventSource<T> {
+        val result = newPrivateEmitter<T>()
+        val propagator = { event: T -> if (predicate(event)) result.emit(event) }
+        privateEventListeners.add(propagator)
+        return result.eventSource
+    }
 }

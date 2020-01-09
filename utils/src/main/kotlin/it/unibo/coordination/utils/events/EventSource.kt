@@ -19,6 +19,11 @@ interface EventSource<T> {
 
     fun <U> map(f: (T) -> U): EventSource<U>
 
+    @JvmDefault
+    fun <U> cast(): EventSource<U> = map { it as U }
+
+    fun filter(predicate: (T) -> Boolean): EventSource<T>
+
     companion object {
         @JvmStatic
         fun <X> merge(first: EventSource<X>, second: EventSource<X>, vararg others: EventSource<X>): EventSource<X> {
@@ -26,3 +31,5 @@ interface EventSource<T> {
         }
     }
 }
+
+inline fun <reified U : T, T> EventSource<T>.filterByType(): EventSource<U> = filter { it is U }.map { it as U }
