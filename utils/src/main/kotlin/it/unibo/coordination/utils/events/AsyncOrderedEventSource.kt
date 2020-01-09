@@ -5,13 +5,14 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 
-internal class AsyncOrderedEventSourceImpl<T>(private val engine: ExecutorService) : AbstractEventSourceImpl<T>() {
+internal class AsyncOrderedEventSource<T>(private val engine: ExecutorService) : AbstractEventEmitter<T>() {
 
-    override val eventListeners = LinkedList<EventListener<T>>()
+    override val publicEventListeners = LinkedList<EventListener<T>>()
+    override val privateEventListeners = LinkedList<EventListener<T>>()
 
-    override fun syncEmit(data: T): T {
+    override fun syncEmit(event: T): T {
         try {
-            return asyncEmit(data).get()
+            return asyncEmit(event).get()
         } catch (e: InterruptedException) {
             throw IllegalStateException(e)
         } catch (e: ExecutionException) {
@@ -23,7 +24,7 @@ internal class AsyncOrderedEventSourceImpl<T>(private val engine: ExecutorServic
     override fun asyncEmit(event: T): CompletableFuture<T> {
         val emitterPromise = CompletableFuture<T>()
 
-        submitNotifications(event, eventListeners.toList(), 0, emitterPromise)
+        submitNotifications(event, allEventListeners.toList(), 0, emitterPromise)
 
         return emitterPromise
     }
@@ -38,4 +39,10 @@ internal class AsyncOrderedEventSourceImpl<T>(private val engine: ExecutorServic
             }
         }
     }
+
+    override fun emit(event: T) {
+        asyncEmit(event)
+    }
+
+    override fun <U> newPrivateEmitter(): EventEmitter<U> = AsyncOrderedEventSource(engine)
 }

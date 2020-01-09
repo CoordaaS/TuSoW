@@ -1,14 +1,19 @@
 package it.unibo.coordination.utils.events
 
-interface SyncEventEmitter<Arg> : EventEmitter<Arg> {
+interface SyncEventEmitter<T> : EventEmitter<T> {
 
-    fun syncEmit(data: Arg): Arg
+    fun syncEmit(event: T): T
+
+    @JvmDefault
+    override fun emit(event: T) {
+        syncEmit(event)
+    }
 
     companion object {
 
         @JvmStatic
         fun <X> ordered(): SyncEventEmitter<X> {
-            return SyncOrderedEventSourceImpl()
+            return SyncOrderedEventSource()
         }
     }
 

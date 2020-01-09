@@ -1,5 +1,7 @@
 package it.unibo.coordination.utils.events
 
-interface EventEmitter<Arg> {
-    val eventSource: EventSource<Arg>
+interface EventEmitter<T> {
+    val eventSource: EventSource<T>
+
+    fun emit(event: T)
 }
