@@ -7,14 +7,14 @@ import it.unibo.presentation.MIMETypes
 internal class RegularMatchDeserializer(mimeType: MIMETypes, mapper: ObjectMapper) : DynamicDeserializer<RegularMatch>(RegularMatch::class.java, mimeType, mapper) {
     override fun fromDynamicObject(dynamicObject: Any): RegularMatch {
         if (dynamicObject is Map<*, *>) {
-            val dynamicMap = dynamicObject as Map<String, *>
-            when (val templateStr = dynamicMap["template"] ) {
+            when (val templateStr = dynamicObject["template"] ) {
                 is String -> {
                     val template = RegexTemplate.of(templateStr)
-                    var tupleObject: Any
-                    if (dynamicMap["tuple"].also { tupleObject = it!! } is String) {
-                        val tuple = StringTuple.of(tupleObject as String)
-                        return template.matchWith(tuple)
+                    when(val tupleObject: Any? = dynamicObject["tuple"]) {
+                        is String -> {
+                            val tuple = StringTuple.of(tupleObject)
+                            return template.matchWith(tuple)
+                        }
                     }
                     return RegularMatch.failed(template)
                 }
