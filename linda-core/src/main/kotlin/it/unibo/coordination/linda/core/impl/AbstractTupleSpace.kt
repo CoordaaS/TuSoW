@@ -46,13 +46,13 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
     override val operationInvoked
         get() = operationInvokedEmitter.eventSource
 
-    private val operationSuspendedEmitter: SyncEventEmitter<PendingRequestEvent.Suspending<T, TT>> = SyncEventEmitter.ordered()
-    override val operationSuspended: EventSource<PendingRequestEvent.Suspending<T, TT>>
-        get() = operationSuspendedEmitter.eventSource
+    private val pendingRequestSuspendedEmitter: SyncEventEmitter<PendingRequestEvent.Suspending<T, TT>> = SyncEventEmitter.ordered()
+    override val pendingRequestSuspended: EventSource<PendingRequestEvent.Suspending<T, TT>>
+        get() = pendingRequestSuspendedEmitter.eventSource
 
-    private val operationResumedEmitter: SyncEventEmitter<PendingRequestEvent.Resuming<T, TT>> = SyncEventEmitter.ordered()
-    override val operationResumed: EventSource<PendingRequestEvent.Resuming<T, TT>>
-        get() = operationResumedEmitter.eventSource
+    private val pendingRequestResumedEmitter: SyncEventEmitter<PendingRequestEvent.Resuming<T, TT>> = SyncEventEmitter.ordered()
+    override val pendingRequestResumed: EventSource<PendingRequestEvent.Resuming<T, TT>>
+        get() = pendingRequestResumedEmitter.eventSource
 
     protected abstract val pendingRequests: MutableCollection<LocalPendingRequest<T, TT, M>>
 
