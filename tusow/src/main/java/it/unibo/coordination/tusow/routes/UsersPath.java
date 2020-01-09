@@ -1,6 +1,6 @@
 package it.unibo.coordination.tusow.routes;
 
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 import it.unibo.coordination.tusow.api.UsersApi;
@@ -73,14 +73,14 @@ public class UsersPath extends Path {
 
     private void post(RoutingContext routingContext) {
 		final UsersApi api = UsersApi.get(routingContext);
-        final Future<Link> result = Future.future();
+        final Promise<Link> result = Promise.promise();
         final MIMETypes mimeType = MIMETypes.parse(routingContext.parsedHeaders().contentType().value());
-        result.setHandler(responseHandler(routingContext, this::getLinkMarshaller));
+        result.future().setHandler(responseHandler(routingContext, this::getLinkMarshaller));
 
 		try {
 			final User user = getUsersUnmarshaller(mimeType).fromString(routingContext.getBodyAsString());
             validateUserForPost(user);
-			api.createUser(user, result.completer());
+			api.createUser(user, result);
 		} catch(HttpError e) {
             result.fail(e);
         } catch (/*IOException | */IllegalArgumentException e) {
@@ -98,16 +98,16 @@ public class UsersPath extends Path {
 
     private void get(RoutingContext routingContext) {
         final UsersApi api = UsersApi.get(routingContext);
-        final Future<Collection<? extends User>> result = Future.future();
+        final Promise<Collection<? extends User>> result = Promise.promise();
 
-        result.setHandler(responseHandlerWithManyContents(routingContext, this::getUsersMarshaller, x -> cleanUsers(x)));
+        result.future().setHandler(responseHandlerWithManyContents(routingContext, this::getUsersMarshaller, x -> cleanUsers(x)));
 
         try {
             final Optional<Integer> skip = Optional.ofNullable(routingContext.queryParams().get("skip")).map(Integer::parseInt);
             final Optional<Integer> limit = Optional.ofNullable(routingContext.queryParams().get("limit")).map(Integer::parseInt);
             final Optional<String> filter = Optional.ofNullable(routingContext.queryParams().get("filter"));
 
-            api.readAllUsers(skip.orElse(0), limit.orElse(10), filter.orElse(""), result.completer());
+            api.readAllUsers(skip.orElse(0), limit.orElse(10), filter.orElse(""), result);
         } catch(HttpError e) {
             result.fail(e);
         } catch (IllegalArgumentException e) {
@@ -122,8 +122,8 @@ public class UsersPath extends Path {
 
     private void getUser(RoutingContext routingContext) {
         final UsersApi api = UsersApi.get(routingContext);
-        final Future<User> result = Future.future();
-        result.setHandler(responseHandler(routingContext, this::getUsersMarshaller, this::cleanUser));
+        final Promise<User> result = Promise.promise();
+        result.future().setHandler(responseHandler(routingContext, this::getUsersMarshaller, this::cleanUser));
 
         try {
             final String identifier = routingContext.pathParam("identifier");
@@ -138,14 +138,14 @@ public class UsersPath extends Path {
     private void putUser(RoutingContext routingContext) {
         final UsersApi api = UsersApi.get(routingContext);
         final MIMETypes mimeType = MIMETypes.parse(routingContext.parsedHeaders().contentType().value());
-        final Future<User> result = Future.future();
-        result.setHandler(responseHandler(routingContext, this::getUsersMarshaller, this::cleanUser));
+        final Promise<User> result = Promise.promise();
+        result.future().setHandler(responseHandler(routingContext, this::getUsersMarshaller, this::cleanUser));
 
         try {
             final User user = getUsersUnmarshaller(mimeType).fromString(routingContext.getBodyAsString()); // = User.parse(routingContext.parsedHeaders().contentType().value(), routingContext.getBodyAsString());
             validateUserForPutUser(user);
 
-            api.updateUser(routingContext.pathParam("identifier"), user, result.completer());
+            api.updateUser(routingContext.pathParam("identifier"), user, result);
         } catch(HttpError e) {
             result.fail(e);
         } catch (IllegalArgumentException /*| IOException */ e) {

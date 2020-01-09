@@ -1,6 +1,6 @@
 package it.unibo.coordination.tusow.routes;
 
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 import it.unibo.coordination.linda.core.Match;
@@ -69,8 +69,8 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
 
     public void post(RoutingContext routingContext) {
         final TupleSpaceApi<T, TT, K, V, M> api = getTupleSpaceApi(routingContext);
-        final Future<Collection<? extends T>> result = Future.future();
-        result.setHandler(responseHandlerWithNoContent(routingContext));
+        final Promise<Collection<? extends T>> result = Promise.promise();
+        result.future().onFailure(responseHandlerFallback(routingContext));
 
         try {
             final String tupleSpaceName = routingContext.pathParam("tupleSpaceName");
@@ -80,9 +80,9 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
 
             final Tuple3<String, Boolean, List<T>> cleanInputs = validateInputsForPost(tupleSpaceName, bulk, tuples);
 
-            result.setHandler(responseHandlerWithManyContents(routingContext, this::getTuplesMarshaller, response -> validateOutputsForPost(cleanInputs, response)));
+            result.future().onSuccess(successfulResponseHandlerWithManyContents(routingContext, this::getTuplesMarshaller, response -> validateOutputsForPost(cleanInputs, response)));
 
-            api.createNewTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), result.completer());
+            api.createNewTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), result);
         } catch (HttpError e) {
             result.fail(e);
         } catch (IllegalArgumentException e) {
@@ -92,8 +92,8 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
 
     public void head(RoutingContext routingContext) {
         final TupleSpaceApi<T, TT, K, V, M> api = getTupleSpaceApi(routingContext);
-        final Future<Integer> result = Future.future();
-        result.setHandler(responseHandlerWithNumericContent(routingContext, "X-TUPLE-SPACE-SIZE"));
+        final Promise<Integer> result = Promise.promise();
+        result.future().onComplete(responseHandlerWithNumericContent(routingContext, "X-TUPLE-SPACE-SIZE"));
 
         try {
             final String tupleSpaceName = routingContext.pathParam("tupleSpaceName");
@@ -136,8 +136,8 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
 
     public void delete(RoutingContext routingContext) {
         final TupleSpaceApi<T, TT, K, V, M> api = getTupleSpaceApi(routingContext);
-        final Future<Collection<? extends M>> result = Future.future();
-        result.setHandler(responseHandlerWithNoContent(routingContext));
+        final Promise<Collection<? extends M>> result = Promise.promise();
+        result.future().onFailure(responseHandlerFallback(routingContext));
 
         try {
             final String tupleSpaceName = routingContext.pathParam("tupleSpaceName");
@@ -149,9 +149,9 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
 
             final Tuple4<String, Boolean, Boolean, TT> cleanInputs = validateInputsForDelete(tupleSpaceName, bulk, predicative, template);
 
-            result.setHandler(responseHandlerWithManyContents(routingContext, this::getMatchMarshaller, response -> validateOutputsForDelete(cleanInputs, response)));
+            result.future().onSuccess(successfulResponseHandlerWithManyContents(routingContext, this::getMatchMarshaller, response -> validateOutputsForDelete(cleanInputs, response)));
 
-            api.consumeTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), cleanInputs.v4(), result.completer());
+            api.consumeTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), cleanInputs.v4(), result);
         } catch (HttpError e) {
             result.fail(e);
         } catch (IllegalArgumentException e) {
@@ -191,8 +191,8 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
 
     public void get(RoutingContext routingContext) {
         final TupleSpaceApi<T, TT, K, V, M> api = getTupleSpaceApi(routingContext);
-        Future<?> result = Future.future();
-        result.setHandler(responseHandlerWithNoContent(routingContext));
+        Promise<?> result = Promise.promise();
+        result.future().onFailure(responseHandlerFallback(routingContext));
 
         try {
             final String tupleSpaceName = routingContext.pathParam("tupleSpaceName");
@@ -211,17 +211,17 @@ public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.lin
             final Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT> cleanInputs = validateInputsForGet(tupleSpaceName, bulk, predicative, negated, all, template);
 
             if (cleanInputs.v5()) {
-                final Future<Collection<? extends T>> res = Future.future();
-                res.setHandler(responseHandlerWithManyContents(routingContext, this::getTuplesMarshaller, response -> validateOutputsForGetAll(cleanInputs, response)));
+                final Promise<Collection<? extends T>> res = Promise.promise();
+                res.future().onSuccess(successfulResponseHandlerWithManyContents(routingContext, this::getTuplesMarshaller, response -> validateOutputsForGetAll(cleanInputs, response)));
 
+                result = res;
                 api.getAllTuples(cleanInputs.v1(), res);
-                result = res;
             } else {
-                final Future<Collection<? extends M>> res = Future.future();
-                res.setHandler(responseHandlerWithManyContents(routingContext, this::getMatchMarshaller, response -> validateOutputsForGet(cleanInputs, response)));
+                final Promise<Collection<? extends M>> res = Promise.promise();
+                res.future().onSuccess(successfulResponseHandlerWithManyContents(routingContext, this::getMatchMarshaller, response -> validateOutputsForGet(cleanInputs, response)));
 
-                api.observeTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), cleanInputs.v4(), cleanInputs.v6(), res);
                 result = res;
+                api.observeTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), cleanInputs.v4(), cleanInputs.v6(), res);
             }
 
         } catch (HttpError e) {
