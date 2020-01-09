@@ -13,4 +13,6 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
     testImplementation("junit", "junit", junitVersion)
+    testImplementation(project(":test-utils"))
+    testImplementation(project(":linda-test"))
 }

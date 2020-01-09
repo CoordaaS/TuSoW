@@ -128,4 +128,9 @@ internal class PresentationImpl : Presentation {
             register(type, f(mime, mappers[mime] ?: throw IllegalArgumentException("No mapper for MIMEType $mime")))
         }
     }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <M : ObjectMapper> getMapper(mimeType: MIMETypes): M {
+        return mappers[mimeType] as M
+    }
 }

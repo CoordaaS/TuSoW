@@ -26,6 +26,8 @@ interface Presentation {
     fun <T> registerDynamicDeserializers(type: Class<T>, f: (MIMETypes, ObjectMapper) -> Deserializer<T>)
     fun <T> registerDynamicDeserializers(type: Class<T>, types: EnumSet<MIMETypes>, f: (MIMETypes, ObjectMapper) -> Deserializer<T>)
 
+    fun <M : ObjectMapper> getMapper(mimeType: MIMETypes): M
+
     companion object {
         val default: Presentation = PresentationImpl()
     }
