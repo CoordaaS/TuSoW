@@ -47,7 +47,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.READ, template)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         try {
@@ -73,7 +73,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TAKE, template)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         try {
@@ -100,7 +100,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent3 = expectedEvent1.toTupleReturningCompletion(tuple)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tuple))
@@ -129,7 +129,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tupleTemplate.value0))
@@ -162,7 +162,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         val read = tupleSpace.read(tupleTemplate.value1)
@@ -190,7 +190,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent2 = expectedEvent1.toTuplesReturningCompletion()
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.tryReadTuple(template))
@@ -217,7 +217,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tupleTemplate.value0))
@@ -249,7 +249,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tupleTemplate.value0))
@@ -281,7 +281,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         val take = tupleSpace.takeTuple(tupleTemplate.value1)
@@ -313,7 +313,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tupleTemplate.value0))
@@ -342,7 +342,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent2 = expectedEvent1.toTuplesReturningCompletion()
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.tryTakeTuple(template))
@@ -370,7 +370,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent3 = expectedEvent1.toTuplesReturningCompletion(tuples)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.writeAll(tuples))
@@ -404,7 +404,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.writeAll(tuples))
@@ -445,7 +445,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.writeAll(tuples.value0))
@@ -527,7 +527,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.writeAll(tuples.value0))
@@ -603,7 +603,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.ABSENT, tupleTemplate.value1)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tupleTemplate.value0))
@@ -632,7 +632,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent3 = expectedEvent1.toTemplateReturningCompletion(template)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.absentTemplate(template))
@@ -663,7 +663,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent9 = expectedEvent7.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tupleTemplate.value0))
@@ -699,7 +699,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent2 = expectedEvent1.toTuplesReturningCompletion()
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.tryAbsent(template))
@@ -726,7 +726,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleSpaceChanged.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tupleTemplate.value0))

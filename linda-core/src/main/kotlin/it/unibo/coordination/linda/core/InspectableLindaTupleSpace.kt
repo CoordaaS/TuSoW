@@ -11,7 +11,7 @@ interface InspectableLindaTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : M
 
     val operationCompleted: EventSource<OperationEvent.Completion<T, TT>>
 
-    val tupleSpaceChanged: EventSource<TupleEvent<T, TT>>
+    val tupleEvent: EventSource<TupleEvent<T, TT>>
 
     val pendingRequestSuspended: EventSource<PendingRequestEvent.Suspending<T, TT>>
 

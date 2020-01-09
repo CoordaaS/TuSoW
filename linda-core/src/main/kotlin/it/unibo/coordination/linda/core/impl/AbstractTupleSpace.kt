@@ -34,9 +34,9 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
 
     private val lock = ReentrantLock(true)
     
-    private val tupleSpaceChangedEmitter: SyncEventEmitter<TupleEvent<T, TT>> = SyncEventEmitter.ordered()
-    override val tupleSpaceChanged
-        get() = tupleSpaceChangedEmitter.eventSource
+    private val tupleEventEmitter: SyncEventEmitter<TupleEvent<T, TT>> = SyncEventEmitter.ordered()
+    override val tupleEvent
+        get() = tupleEventEmitter.eventSource
     
     private val operationCompletedEmitter: SyncEventEmitter<OperationEvent.Completion<T, TT>> = SyncEventEmitter.ordered()
     override val operationCompleted
@@ -174,24 +174,24 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
     }
 
     private fun onTaken(tuple: T) {
-        tupleSpaceChangedEmitter.syncEmit(TupleEvent.afterTaking(name, tuple))
+        tupleEventEmitter.syncEmit(TupleEvent.afterTaking(name, tuple))
         resumePendingAbsentRequests(tuple)
     }
 
     private fun onRead(tuple: T) {
-        tupleSpaceChangedEmitter.syncEmit(TupleEvent.afterReading(name, tuple))
+        tupleEventEmitter.syncEmit(TupleEvent.afterReading(name, tuple))
     }
 
     private fun onWritten(tuple: T) {
-        tupleSpaceChangedEmitter.syncEmit(TupleEvent.afterWriting(name, tuple))
+        tupleEventEmitter.syncEmit(TupleEvent.afterWriting(name, tuple))
     }
 
     private fun onAbsent(template: TT, counterExample: T) {
-        tupleSpaceChangedEmitter.syncEmit(TupleEvent.afterAbsent(name, template, counterExample))
+        tupleEventEmitter.syncEmit(TupleEvent.afterAbsent(name, template, counterExample))
     }
 
     private fun onAbsent(template: TT) {
-        tupleSpaceChangedEmitter.syncEmit(TupleEvent.afterAbsent(name, template))
+        tupleEventEmitter.syncEmit(TupleEvent.afterAbsent(name, template))
     }
 
     protected open fun retrieveTuples(template: TT): Stream<out M> {
