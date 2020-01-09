@@ -18,24 +18,20 @@ object Presentation : Prototype by Prototype.default {
             PrologUtils.termToDynamicObject(term)
         }
 
-        registerDynamicSerializers(LogicMatch::class.java) { klass, mapper ->
-            LogicMatchSerializer(klass, mapper)
-        }
+        registerDynamicSerializers(LogicMatch::class.java, ::LogicMatchSerializer)
 
         registerDynamicDeserializers(LogicTuple::class.java) { _, _, tuple ->
             LogicTuple.of(PrologUtils.dynamicObjectToTerm(tuple))
         }
 
-        registerDynamicDeserializers(LogicTemplate::class.java) { _, _, term ->
-            LogicTemplate.of(PrologUtils.dynamicObjectToTerm(term))
+        registerDynamicDeserializers(LogicTemplate::class.java) { _, _, template ->
+            LogicTemplate.of(PrologUtils.dynamicObjectToTerm(template))
         }
 
         registerDynamicDeserializers(Term::class.java) { _, _, term ->
             PrologUtils.dynamicObjectToTerm(term)
         }
 
-        registerDynamicDeserializers(LogicMatch::class.java) { klass, mapper ->
-            LogicMatchDeserializer(klass, mapper)
-        }
+        registerDynamicDeserializers(LogicMatch::class.java, ::LogicMatchDeserializer)
     }
 }

@@ -3,21 +3,21 @@ package it.unibo.coordination.tusow.routes;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
-import it.unibo.coordination.linda.presentation.Deserializer;
-import it.unibo.coordination.linda.presentation.MIMETypes;
-import it.unibo.coordination.linda.presentation.Serializer;
 import it.unibo.coordination.tusow.api.UsersApi;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
 import it.unibo.coordination.tusow.presentation.Link;
 import it.unibo.coordination.tusow.presentation.User;
+import it.unibo.presentation.Deserializer;
+import it.unibo.presentation.MIMETypes;
+import it.unibo.presentation.Serializer;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static it.unibo.coordination.linda.presentation.MIMETypes.*;
+import static it.unibo.presentation.MIMETypes.*;
 
 public class UsersPath extends Path {
 
@@ -56,19 +56,19 @@ public class UsersPath extends Path {
 	}
 
     private Serializer<User> getUsersMarshaller(MIMETypes mimeType) {
-        return Serializer.of(User.class, mimeType);
+        return getPresentation().serializerOf(User.class, mimeType);
     }
 
     private Deserializer<User> getUsersUnmarshaller(MIMETypes mimeType) {
-        return Deserializer.of(User.class, mimeType);
+        return getPresentation().deserializerOf(User.class, mimeType);
     }
 
     private Serializer<Link> getLinkMarshaller(MIMETypes mimeType) {
-        return Serializer.of(Link.class, mimeType);
+        return getPresentation().serializerOf(Link.class, mimeType);
     }
 
     private Deserializer<Link> getLinkUnmarshaller(MIMETypes mimeType) {
-        return Deserializer.of(Link.class, mimeType);
+        return getPresentation().deserializerOf(Link.class, mimeType);
     }
 
     private void post(RoutingContext routingContext) {

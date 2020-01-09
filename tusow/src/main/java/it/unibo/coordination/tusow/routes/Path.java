@@ -10,10 +10,11 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.ErrorHandler;
-import it.unibo.coordination.linda.presentation.MIMETypes;
-import it.unibo.coordination.linda.presentation.Serializer;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
+import it.unibo.presentation.MIMETypes;
+import it.unibo.presentation.Presentation;
+import it.unibo.presentation.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,6 +166,10 @@ public abstract class Path {
 				}
 			}
 		};
+	}
+
+	protected Presentation getPresentation() {
+		return Presentation.Companion.getDefault();
 	}
 
 	public void attach(Router router) {

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
-import it.unibo.coordination.linda.presentation.Presentation;
+import it.unibo.presentation.Presentation;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -17,8 +17,8 @@ import java.util.UUID;
 public class User  {
 
     static {
-        Presentation.registerSimpleSerializers(User.class);
-        Presentation.registerSimpleDeserializers(User.class);
+        Presentation.Companion.getDefault().registerSimpleSerializers(User.class);
+        Presentation.Companion.getDefault().registerSimpleDeserializers(User.class);
     }
 
     private UUID id = null;

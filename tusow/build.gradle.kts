@@ -10,7 +10,9 @@ val ktFreeCompilerArgs: String by project
 dependencies {
     api(project(":linda-core"))
     api(project(":linda-logic"))
-    api(project(":linda-presentation"))
+    api(project(":linda-logic-presentation"))
+    api(project(":linda-text"))
+    api(project(":linda-text-presentation"))
 
     implementation(project(":utils"))
     implementation(project(":prologx"))
@@ -24,14 +26,16 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", jacksonVersion)
     implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-xml", jacksonVersion)
     implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml", jacksonVersion)
+
     implementation("org.jooq", "jool", joolVersion)
+
+    implementation(kotlin("stdlib-jdk8"))
 
     // Use JUnit test framework
     testImplementation("io.vertx", "vertx-unit", vertxVersion)
 
     testImplementation("junit", "junit", junitVersion)
     testImplementation(project(":test-utils"))
-    implementation(kotlin("stdlib-jdk8"))
 }
 
 task<JavaExec>("tusow") {

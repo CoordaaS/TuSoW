@@ -5,13 +5,13 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.Template;
-import it.unibo.coordination.linda.presentation.Deserializer;
-import it.unibo.coordination.linda.presentation.MIMETypes;
-import it.unibo.coordination.linda.presentation.Serializer;
 import it.unibo.coordination.tusow.api.TupleSpaceApi;
 import it.unibo.coordination.tusow.exceptions.BadContentError;
 import it.unibo.coordination.tusow.exceptions.HttpError;
 import it.unibo.coordination.tusow.exceptions.InternalServerError;
+import it.unibo.presentation.Deserializer;
+import it.unibo.presentation.MIMETypes;
+import it.unibo.presentation.Serializer;
 import org.jooq.lambda.tuple.Tuple;
 import org.jooq.lambda.tuple.Tuple3;
 import org.jooq.lambda.tuple.Tuple4;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static it.unibo.coordination.linda.presentation.MIMETypes.*;
+import static it.unibo.presentation.MIMETypes.*;
 
 public abstract class AbstractTupleSpacePath<T extends it.unibo.coordination.linda.core.Tuple<T>, TT extends Template<T>, K, V, M extends Match<T, TT, K, V>> extends Path {
 

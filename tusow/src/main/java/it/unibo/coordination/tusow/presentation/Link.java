@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import it.unibo.coordination.linda.presentation.Presentation;
+import it.unibo.presentation.Presentation;
 
 import java.util.Objects;
 
@@ -13,8 +13,8 @@ import java.util.Objects;
 public class Link {
 
     static {
-        Presentation.registerSimpleSerializers(Link.class);
-        Presentation.registerSimpleDeserializers(Link.class);
+        Presentation.Companion.getDefault().registerSimpleSerializers(User.class);
+        Presentation.Companion.getDefault().registerSimpleDeserializers(User.class);
     }
 
     private String url = null;
