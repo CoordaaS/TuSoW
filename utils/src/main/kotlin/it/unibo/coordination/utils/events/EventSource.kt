@@ -33,3 +33,6 @@ interface EventSource<T> {
 }
 
 inline fun <reified U : T, T> EventSource<T>.filterByType(): EventSource<U> = filter { it is U }.map { it as U }
+
+inline fun <reified U : T, T> EventSource<T>.filterByType(klass: Class<U>): EventSource<U> =
+        filter { klass is U }.map { klass.cast(it) }

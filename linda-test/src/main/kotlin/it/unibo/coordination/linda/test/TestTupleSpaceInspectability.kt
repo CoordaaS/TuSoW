@@ -5,7 +5,7 @@ import it.unibo.coordination.linda.core.events.OperationEvent
 import it.unibo.coordination.linda.core.events.TupleEvent
 import it.unibo.coordination.linda.core.events.TupleSpaceEvent
 import it.unibo.coordination.testing.ConcurrentTestHelper
-import it.unibo.coordination.utils.indexOf
+import it.unibo.coordination.utils.firstIndexOf
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -47,7 +47,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.READ, template)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         try {
@@ -73,7 +73,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.TAKE, template)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         try {
@@ -100,7 +100,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent3 = expectedEvent1.toTupleReturningCompletion(tuple)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tuple))
@@ -129,7 +129,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tupleTemplate.value0))
@@ -140,11 +140,11 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
                 setOf(expectedEvent1, expectedEvent2, expectedEvent3, expectedEvent4, expectedEvent5, expectedEvent6),
                 observableBehaviour.toSet()
         )
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent2))
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
-        assertTrue(observableBehaviour.indexOf(expectedEvent3) < observableBehaviour.indexOf(expectedEvent4))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent5))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent6))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent2))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent3) < observableBehaviour.firstIndexOf(expectedEvent4))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent5))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent6))
     }
 
 
@@ -162,7 +162,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         val read = tupleSpace.read(tupleTemplate.value1)
@@ -174,10 +174,10 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
                 setOf(expectedEvent1, expectedEvent2, expectedEvent3, expectedEvent4, expectedEvent5, expectedEvent6),
                 observableBehaviour.toSet()
         )
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent2))
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent5))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent6))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent2))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent5))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent6))
     }
 
     @Test
@@ -190,7 +190,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent2 = expectedEvent1.toTuplesReturningCompletion()
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.tryReadTuple(template))
@@ -217,7 +217,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tupleTemplate.value0))
@@ -228,11 +228,11 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
                 setOf(expectedEvent1, expectedEvent2, expectedEvent3, expectedEvent4, expectedEvent5, expectedEvent6),
                 observableBehaviour.toSet()
         )
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent2))
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
-        assertTrue(observableBehaviour.indexOf(expectedEvent3) < observableBehaviour.indexOf(expectedEvent4))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent5))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent6))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent2))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent3) < observableBehaviour.firstIndexOf(expectedEvent4))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent5))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent6))
     }
 
     @Test
@@ -249,7 +249,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tupleTemplate.value0))
@@ -260,11 +260,11 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
                 setOf(expectedEvent1, expectedEvent2, expectedEvent3, expectedEvent4, expectedEvent5, expectedEvent6),
                 observableBehaviour.toSet()
         )
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent2))
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
-        assertTrue(observableBehaviour.indexOf(expectedEvent3) < observableBehaviour.indexOf(expectedEvent4))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent5))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent6))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent2))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent3) < observableBehaviour.firstIndexOf(expectedEvent4))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent5))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent6))
     }
 
     @Test
@@ -281,7 +281,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent1.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         val take = tupleSpace.takeTuple(tupleTemplate.value1)
@@ -293,10 +293,10 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
                 setOf(expectedEvent1, expectedEvent2, expectedEvent3, expectedEvent4, expectedEvent5, expectedEvent6),
                 observableBehaviour.toSet()
         )
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent2))
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent5))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent6))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent2))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent5))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent6))
     }
 
     @Test
@@ -313,7 +313,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tupleTemplate.value0))
@@ -324,11 +324,11 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
                 setOf(expectedEvent1, expectedEvent2, expectedEvent3, expectedEvent4, expectedEvent5, expectedEvent6),
                 observableBehaviour.toSet()
         )
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent2))
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
-        assertTrue(observableBehaviour.indexOf(expectedEvent3) < observableBehaviour.indexOf(expectedEvent4))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent5))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent6))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent2))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent3) < observableBehaviour.firstIndexOf(expectedEvent4))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent5))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent6))
 
     }
 
@@ -342,7 +342,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent2 = expectedEvent1.toTuplesReturningCompletion()
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.tryTakeTuple(template))
@@ -370,7 +370,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent3 = expectedEvent1.toTuplesReturningCompletion(tuples)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.writeAll(tuples))
@@ -381,9 +381,9 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
                 observableBehaviour.toSet()
         )
         expectedEvents2.forEach{
-            assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(it))
+            assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(it))
         }
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
     }
 
     @Test
@@ -404,7 +404,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.writeAll(tuples))
@@ -416,14 +416,14 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
                 observableBehaviour.toSet()
         )
         expectedEvents2.forEach{
-            assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(it))
+            assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(it))
         }
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
-        assertTrue(observableBehaviour.indexOf(expectedEvent3) < observableBehaviour.indexOf(expectedEvent4))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent3) < observableBehaviour.firstIndexOf(expectedEvent4))
         expectedEvents5.forEach{
-            assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(it))
+            assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(it))
         }
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent6))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent6))
     }
 
     @Test
@@ -445,7 +445,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.writeAll(tuples.value0))
@@ -457,14 +457,14 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
                 observableBehaviour.toSet()
         )
         expectedEvents2.forEach{
-            assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(it))
+            assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(it))
         }
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
-        assertTrue(observableBehaviour.indexOf(expectedEvent3) < observableBehaviour.indexOf(expectedEvent4))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent3) < observableBehaviour.firstIndexOf(expectedEvent4))
         expectedEvents5.forEach{
-            assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(it))
+            assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(it))
         }
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent6))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent6))
     }
 
 //    @Test
@@ -499,13 +499,13 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 //                observableBehaviour.toSet()
 //        )
 //        expectedEvents2.forEach{
-//            assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(it))
+//            assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(it))
 //        }
-//        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
+//        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
 //        expectedEvents5.forEach{
-//            assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(it))
+//            assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(it))
 //        }
-//        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent6))
+//        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent6))
 //    }
 
     @Test
@@ -527,7 +527,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTuplesReturningCompletion(tuples.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.writeAll(tuples.value0))
@@ -539,14 +539,14 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
                 observableBehaviour.toSet()
         )
         expectedEvents2.forEach{
-            assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(it))
+            assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(it))
         }
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
-        assertTrue(observableBehaviour.indexOf(expectedEvent3) < observableBehaviour.indexOf(expectedEvent4))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent3) < observableBehaviour.firstIndexOf(expectedEvent4))
         expectedEvents5.forEach {
-            assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(it))
+            assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(it))
         }
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent6))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent6))
     }
 
 //    @Test
@@ -581,14 +581,14 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
 //                observableBehaviour.toSet()
 //        )
 //        expectedEvents2.forEach{
-//            assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(it))
+//            assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(it))
 //        }
-//        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
-//        assertTrue(observableBehaviour.indexOf(expectedEvent3) < observableBehaviour.indexOf(expectedEvent4))
+//        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
+//        assertTrue(observableBehaviour.firstIndexOf(expectedEvent3) < observableBehaviour.firstIndexOf(expectedEvent4))
 //        expectedEvents5.forEach{
-//            assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(it))
+//            assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(it))
 //        }
-//        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent6))
+//        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent6))
 //    }
 
     @Test
@@ -603,7 +603,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent4 = OperationEvent.templateAcceptingInvocation(tupleSpace.name, OperationType.ABSENT, tupleTemplate.value1)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tupleTemplate.value0))
@@ -632,7 +632,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent3 = expectedEvent1.toTemplateReturningCompletion(template)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.absentTemplate(template))
@@ -642,8 +642,8 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
                 setOf(expectedEvent1, expectedEvent2, expectedEvent3),
                 observableBehaviour.toSet()
         )
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent2))
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent2))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
     }
 
     @Test
@@ -663,7 +663,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent9 = expectedEvent7.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tupleTemplate.value0))
@@ -678,14 +678,14 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
                         expectedEvent7, expectedEvent8, expectedEvent9),
                 observableBehaviour.toSet()
         )
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent2))
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
-        assertTrue(observableBehaviour.indexOf(expectedEvent3) < observableBehaviour.indexOf(expectedEvent4))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent5))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent6))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent7))
-        assertTrue(observableBehaviour.indexOf(expectedEvent7) < observableBehaviour.indexOf(expectedEvent8))
-        assertTrue(observableBehaviour.indexOf(expectedEvent7) < observableBehaviour.indexOf(expectedEvent9))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent2))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent3) < observableBehaviour.firstIndexOf(expectedEvent4))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent5))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent6))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent7))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent7) < observableBehaviour.firstIndexOf(expectedEvent8))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent7) < observableBehaviour.firstIndexOf(expectedEvent9))
     }
 
 
@@ -699,7 +699,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent2 = expectedEvent1.toTuplesReturningCompletion()
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.tryAbsent(template))
@@ -726,7 +726,7 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
         val expectedEvent6 = expectedEvent4.toTupleReturningCompletion(tupleTemplate.value0)
 
         tupleSpace.operationInvoked.bind { observableBehaviour.add(it) }
-        tupleSpace.tupleEvent.bind { observableBehaviour.add(it) }
+        tupleSpace.tupleEvent.filter { it.isAfter }.bind { observableBehaviour.add(it) }
         tupleSpace.operationCompleted.bind { observableBehaviour.add(it) }
 
         await(tupleSpace.write(tupleTemplate.value0))
@@ -737,11 +737,11 @@ abstract class TestTupleSpaceInspectability<T : Tuple<T>, TT : Template<T>, K, V
                 setOf(expectedEvent1, expectedEvent2, expectedEvent3, expectedEvent4, expectedEvent5, expectedEvent6),
                 observableBehaviour.toSet()
         )
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent2))
-        assertTrue(observableBehaviour.indexOf(expectedEvent1) < observableBehaviour.indexOf(expectedEvent3))
-        assertTrue(observableBehaviour.indexOf(expectedEvent3) < observableBehaviour.indexOf(expectedEvent4))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent5))
-        assertTrue(observableBehaviour.indexOf(expectedEvent4) < observableBehaviour.indexOf(expectedEvent6))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent2))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent1) < observableBehaviour.firstIndexOf(expectedEvent3))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent3) < observableBehaviour.firstIndexOf(expectedEvent4))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent5))
+        assertTrue(observableBehaviour.firstIndexOf(expectedEvent4) < observableBehaviour.firstIndexOf(expectedEvent6))
     }
 
     companion object {
