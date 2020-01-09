@@ -17,7 +17,6 @@ import it.unibo.presentation.Presentation
 import it.unibo.presentation.Presentation.Companion.default
 import it.unibo.presentation.Serializer
 import org.slf4j.LoggerFactory
-import java.util.function.Function
 
 abstract class Path(private val path: String) {
     
@@ -54,43 +53,43 @@ abstract class Path(private val path: String) {
         return getPath() + "/" + subResource
     }
 
-    protected fun <X> successfulResponseHandler(routingContext: RoutingContext, marshaller: Function<MIMETypes, Serializer<X>>): Handler<X> {
-        return successfulResponseHandler(routingContext, marshaller, Function.identity())
+    protected fun <X> successfulResponseHandler(routingContext: RoutingContext, marshaller: (MIMETypes) -> Serializer<X>): Handler<X> {
+        return successfulResponseHandler(routingContext, marshaller, { it })
     }
 
-    protected fun <X> responseHandler(routingContext: RoutingContext, marshaller: Function<MIMETypes, Serializer<X>>): Handler<AsyncResult<X>> {
-        return responseHandler(routingContext, marshaller, Function.identity())
+    protected fun <X> responseHandler(routingContext: RoutingContext, marshaller: (MIMETypes) -> Serializer<X>): Handler<AsyncResult<X>> {
+        return responseHandler(routingContext, marshaller, { it })
     }
 
-    protected fun <X> successfulResponseHandlerWithManyContents(routingContext: RoutingContext, marshaller: Function<MIMETypes, Serializer<X>>): Handler<Collection<X>> {
-        return successfulResponseHandlerWithManyContents(routingContext, marshaller, Function.identity())
+    protected fun <X> successfulResponseHandlerWithManyContents(routingContext: RoutingContext, marshaller: (MIMETypes) -> Serializer<X>): Handler<Collection<X>> {
+        return successfulResponseHandlerWithManyContents(routingContext, marshaller, { it })
     }
 
-    protected fun <X> responseHandlerWithManyContents(routingContext: RoutingContext, marshaller: Function<MIMETypes, Serializer<X>>): Handler<AsyncResult<Collection<X>>> {
-        return responseHandlerWithManyContents(routingContext, marshaller, Function.identity())
+    protected fun <X> responseHandlerWithManyContents(routingContext: RoutingContext, marshaller: (MIMETypes) -> Serializer<X>): Handler<AsyncResult<Collection<X>>> {
+        return responseHandlerWithManyContents(routingContext, marshaller, { it })
     }
 
-    protected fun <X> successfulResponseHandler(routingContext: RoutingContext, marshaller: Function<MIMETypes, Serializer<X>>, cleaner: Function<X, X>): Handler<X> {
+    protected fun <X> successfulResponseHandler(routingContext: RoutingContext, marshaller: (MIMETypes) -> Serializer<X>, cleaner: (X) -> X): Handler<X> {
         return Handler { x: X -> handleContent(routingContext, marshaller, cleaner, x) }
     }
 
-    protected fun <X> responseHandler(routingContext: RoutingContext, marshaller: Function<MIMETypes, Serializer<X>>, cleaner: Function<X, X>): Handler<AsyncResult<X>> {
-        return Handler { x: AsyncResult<X> ->
-            if (!handleException(routingContext, x)) {
-                handleContent(routingContext, marshaller, cleaner, x.result())
+    protected fun <X> responseHandler(routingContext: RoutingContext, marshaller: (MIMETypes) -> Serializer<X>, cleaner: (X) -> X): Handler<AsyncResult<X>> {
+        return Handler {
+            if (!handleException(routingContext, it)) {
+                handleContent(routingContext, marshaller, cleaner, it.result())
             }
         }
     }
 
-    protected fun <X> handleContent(routingContext: RoutingContext, marshaller: Function<MIMETypes, Serializer<X>>, cleaner: Function<X, X>, content: X) {
+    protected fun <X> handleContent(routingContext: RoutingContext, marshaller: (MIMETypes) -> Serializer<X>, cleaner: (X) -> X, content: X) {
         try {
-            val cleanResult = cleaner.apply(content)
+            val cleanResult = cleaner(content)
             val mimeType = parse(routingContext.acceptableContentType)
             val result: String
             if (cleanResult is Collection<*>) {
                 throw UnsupportedOperationException()
             }
-            result = marshaller.apply(mimeType).toString(cleanResult)
+            result = marshaller(mimeType).toString(cleanResult)
             routingContext.response()
                     .putHeader(HttpHeaders.CONTENT_TYPE, mimeType.toString())
                     .setStatusCode(200)
@@ -122,12 +121,12 @@ abstract class Path(private val path: String) {
         }
     }
 
-    private fun <X> handleManyContents(routingContext: RoutingContext, marshaller: Function<MIMETypes, Serializer<X>>, cleaner: Function<Collection<X>, Collection<X>>, contents: Collection<X>) {
+    private fun <X> handleManyContents(routingContext: RoutingContext, marshaller: (MIMETypes) -> Serializer<X>, cleaner: (Collection<X>) -> Collection<X>, contents: Collection<X>) {
         try {
-            val cleanResult = cleaner.apply(contents)
+            val cleanResult = cleaner(contents)
             val mimeType = parse(routingContext.acceptableContentType)
             val result: String
-            result = marshaller.apply(mimeType).toString(cleanResult)
+            result = marshaller(mimeType).toString(cleanResult)
             routingContext.response()
                     .putHeader(HttpHeaders.CONTENT_TYPE, mimeType.toString())
                     .setStatusCode(if (cleanResult.isEmpty()) 204 else 200)
@@ -137,20 +136,20 @@ abstract class Path(private val path: String) {
         }
     }
 
-    protected fun <X> successfulResponseHandlerWithManyContents(routingContext: RoutingContext, marshaller: Function<MIMETypes, Serializer<X>>, cleaner: Function<Collection<X>, Collection<X>>): Handler<Collection<X>> {
-        return Handler { x: Collection<X> -> handleManyContents(routingContext, marshaller, cleaner, x) }
+    protected fun <X> successfulResponseHandlerWithManyContents(routingContext: RoutingContext, marshaller: (MIMETypes) -> Serializer<X>, cleaner: (Collection<X>) -> Collection<X>): Handler<Collection<X>> {
+        return Handler { handleManyContents(routingContext, marshaller, cleaner, it) }
     }
 
-    protected fun <X> responseHandlerWithManyContents(routingContext: RoutingContext, marshaller: Function<MIMETypes, Serializer<X>>, cleaner: Function<Collection<X>, Collection<X>>): Handler<AsyncResult<Collection<X>>> {
-        return Handler { x: AsyncResult<Collection<X>> ->
-            if (!handleException(routingContext, x)) {
-                handleManyContents(routingContext, marshaller, cleaner, x.result())
+    protected fun <X> responseHandlerWithManyContents(routingContext: RoutingContext, marshaller: (MIMETypes) -> Serializer<X>, cleaner: (Collection<X>) -> Collection<X>): Handler<AsyncResult<Collection<X>>> {
+        return Handler {
+            if (!handleException(routingContext, it)) {
+                handleManyContents(routingContext, marshaller, cleaner, it.result())
             }
         }
     }
 
     protected fun <X> responseHandlerWithNoContent(routingContext: RoutingContext): Handler<X> {
-        return Handler { x: X ->
+        return Handler {
             routingContext.response()
                     .setStatusCode(204)
                     .end()
@@ -158,7 +157,7 @@ abstract class Path(private val path: String) {
     }
 
     protected fun responseHandlerFallback(routingContext: RoutingContext): Handler<Throwable> {
-        return Handler { t: Throwable -> handleException(routingContext, t) }
+        return Handler { handleException(routingContext, it) }
     }
 
     protected fun <X : Number> handleNumericContent(routingContext: RoutingContext, header: String, content: X) {
@@ -173,15 +172,15 @@ abstract class Path(private val path: String) {
     }
 
     protected fun <X : Number> responseHandlerWithNumericContent(routingContext: RoutingContext, header: String): Handler<AsyncResult<X>> {
-        return Handler { x: AsyncResult<X> ->
-            if (!handleException(routingContext, x)) {
-                handleNumericContent(routingContext, header, x.result())
+        return Handler {
+            if (!handleException(routingContext, it)) {
+                handleNumericContent(routingContext, header, it.result())
             }
         }
     }
 
     protected fun <X : Number> successfulResponseHandlerWithNumericContent(routingContext: RoutingContext, header: String): Handler<X> {
-        return Handler { x: X -> handleNumericContent(routingContext, header, x) }
+        return Handler { handleNumericContent(routingContext, header, it) }
     }
 
     protected open val presentation: Presentation
