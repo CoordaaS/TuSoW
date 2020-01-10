@@ -9,7 +9,7 @@ import java.util.*
 internal abstract class AbstractApi(override val routingContext: RoutingContext) : Api {
 
     protected val authenticatedUser: Optional<User>
-        protected get() = Optional.empty()
+        get() = Optional.empty()
 
     protected fun isAuthenticatedUserAtLeast(role: User.Role): Boolean {
         return authenticatedUser.isPresent && authenticatedUser.get().role.compareTo(role) >= 0

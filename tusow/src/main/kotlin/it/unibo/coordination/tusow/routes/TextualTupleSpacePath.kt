@@ -21,7 +21,7 @@ class TextualTupleSpacePath : AbstractTupleSpacePath<StringTuple, RegexTemplate,
     }
 
     override val presentation: Presentation
-        protected get() = it.unibo.coordination.linda.text.Presentation
+        get() = it.unibo.coordination.linda.text.Presentation
 
     override fun getTuplesMarshaller(mimeType: MIMETypes): Serializer<StringTuple> {
         return presentation.serializerOf(StringTuple::class.java, mimeType)

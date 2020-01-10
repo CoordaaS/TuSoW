@@ -19,7 +19,7 @@ class LogicTupleSpacePath : AbstractTupleSpacePath<LogicTuple, LogicTemplate, St
     }
 
     override val presentation: Presentation
-        protected get() = it.unibo.coordination.linda.logic.Presentation
+        get() = it.unibo.coordination.linda.logic.Presentation
 
     override fun <N : Number> numberToTuple(x: N): LogicTuple {
         return of(x.toString())

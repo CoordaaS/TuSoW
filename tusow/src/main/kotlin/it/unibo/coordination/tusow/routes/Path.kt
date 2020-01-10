@@ -214,13 +214,6 @@ abstract class Path(private val path: String) {
         }
 
         @JvmStatic
-        protected fun requireAllAreNullOrEmpty(x: Collection<Any?>, vararg xs: Collection<Any?>) {
-            if (sequenceOf(x, *xs).any { it != null && !it.isEmpty() }) {
-                throw BadContentError()
-            }
-        }
-
-        @JvmStatic
         protected fun requireNoneIsNull(x: Any?, vararg xs: Any?) {
             if (sequenceOf(x, *xs).any { it == null }) {
                 throw BadContentError()
