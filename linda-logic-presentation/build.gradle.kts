@@ -8,7 +8,7 @@ val ktFreeCompilerArgs: String by project
 
 dependencies {
     api(project(":linda-logic"))
-    api(project(":presentation"))
+    api(project(":linda-core-presentation"))
     implementation(project(":prologx"))
     implementation(kotlin("stdlib-jdk8"))
 

@@ -1,5 +1,7 @@
 package it.unibo.coordination.linda.core
 
+import it.unibo.coordination.linda.core.impl.PendingRequestWrapper
+
 interface PendingRequest<T : Tuple<T>, TT : Template<T>> {
     val requestType: RequestTypes
     val template: TT
@@ -9,10 +11,13 @@ interface PendingRequest<T : Tuple<T>, TT : Template<T>> {
 
         @JvmStatic
         fun <X : Tuple<X>, Y : Template<X>> wrap(pendingRequest: PendingRequest<X, Y>) =
-                object : PendingRequest<X, Y> {
-                    override val id = pendingRequest.id
-                    override val template = pendingRequest.template
-                    override val requestType = pendingRequest.requestType
+                with(pendingRequest) {
+                    PendingRequestWrapper(id, requestType, template)
                 }
+
+        @JvmStatic
+        fun <X : Tuple<X>, Y : Template<X>> of(id: String, requestType: RequestTypes, template: Y) =
+                PendingRequestWrapper(id, requestType, template)
+
     }
 }

@@ -2,9 +2,9 @@ package it.unibo.coordination.linda.logic
 
 import alice.tuprolog.Term
 import it.unibo.coordination.prologx.PrologUtils
-import it.unibo.presentation.Presentation as Prototype
+import it.unibo.coordination.linda.core.Presentation as Prototype
 
-object Presentation : Prototype by Prototype.default {
+object Presentation : it.unibo.presentation.Presentation by Prototype {
     init {
         registerDynamicSerializers(LogicTemplate::class.java) { _, _, template ->
             PrologUtils.termToDynamicObject(template.template)
@@ -33,5 +33,7 @@ object Presentation : Prototype by Prototype.default {
         }
 
         registerDynamicDeserializers(LogicMatch::class.java, ::LogicMatchDeserializer)
+
+        Prototype.initialize<LogicTuple, LogicTemplate>()
     }
 }

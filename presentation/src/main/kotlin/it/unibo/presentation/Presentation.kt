@@ -101,7 +101,5 @@ interface Presentation {
 
     fun <M : ObjectMapper> getMapper(mimeType: MIMETypes): M
 
-    companion object {
-        val default: Presentation = PresentationImpl()
-    }
+    companion object Prototype : Presentation by PresentationImpl()
 }

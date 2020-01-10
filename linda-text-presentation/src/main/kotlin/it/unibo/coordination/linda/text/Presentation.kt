@@ -1,8 +1,8 @@
 package it.unibo.coordination.linda.text
 
-import it.unibo.presentation.Presentation as Prototype
+import it.unibo.coordination.linda.core.Presentation as Prototype
 
-object Presentation : Prototype by Prototype.default {
+object Presentation : it.unibo.presentation.Presentation by Prototype {
     init {
         registerDynamicSerializers(RegexTemplate::class.java, ::RegexTemplateSerializer)
         registerDynamicSerializers(StringTuple::class.java, ::StringTupleSerializer)
@@ -10,5 +10,6 @@ object Presentation : Prototype by Prototype.default {
         registerDynamicDeserializers(RegexTemplate::class.java, ::RegexTemplateDeserializer)
         registerDynamicDeserializers(StringTuple::class.java, ::StringTupleDeserializer)
         registerDynamicDeserializers(RegularMatch::class.java, ::RegularMatchDeserializer)
+        Prototype.initialize<StringTuple, RegexTemplate>()
     }
 }

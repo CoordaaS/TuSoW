@@ -17,8 +17,8 @@ import java.util.UUID;
 public class User  {
 
     static {
-        Presentation.Companion.getDefault().registerSimpleSerializers(User.class);
-        Presentation.Companion.getDefault().registerSimpleDeserializers(User.class);
+        Presentation.Prototype.registerSimpleSerializers(User.class);
+        Presentation.Prototype.registerSimpleDeserializers(User.class);
     }
 
     private UUID id = null;

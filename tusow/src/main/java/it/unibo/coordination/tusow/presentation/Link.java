@@ -13,8 +13,8 @@ import java.util.Objects;
 public class Link {
 
     static {
-        Presentation.Companion.getDefault().registerSimpleSerializers(User.class);
-        Presentation.Companion.getDefault().registerSimpleDeserializers(User.class);
+        Presentation.Prototype.registerSimpleSerializers(User.class);
+        Presentation.Prototype.registerSimpleDeserializers(User.class);
     }
 
     private String url = null;

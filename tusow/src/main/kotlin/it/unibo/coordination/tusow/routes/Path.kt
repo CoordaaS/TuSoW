@@ -14,7 +14,6 @@ import it.unibo.coordination.tusow.exceptions.HttpError
 import it.unibo.presentation.MIMETypes
 import it.unibo.presentation.MIMETypes.Companion.parse
 import it.unibo.presentation.Presentation
-import it.unibo.presentation.Presentation.Companion.default
 import it.unibo.presentation.Serializer
 import org.slf4j.LoggerFactory
 
@@ -184,7 +183,7 @@ abstract class Path(private val path: String) {
     }
 
     protected open val presentation: Presentation
-        get() = default
+        get() = Presentation.Prototype
 
     fun attach(router: Router) {
         this.router = router
