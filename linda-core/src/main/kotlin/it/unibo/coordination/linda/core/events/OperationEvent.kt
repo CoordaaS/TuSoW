@@ -130,6 +130,26 @@ sealed class OperationEvent<T : Tuple<T>, TT : Template<T>>(
     companion object {
 
         @JvmStatic
+        fun <X : Tuple<X>, Y : Template<X>> of(tupleSpaceName: String, operationType: OperationType, operationPhase: OperationPhase, argumentTuples: Stream<out X> = Stream.empty(), argumentTemplates: Stream<out Y> = Stream.empty(), resultTuples: Stream<out X> = Stream.empty(), resultTemplates: Stream<out Y> = Stream.empty()): OperationEvent<X, Y> {
+            return when(operationPhase) {
+                OperationPhase.INVOCATION -> invocation(
+                        tupleSpaceName = tupleSpaceName,
+                        operationType = operationType,
+                        argumentTuples = argumentTuples,
+                        argumentTemplates = argumentTemplates
+                )
+                OperationPhase.COMPLETION -> completion(
+                        tupleSpaceName = tupleSpaceName,
+                        operationType = operationType,
+                        argumentTuples = argumentTuples,
+                        argumentTemplates = argumentTemplates,
+                        resultTuples = resultTuples,
+                        resultTemplates = resultTemplates
+                )
+            }
+        }
+
+        @JvmStatic
         fun <X : Tuple<X>, Y : Template<X>> invocation(tupleSpaceName: String, operationType: OperationType, argumentTuples: Stream<out X> = Stream.empty(), argumentTemplates: Stream<out Y> = Stream.empty()): Invocation<X, Y> {
             return Invocation(
                     tupleSpaceName = tupleSpaceName,
