@@ -6,7 +6,10 @@ import java.io.IOException
 import java.io.Reader
 import java.io.StringReader
 
-open class SimpleDeserializer<T>(override val supportedType: Class<T>, override val supportedMIMEType: MIMETypes, protected val mapper: ObjectMapper) : Deserializer<T> {
+open class SimpleDeserializer<T>(override val supportedType: TypeToken<T>, override val supportedMIMEType: MIMETypes, protected val mapper: ObjectMapper) : Deserializer<T> {
+
+    constructor(supportedType: Class<T>, supportedMIMEType: MIMETypes, mapper: ObjectMapper)
+        : this(supportedType.toTypeToken(), supportedMIMEType, mapper)
 
     override fun fromDynamicObject(dynamicObject: Any): T {
         throw UnsupportedOperationException()
@@ -21,14 +24,14 @@ open class SimpleDeserializer<T>(override val supportedType: Class<T>, override 
     }
 
     override fun read(reader: Reader): T {
-        return readImpl(reader, supportedType)
+        return readImpl(reader, supportedType.type)
     }
 
     protected fun <X> readImpl(reader: Reader, clazz: Class<X>): X {
         return try {
             mapper.readValue(reader, clazz)
         } catch (e: IOException) {
-            throw IllegalArgumentException("Cannot read " + supportedMIMEType, e)
+            throw IllegalArgumentException("Cannot read $supportedMIMEType", e)
         }
     }
 
@@ -36,7 +39,7 @@ open class SimpleDeserializer<T>(override val supportedType: Class<T>, override 
         return try {
             mapper.readValue(reader, clazz)
         } catch (e: IOException) {
-            throw IllegalArgumentException("Cannot read " + supportedMIMEType, e)
+            throw IllegalArgumentException("Cannot read $supportedMIMEType", e)
         }
     }
 

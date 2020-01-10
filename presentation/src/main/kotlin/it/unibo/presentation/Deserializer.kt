@@ -1,10 +1,9 @@
 package it.unibo.presentation
 
 import java.io.Reader
-import java.lang.IllegalArgumentException
 
 interface Deserializer<T> {
-    val supportedType: Class<T>
+    val supportedType: TypeToken<T>
 
     val supportedMIMEType: MIMETypes
 
