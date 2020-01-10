@@ -21,7 +21,11 @@ enum class MIMETypes(val type: String, val subtype: String) {
 
     companion object {
 
+        @JvmField
         val XML_JSON_YAML = EnumSet.of(APPLICATION_XML, APPLICATION_JSON, APPLICATION_YAML)
+
+        @JvmField
+        val JSON_YAML = EnumSet.of(APPLICATION_JSON, APPLICATION_YAML)
 
         @JvmStatic
         fun match(mime: MIMETypes, other: String?): Boolean {

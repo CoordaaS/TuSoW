@@ -21,13 +21,13 @@ interface Presentation {
     fun <T> serializerOf(type: Class<T>, mimeType: MIMETypes): Serializer<T> =
             serializerOf(type.toTypeToken(), mimeType)
 
-    fun <T> serializerOf(typeToken: TypeToken<T>, mimeType: MIMETypes): Serializer<T>
+    fun <T> serializerOf(typeToken: TypeToken<*>, mimeType: MIMETypes): Serializer<T>
 
     @JvmDefault
     fun <T> deserializerOf(type: Class<T>, mimeType: MIMETypes): Deserializer<T> =
             deserializerOf(type.toTypeToken(), mimeType)
 
-    fun <T> deserializerOf(typeToken: TypeToken<T>, mimeType: MIMETypes): Deserializer<T>
+    fun <T> deserializerOf(typeToken: TypeToken<*>, mimeType: MIMETypes): Deserializer<T>
 
     @JvmDefault
     fun <T> registerSimpleSerializers(type: Class<T>) =

@@ -42,7 +42,7 @@ internal class PresentationImpl : Presentation {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> serializerOf(typeToken: TypeToken<T>, mimeType: MIMETypes): Serializer<T> {
+    override fun <T> serializerOf(typeToken: TypeToken<*>, mimeType: MIMETypes): Serializer<T> {
         val key = typeToken to mimeType
         if (key in serializers) {
             return serializers[key]!! as Serializer<T>
@@ -58,7 +58,7 @@ internal class PresentationImpl : Presentation {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> deserializerOf(typeToken: TypeToken<T>, mimeType: MIMETypes): Deserializer<T> {
+    override fun <T> deserializerOf(typeToken: TypeToken<*>, mimeType: MIMETypes): Deserializer<T> {
         val key = typeToken to mimeType
         if (key in deserializers) {
             return deserializers[key]!! as Deserializer<T>

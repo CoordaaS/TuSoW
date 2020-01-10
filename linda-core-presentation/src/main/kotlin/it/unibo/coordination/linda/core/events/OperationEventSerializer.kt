@@ -1,7 +1,7 @@
 package it.unibo.coordination.linda.core.events
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import it.unibo.coordination.linda.core.Presentation
+import it.unibo.coordination.linda.core.Presentation.toDynamicList
 import it.unibo.coordination.linda.core.Template
 import it.unibo.coordination.linda.core.Tuple
 import it.unibo.presentation.DynamicSerializer
@@ -16,18 +16,11 @@ class OperationEventSerializer<T : Tuple<T>, TT : Template<T>>(mimeType: MIMETyp
                     "tupleSpaceName" to tupleSpaceName,
                     "operationPhase" to operationPhase.toString(),
                     "operationType" to operationType.toString(),
-                    "argumentTuples" to argumentTuples.toDynamicList(),
-                    "argumentTemplates" to argumentTemplates.toDynamicList(),
-                    "resultTuples" to resultTuples.toDynamicList(),
-                    "resultTemplates" to resultTemplates.toDynamicList()
+                    "argumentTuples" to argumentTuples.toDynamicList(supportedMIMEType),
+                    "argumentTemplates" to argumentTemplates.toDynamicList(supportedMIMEType),
+                    "resultTuples" to resultTuples.toDynamicList(supportedMIMEType),
+                    "resultTemplates" to resultTemplates.toDynamicList(supportedMIMEType)
             )
         }
-    }
-
-    private fun <X : Any> Collection<X>.toDynamicList(): List<Any>? {
-        return if (isEmpty()) null
-        else asSequence().map {
-            Presentation.serializerOf(it.javaClass, supportedMIMEType).toDynamicObject(it)
-        }.toList()
     }
 }
