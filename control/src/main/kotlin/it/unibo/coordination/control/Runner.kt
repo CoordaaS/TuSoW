@@ -2,9 +2,17 @@ package it.unibo.coordination.control
 
 import it.unibo.coordination.Promise
 
-interface Runner {
+interface Runner<E, T, R> {
 
-    val activity: Activity
+    val activity: Activity<E, T, R>
 
-    fun runStep(): Promise<State>
+    val isOver: Boolean
+
+    fun runBegin(environment: E): Promise<T>
+    fun runStep(data: T): Promise<T>
+    fun runEnd(result: R): Promise<T>
+
+    fun resume()
+
+    fun runNext(): Promise<*>
 }

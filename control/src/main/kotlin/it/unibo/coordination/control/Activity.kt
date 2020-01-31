@@ -1,17 +1,20 @@
 package it.unibo.coordination.control
 
-interface Activity {
+interface Activity<E, T, R> {
 
-    interface Controller {
-        fun stop();
-        fun restart();
-        fun pause();
-        fun `continue`();
+    interface Controller<E, T, R> {
+        fun stop(result: R)
+        fun restart(environment: E)
+        fun pause(data: T)
+        fun pause()
+        fun `continue`(data: T)
+        fun `continue`()
+        fun resume()
     }
 
-    fun onBegin()
-    fun onStep()
-    fun onEnd()
+    fun onBegin(environment: E, controller: Controller<E, T, R>)
+    fun onStep(environment: E, lastData: T, controller: Controller<E, T, R>)
+    fun onEnd(environment: E, lastData: T, result: R, controller: Controller<E, T, R>)
 
-    fun onError(e: Exception): Continuation
+    fun onError(environment: E, data: T, e: Exception, controller: Controller<E, T, R>)
 }
