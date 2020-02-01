@@ -17,7 +17,7 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
         }
 
         override fun restart(environment: E) {
-            this@FSARunner.environment = environment
+            this@FSARunner.environment = Optional.ofNullable(environment)
             continuation = RESTART
         }
 
@@ -48,7 +48,7 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
     private var state: State? = CREATED
     private var continuation: Continuation = CONTINUE
 
-    protected abstract var environment: E
+    protected var environment: Optional<E> = Optional.empty()
     protected var data: Optional<T> = Optional.empty()
     protected var result: Optional<R> = Optional.empty()
 
@@ -63,6 +63,12 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
             PAUSED -> doStateTransitionFromPaused(whatToDo)
             STOPPED -> doStateTransitionFromStopped(whatToDo)
             else -> throw IllegalStateException()
+        }.let {
+            it.whenComplete { _, e ->
+                if (e !== null) {
+                    state = null
+                }
+            }
         }
     }
 
@@ -70,7 +76,7 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
         return when (whatToDo) {
             CONTINUE -> {
                 state = STARTED
-                runBegin(environment)
+                runBegin(environment.get())
             }
             else -> throw IllegalArgumentException("Unexpected transition: $state -$whatToDo-> ???")
         }
@@ -94,7 +100,7 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
             }
             RESTART -> {
                 state = STARTED
-                runBegin(environment)
+                runBegin(environment.get())
             }
             STOP -> {
                 state = STOPPED
@@ -111,7 +117,7 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
         return when (whatToDo) {
             RESTART -> {
                 state = STARTED
-                runBegin(environment)
+                runBegin(environment.get())
             }
             else -> {
                 state = null
@@ -121,14 +127,16 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
         }
     }
 
-
     override fun resume() {
         if (state == PAUSED) {
-            doStateTransition(continuation)
+            continuation = CONTINUE
+            resumeImpl()
         }
     }
 
-    override fun runNext(): Promise<out Any> {
+    protected abstract fun resumeImpl()
+
+    override fun runNext(): Promise<*> {
         if (state !== null) {
             return doStateTransition(continuation)
         } else {

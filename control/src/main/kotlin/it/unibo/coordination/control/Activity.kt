@@ -15,6 +15,4 @@ interface Activity<E, T, R> {
     fun onBegin(environment: E, controller: Controller<E, T, R>)
     fun onStep(environment: E, lastData: T, controller: Controller<E, T, R>)
     fun onEnd(environment: E, lastData: T, result: R, controller: Controller<E, T, R>)
-
-    fun onError(environment: E, data: T, e: Exception, controller: Controller<E, T, R>)
 }
