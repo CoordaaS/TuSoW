@@ -17,8 +17,16 @@ abstract class AbstractUpdateCommand(
         autoCompleteEnvvar: String? = ""
 ) : AbstractTupleSpaceCommand(help, epilog, name, invokeWithoutSubcommand, printHelpOnEmptyArgs, helpTags, autoCompleteEnvvar) {
 
-    val tuples: List<String> by argument("TUPLE").multiple(required = true)
-    val asynchronous: Boolean by option("-A", "--asynch").flag(default = false)
+    val tuples: List<String> by argument(
+            "TUPLE",
+            help = "The tuple to be inserted in the tuple space"
+    ).multiple(required = true)
+
+    val asynchronous: Boolean by option(
+            "-A", "--asynch",
+            help = "Makes this operation return asynchronous before the tuple(s) has actually been inserted into the tuple space. " +
+                    "Defaults to false"
+    ).flag(default = false)
 
     protected fun<T : Tuple<T>> CompletableFuture<T>.defaultHandlerForSingleResult() {
         await {
