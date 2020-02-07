@@ -6,14 +6,20 @@ import it.unibo.coordination.linda.text.StringTuple
 import it.unibo.coordination.linda.text.TextualSpace
 
 class WriteCommand(
-        help: String = "",
         epilog: String = "",
         name: String? = "write",
         invokeWithoutSubcommand: Boolean = false,
         printHelpOnEmptyArgs: Boolean = false,
         helpTags: Map<String, String> = emptyMap(),
         autoCompleteEnvvar: String? = ""
-) : AbstractUpdateCommand(help, epilog, name, invokeWithoutSubcommand, printHelpOnEmptyArgs, helpTags, autoCompleteEnvvar) {
+) : AbstractUpdateCommand(
+        help = "Operation aimed at writing (i.e. inserting) one or more tuples into a tuple space",
+        epilog = epilog,
+        name = name,
+        invokeWithoutSubcommand = invokeWithoutSubcommand,
+        printHelpOnEmptyArgs = printHelpOnEmptyArgs,
+        helpTags = helpTags,
+        autoCompleteEnvvar = autoCompleteEnvvar)  {
 
     override fun run() {
         if (asynchronous) {

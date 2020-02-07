@@ -6,14 +6,20 @@ import it.unibo.coordination.linda.logic.LogicSpace
 import it.unibo.coordination.linda.text.TextualSpace
 
 class TakeCommand(
-        help: String = "",
         epilog: String = "",
         name: String? = "take",
         invokeWithoutSubcommand: Boolean = false,
         printHelpOnEmptyArgs: Boolean = false,
         helpTags: Map<String, String> = emptyMap(),
         autoCompleteEnvvar: String? = ""
-) : AbstractObserveCommand(help, epilog, name, invokeWithoutSubcommand, printHelpOnEmptyArgs, helpTags, autoCompleteEnvvar)  {
+) : AbstractObserveCommand(
+        action = "consuming (i.e., taking or removing)",
+        epilog = epilog,
+        name = name,
+        invokeWithoutSubcommand = invokeWithoutSubcommand,
+        printHelpOnEmptyArgs = printHelpOnEmptyArgs,
+        helpTags = helpTags,
+        autoCompleteEnvvar = autoCompleteEnvvar)  {
 
     override fun run() {
         when {

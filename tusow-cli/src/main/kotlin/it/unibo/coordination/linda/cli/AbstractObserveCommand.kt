@@ -9,7 +9,8 @@ import it.unibo.coordination.linda.core.Tuple
 import java.util.concurrent.CompletableFuture
 
 abstract class AbstractObserveCommand(
-        help: String = "",
+        action: String = "observing",
+        help: String = "Operation aimed at $action one or more tuples given a template",
         epilog: String = "",
         name: String? = null,
         invokeWithoutSubcommand: Boolean = false,
@@ -18,8 +19,14 @@ abstract class AbstractObserveCommand(
         autoCompleteEnvvar: String? = ""
 ) : AbstractTupleSpaceCommand(help, epilog, name, invokeWithoutSubcommand, printHelpOnEmptyArgs, helpTags, autoCompleteEnvvar) {
 
-    val template: String by argument("TEMPLATE")
-    val predicative: Boolean by option("-p", "--predicative").flag(default = false)
+    val template: String by argument(
+            name="TEMPLATE",
+            help = "The template the tuple(s) to be observed should match. Its format depends on the -t option"
+        )
+    val predicative: Boolean by option(
+            "-p", "--predicative",
+            help = "Makes this operation predicative, i.e., non-blocking. Defaults to false, i.e. operations are blocking by default"
+    ).flag(default = false)
 
     open protected fun <T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> M.isSuccess(): Boolean = isMatching
 

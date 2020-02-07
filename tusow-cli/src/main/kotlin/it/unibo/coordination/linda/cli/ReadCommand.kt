@@ -6,14 +6,20 @@ import it.unibo.coordination.linda.logic.LogicSpace
 import it.unibo.coordination.linda.text.TextualSpace
 
 class ReadCommand(
-        help: String = "",
         epilog: String = "",
         name: String? = "read",
         invokeWithoutSubcommand: Boolean = false,
         printHelpOnEmptyArgs: Boolean = false,
         helpTags: Map<String, String> = emptyMap(),
         autoCompleteEnvvar: String? = ""
-) : AbstractObserveCommand(help, epilog, name, invokeWithoutSubcommand, printHelpOnEmptyArgs, helpTags, autoCompleteEnvvar)  {
+) : AbstractObserveCommand(
+        action = "reading",
+        epilog = epilog,
+        name = name,
+        invokeWithoutSubcommand = invokeWithoutSubcommand,
+        printHelpOnEmptyArgs = printHelpOnEmptyArgs,
+        helpTags = helpTags,
+        autoCompleteEnvvar = autoCompleteEnvvar)  {
 
     override fun run() {
         when {
