@@ -47,5 +47,6 @@ interface LindaTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT,
     fun getSize(): Promise<Int>
 
     fun String.toTuple(): T
+
     fun String.toTemplate(): TT
 }

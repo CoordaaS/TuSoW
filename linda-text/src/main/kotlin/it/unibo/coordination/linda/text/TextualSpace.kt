@@ -1,82 +1,92 @@
-package it.unibo.coordination.linda.text;
+package it.unibo.coordination.linda.text
 
-import it.unibo.coordination.Engines;
-import it.unibo.coordination.linda.core.TupleSpace;
+import it.unibo.coordination.Engines.defaultEngine
+import it.unibo.coordination.Promise
+import it.unibo.coordination.linda.core.TupleSpace
+import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.regex.Pattern
 
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.regex.Pattern;
-
-public interface TextualSpace extends TupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch> {
-
-    static TextualSpace local(String name, ExecutorService executorService) {
-        return new TextualSpaceImpl(name, executorService);
+interface TextualSpace : TupleSpace<StringTuple, RegexTemplate, Any, String, RegularMatch> {
+    @JvmDefault
+    fun readTuple(template: Pattern): Promise<StringTuple> {
+        return readTuple(RegexTemplate.of(template))
     }
 
-    static TextualSpace local(String name) {
-        return local(name, Engines.getDefaultEngine());
+    @JvmDefault
+    fun read(template: Pattern): Promise<RegularMatch> {
+        return read(RegexTemplate.of(template))
     }
 
-    static TextualSpace local(ExecutorService executorService) {
-        return local(null, executorService);
+    @JvmDefault
+    fun tryReadTuple(template: Pattern): Promise<Optional<StringTuple>> {
+        return tryReadTuple(RegexTemplate.of(template))
     }
 
-    static TextualSpace local() {
-        return local(null, Engines.getDefaultEngine());
+    @JvmDefault
+    fun takeTuple(template: Pattern): Promise<StringTuple> {
+        return takeTuple(RegexTemplate.of(template))
     }
 
-    default CompletableFuture<StringTuple> readTuple(Pattern template) {
-        return readTuple(RegexTemplate.of(template));
+    @JvmDefault
+    fun take(template: Pattern): Promise<RegularMatch> {
+        return take(RegexTemplate.of(template))
     }
 
-    default CompletableFuture<RegularMatch> read(Pattern template) {
-        return read(RegexTemplate.of(template));
+    @JvmDefault
+    fun tryTakeTuple(template: Pattern): Promise<Optional<StringTuple>> {
+        return tryTakeTuple(RegexTemplate.of(template))
     }
 
-    default CompletableFuture<Optional<StringTuple>> tryReadTuple(Pattern template) {
-        return tryReadTuple(RegexTemplate.of(template));
+    @JvmDefault
+    fun absent(template: Pattern): Promise<RegularMatch> {
+        return absent(RegexTemplate.of(template))
     }
 
-    default CompletableFuture<StringTuple> takeTuple(Pattern template) {
-        return takeTuple(RegexTemplate.of(template));
+    @JvmDefault
+    fun tryAbsentTuple(template: Pattern): Promise<Optional<StringTuple>> {
+        return tryAbsentTuple(RegexTemplate.of(template))
     }
 
-    default CompletableFuture<RegularMatch> take(Pattern template) {
-        return take(RegexTemplate.of(template));
+    @JvmDefault
+    fun tryRead(template: Pattern): Promise<RegularMatch> {
+        return tryRead(RegexTemplate.of(template))
     }
 
-    default CompletableFuture<Optional<StringTuple>> tryTakeTuple(Pattern template) {
-        return tryTakeTuple(RegexTemplate.of(template));
+    @JvmDefault
+    fun tryTake(template: Pattern): Promise<RegularMatch> {
+        return tryTake(RegexTemplate.of(template))
     }
 
-    default CompletableFuture<RegularMatch> absent(final Pattern template) {
-        return absent(RegexTemplate.of(template));
+    @JvmDefault
+    fun tryAbsent(template: Pattern): Promise<RegularMatch> {
+        return tryAbsent(RegexTemplate.of(template))
     }
 
-    default CompletableFuture<Optional<StringTuple>> tryAbsentTuple(Pattern template) {
-        return tryAbsentTuple(RegexTemplate.of(template));
+    @JvmDefault
+    override fun String.toTuple(): StringTuple {
+        return StringTuple.of(this)
     }
 
-    default CompletableFuture<RegularMatch> tryRead(Pattern template) {
-        return tryRead(RegexTemplate.of(template));
+    @JvmDefault
+    override fun String.toTemplate(): RegexTemplate {
+        return RegexTemplate.of(this)
     }
 
-    default CompletableFuture<RegularMatch> tryTake(Pattern template) {
-        return tryTake(RegexTemplate.of(template));
-    }
+    companion object {
+        @JvmStatic
+        fun local(name: String?, executorService: ExecutorService): TextualSpace {
+            return TextualSpaceImpl(name, executorService)
+        }
 
-    default CompletableFuture<RegularMatch> tryAbsent(Pattern template) {
-        return tryAbsent(RegexTemplate.of(template));
-    }
+        @JvmStatic
+        fun local(name: String?): TextualSpace {
+            return TextualSpaceImpl(name, defaultEngine)
+        }
 
-    @Override
-    default StringTuple toTuple(String $this$toTuple) {
-        return StringTuple.of($this$toTuple);
-    }
-
-    @Override
-    default RegexTemplate toTemplate(String $this$toTemplate) {
-        return RegexTemplate.of($this$toTemplate);
+        @JvmStatic
+        fun local(executorService: ExecutorService): TextualSpace {
+            return local(null, executorService)
+        }
     }
 }
