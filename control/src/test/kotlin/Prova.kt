@@ -1,11 +1,9 @@
-import it.unibo.coordination.Engine
+import it.unibo.coordination.Engines
 import it.unibo.coordination.control.Activity
 import it.unibo.coordination.control.run
-import java.util.concurrent.Executors
+import java.time.Duration
 
 fun main() {
-    val engine: Engine = Executors.newCachedThreadPool()
-
     lateinit var x: Activity.Controller<Int, Int, Int>
 
     val activity = object : Activity<Int, Int, Int> {
@@ -31,7 +29,7 @@ fun main() {
         }
     }
 
-    engine.run(0, activity).whenComplete { res, e ->
+    val y = Engines.defaultTimedEngine.run(Duration.ofSeconds(1),0, activity).whenComplete { res, e ->
         if (res != null) {
             println(res)
         }
@@ -40,6 +38,7 @@ fun main() {
         }
     }
 
-    Thread.sleep(1000)
+    Thread.sleep(8000)
     x.resume()
+    print("Result=" + y.get())
 }

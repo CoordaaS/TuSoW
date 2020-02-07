@@ -1,12 +1,16 @@
 package it.unibo.coordination
 
-import java.util.concurrent.ExecutorService
+import it.unibo.coordination.utils.TimedEngine
 import java.util.concurrent.Executors
 
 object Engines {
 
     @JvmStatic
-    val defaultEngine: ExecutorService by lazy {
-        Executors.newSingleThreadExecutor()
+    val defaultEngine: Engine
+        get() = defaultTimedEngine
+
+    @JvmStatic
+    val defaultTimedEngine: TimedEngine by lazy {
+        Executors.newSingleThreadScheduledExecutor()
     }
 }

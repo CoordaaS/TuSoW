@@ -1,15 +1,20 @@
 package it.unibo.coordination.control
 
 import it.unibo.coordination.Engine
+import it.unibo.coordination.Engines
 import it.unibo.coordination.Promise
 import it.unibo.coordination.control.impl.AsyncRunner
+import it.unibo.coordination.control.impl.PeriodicRunner
 import it.unibo.coordination.control.impl.SyncRunner
+import it.unibo.coordination.utils.TimedEngine
+import java.time.Duration
 
 interface Runner<E, T, R> {
 
     val activity: Activity<E, T, R>
 
     val isOver: Boolean
+    val isPaused: Boolean
 
     fun runBegin(environment: E): Promise<T>
     fun runStep(data: T): Promise<T>
@@ -26,14 +31,22 @@ interface Runner<E, T, R> {
             return SyncRunner(activity)
         }
 
-        fun<E, T, R> asyncOf(activity: Activity<E, T, R>, engine: Engine): Runner<E, T, R> {
+        fun<E, T, R> asyncOf(activity: Activity<E, T, R>, engine: Engine = Engines.defaultEngine): Runner<E, T, R> {
             return AsyncRunner(activity, engine)
+        }
+
+        fun<E, T, R> periodicOf(period: Duration, activity: Activity<E, T, R>, engine: TimedEngine = Engines.defaultTimedEngine): Runner<E, T, R> {
+            return PeriodicRunner(period, activity, engine)
         }
     }
 }
 
-fun<E, T, R> Engine.run(environment: E, activity: Activity<E, T, R>): Promise<R> {
+fun<E, R> Engine.run(environment: E, activity: Activity<E, *, R>): Promise<R> {
     return Runner.asyncOf(activity, this).run(environment)
+}
+
+fun<E, R> TimedEngine.run(period: Duration, environment: E, activity: Activity<E, *, R>): Promise<R> {
+    return Runner.periodicOf(period, activity, this).run(environment)
 }
 
 fun <E, T, R> Activity<E, T, R>.run(environment: E): R {

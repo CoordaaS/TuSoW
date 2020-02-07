@@ -55,6 +55,9 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
     override val isOver: Boolean
         get() = state == null
 
+    override val isPaused: Boolean
+        get() = state == PAUSED
+
     private fun doStateTransition(whatToDo: Continuation): Promise<*> {
         return when (state) {
             CREATED -> doStateTransitionFromCreated(whatToDo)
@@ -128,8 +131,9 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
     }
 
     override fun resume() {
-        if (state == PAUSED) {
+        if (isPaused) {
             continuation = CONTINUE
+            state = RUNNING
             resumeImpl()
         }
     }
