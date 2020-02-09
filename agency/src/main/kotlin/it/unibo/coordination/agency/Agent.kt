@@ -2,7 +2,6 @@ package it.unibo.coordination.agency
 
 import it.unibo.coordination.agency.impl.AgentImpl
 import it.unibo.coordination.control.Activity
-import java.util.*
 
 interface Agent : Activity<Unit, Unit, Unit> {
 
@@ -28,29 +27,33 @@ interface Agent : Activity<Unit, Unit, Unit> {
         }
 
         fun addBehaviours(behaviour: Behaviour<*>, vararg behaviours: Behaviour<*>)
+
         fun removeBehaviours(behaviour: Behaviour<*>, vararg behaviours: Behaviour<*>)
+
+        @JvmDefault
+        operator fun plusAssign(behaviour: Behaviour<*>) {
+            addBehaviours(behaviour)
+        }
+
+        @JvmDefault
+        operator fun minusAssign(behaviour: Behaviour<*>) {
+            removeBehaviours(behaviour)
+        }
+
+        fun <T> behaviour(context: BehaviourFactory.() -> Behaviour<T>): Behaviour<T> =
+                Behaviour.context().also { addBehaviours(it) }
     }
 
     val behaviours: List<Behaviour<*>>
 
     val id: AgentID
 
-    fun setup(initializer: Agent.() -> Unit)
+    fun setup(initializer: Controller.() -> Unit)
 
     fun tearDown(cleaner: Agent.() -> Unit)
 
-    fun addBehaviours(behaviour: Behaviour<*>, vararg behaviours: Behaviour<*>)
-    fun removeBehaviours(behaviour: Behaviour<*>, vararg behaviours: Behaviour<*>)
-
-    @JvmDefault
-    operator fun plusAssign(behaviour: Behaviour<*>) {
-        addBehaviours(behaviour)
-    }
-
-    @JvmDefault
-    operator fun minusAssign(behaviour: Behaviour<*>) {
-        removeBehaviours(behaviour)
-    }
+//    fun addBehaviours(behaviour: Behaviour<*>, vararg behaviours: Behaviour<*>)
+//    fun removeBehaviours(behaviour: Behaviour<*>, vararg behaviours: Behaviour<*>)
 
     companion object {
 
@@ -58,6 +61,12 @@ interface Agent : Activity<Unit, Unit, Unit> {
         fun create(name: String): Agent = AgentImpl(name)
 
         @JvmStatic
+        fun create(name: String, agentConfiguration: Agent.() -> Unit): Agent = AgentImpl(name).also(agentConfiguration)
+
+        @JvmStatic
         operator fun invoke(name: String): Agent = create(name)
+
+        @JvmStatic
+        operator fun invoke(name: String, agentConfiguration: Agent.() -> Unit): Agent = create(name, agentConfiguration)
     }
 }

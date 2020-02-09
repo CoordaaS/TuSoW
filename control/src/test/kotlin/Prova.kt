@@ -1,7 +1,6 @@
 import it.unibo.coordination.Engines
 import it.unibo.coordination.control.Activity
 import it.unibo.coordination.control.run
-import java.time.Duration
 
 fun main() {
     lateinit var x: Activity.Controller<Int, Int, Int>
@@ -29,7 +28,7 @@ fun main() {
         }
     }
 
-    val y = Engines.defaultTimedEngine.run(Duration.ofSeconds(1),0, activity).whenComplete { res, e ->
+    val y = Engines.defaultTimedEngine.run(0, activity).whenComplete { res, e ->
         if (res != null) {
             println(res)
         }
@@ -38,7 +37,7 @@ fun main() {
         }
     }
 
-    Thread.sleep(8000)
+    Thread.sleep(2000)
     x.resume()
     print("Result=" + y.get())
 }

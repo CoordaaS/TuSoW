@@ -2,32 +2,35 @@ package it.unibo.coordination.control.impl
 
 import it.unibo.coordination.Promise
 import it.unibo.coordination.control.Activity
-import java.util.*
 
 class SyncRunner<E, T, R>(activity: Activity<E, T, R>) : FSARunner<E, T, R>(activity) {
 
     override fun runBegin(environment: E): Promise<T> {
         activity.onBegin(environment, controller)
-        return Promise.completedFuture(data.orElse(null))
+        return Promise.completedFuture(data)
     }
 
     override fun runStep(data: T): Promise<T> {
-        activity.onStep(environment.orElse(null), data, controller)
+        activity.onStep(environment!!, data, controller)
         return Promise.completedFuture(data)
     }
 
     override fun runEnd(result: R): Promise<T> {
-        activity.onEnd(environment.orElse(null), data.orElse(null), result, controller)
-        return Promise.completedFuture(data.orElse(null))
+        activity.onEnd(environment!!, data!!, result, controller)
+        return Promise.completedFuture(data!!)
     }
 
     override fun resumeImpl() {
-        throw IllegalStateException("Pausing an activity run by a ")
+        throw IllegalStateException("Resuming an activity run by a ${SyncRunner::class.java.name} is currently not supported")
+    }
+
+    override fun onPause() {
+        throw IllegalStateException("Pausing an activity run by a ${SyncRunner::class.java.name} is currently not supported")
     }
 
     override fun run(environment: E): Promise<R> {
         val result = Promise<R>()
-        this.environment = Optional.ofNullable(environment)
+        this.environment = environment
         while (!isOver) {
             val temp = runNext()
             if (temp.isCompletedExceptionally) {
@@ -37,7 +40,7 @@ class SyncRunner<E, T, R>(activity: Activity<E, T, R>) : FSARunner<E, T, R>(acti
                 return result
             }
         }
-        result.complete(this.result.get())
+        result.complete(this.result)
         return result
     }
 }

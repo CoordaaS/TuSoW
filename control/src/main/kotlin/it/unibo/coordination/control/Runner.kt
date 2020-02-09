@@ -45,10 +45,22 @@ fun<E, R> Engine.run(environment: E, activity: Activity<E, *, R>): Promise<R> {
     return Runner.asyncOf(activity, this).run(environment)
 }
 
+fun<R> Engine.run(activity: Activity<Unit, *, R>): Promise<R> {
+    return Runner.asyncOf(activity, this).run(Unit)
+}
+
 fun<E, R> TimedEngine.run(period: Duration, environment: E, activity: Activity<E, *, R>): Promise<R> {
     return Runner.periodicOf(period, activity, this).run(environment)
 }
 
-fun <E, T, R> Activity<E, T, R>.run(environment: E): R {
+fun<R> TimedEngine.run(period: Duration, activity: Activity<Unit, *, R>): Promise<R> {
+    return Runner.periodicOf(period, activity, this).run(Unit)
+}
+
+fun <E, T, R> Activity<E, T, R>.runInCurrentThread(environment: E): R {
     return Runner.syncOf(this).run(environment).get()
+}
+
+fun <R> Activity<Unit, *, R>.runInCurrentThread(): R {
+    return Runner.syncOf(this).run(Unit).get()
 }

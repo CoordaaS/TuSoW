@@ -5,6 +5,11 @@ import it.unibo.coordination.agency.Behaviour
 
 abstract class AbstractBehaviour<T> : Behaviour<T> {
 
+    private var _executions: Int = 0
+
+    protected val executions: Int
+        get() = _executions
+
     private var resultCache: T? = null
 
     override val result: T
@@ -29,12 +34,11 @@ abstract class AbstractBehaviour<T> : Behaviour<T> {
     override fun invoke(ctl: Agent.Controller) {
         if (!over) {
             onExecute(controller(ctl))
+            _executions += 1
         } else {
             throw IllegalStateException("Cannot invoke a behaviour which is over")
         }
     }
 
-    override fun clone(): Behaviour<T> {
-        TODO("Subclasses of ${AbstractBehaviour::class.java.name} must override the clone() method")
-    }
+    abstract override fun clone(): Behaviour<T>
 }

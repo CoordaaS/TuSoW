@@ -34,5 +34,9 @@ interface Behaviour<T> {
     fun clone(): Behaviour<T> = this
 
     @JvmDefault
-    fun<U> then(mapper: (T) -> U): Behaviour<U> = Mapper(this, mapper)
+    fun<U> map(mapper: (T) -> U): Behaviour<U> = Mapper(this, mapper)
+
+    @JvmDefault
+    fun<U> then(action: () -> U): Behaviour<U> =
+            this.map { action() }
 }
