@@ -3,7 +3,7 @@ package it.unibo.coordination.agency.impl
 import it.unibo.coordination.agency.Behaviour
 import java.util.*
 
-sealed class Parallel<T>(protected val any: Boolean = false,
+sealed class Parallel<T>(protected val shortCircuit: Boolean = false,
                          protected vararg val behaviours: Behaviour<T>
 ) : AbstractBehaviour<List<T>>() {
 
@@ -13,20 +13,32 @@ sealed class Parallel<T>(protected val any: Boolean = false,
         }
     }
 
-    protected var index: Int = 0
+    protected val nonTerminated: Queue<Behaviour<T>> = LinkedList(behaviours.toList())
 
-    private val results = LinkedList<T>()
+    private val results: MutableList<T> = LinkedList()
 
     override fun onExecute(ctl: Behaviour.Controller<List<T>>) {
-        behaviours[index].let {
-            it(ctl.agent)
-            if (it.isOver) {
-                index += 1
-                results += it.result
-                if (any || index == behaviours.size) {
-                    ctl.end(results)
+        val skipped: Queue<Behaviour<T>> = LinkedList()
+        var behaviour = nonTerminated.poll()
+        try {
+            while (behaviour != null && behaviour.isPaused) {
+                skipped.add(behaviour)
+                behaviour = nonTerminated.poll()
+            }
+            if (behaviour != null) {
+                behaviour(ctl.agent)
+            } else {
+                ctl.agent.pause()
+            }
+        } finally {
+            if (behaviour != null) {
+                if (!behaviour.isOver) {
+                    nonTerminated.add(behaviour)
+                } else {
+                    results.add(behaviour.result)
                 }
             }
+            nonTerminated.addAll(skipped)
         }
     }
 

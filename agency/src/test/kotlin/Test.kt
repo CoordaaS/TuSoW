@@ -15,6 +15,20 @@ fun main() {
                         .map { value -> (value + value).also { println(it) } }
                         .map { println(it + "b") }
             }
+
+            behaviour {
+                allOf(
+                        valueOf(1).map { it + 2 }.map { it + 3 },
+                        valueOf(1).map { it * 2 }.map { it * 3 }
+                ).map { println("Result of allOf: $it") }
+            }
+
+            behaviour {
+                anyOf(
+                        valueOf(1).map { it + 2 }.map { it + 3 },
+                        valueOf(1)
+                ).map { println("Result of anyOf: $it") }
+            }
         }
     }
 
