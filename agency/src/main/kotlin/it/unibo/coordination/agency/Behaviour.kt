@@ -1,6 +1,7 @@
 package it.unibo.coordination.agency
 
 import it.unibo.coordination.agency.impl.Mapper
+import it.unibo.coordination.agency.impl.Sequence
 
 interface Behaviour<T> {
 
@@ -13,7 +14,11 @@ interface Behaviour<T> {
 
     companion object : BehaviourFactory {
 
-        fun<T> of(value: T): Behaviour<T> = valueOf(value)
+        fun <T> of(value: T): Behaviour<T> = valueOf(value)
+
+        fun <T> of(value: () -> T): Behaviour<T> = generate(value)
+
+        fun <I, T> of(input: I, mapper: (I) -> T): Behaviour<T> = generate(input, mapper)
     }
 
     @JvmDefault
@@ -34,9 +39,18 @@ interface Behaviour<T> {
     fun clone(): Behaviour<T> = this
 
     @JvmDefault
-    fun<U> map(mapper: (T) -> U): Behaviour<U> = Mapper(this, mapper)
+    infix fun <U> map(mapper: (T) -> U): Behaviour<U> =
+            Mapper(this) { _, x ->
+                mapper(x)
+            }
 
     @JvmDefault
-    fun<U> then(action: () -> U): Behaviour<U> =
-            this.map { action() }
+    infix fun <U> then(action: (Controller<U>) -> U): Behaviour<U> =
+            Mapper(this) { ctl, _ ->
+                action(ctl)
+            }
+
+    @JvmDefault
+    infix fun then(behaviour: Behaviour<T>): Behaviour<List<T>> =
+            Sequence(this, behaviour)
 }

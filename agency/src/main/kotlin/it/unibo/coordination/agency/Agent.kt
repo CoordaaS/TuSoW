@@ -52,9 +52,6 @@ interface Agent : Activity<Unit, Unit, Unit> {
 
     fun tearDown(cleaner: Agent.() -> Unit)
 
-//    fun addBehaviours(behaviour: Behaviour<*>, vararg behaviours: Behaviour<*>)
-//    fun removeBehaviours(behaviour: Behaviour<*>, vararg behaviours: Behaviour<*>)
-
     companion object {
 
         @JvmStatic

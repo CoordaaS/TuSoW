@@ -2,10 +2,10 @@ package it.unibo.coordination.agency.impl
 
 import it.unibo.coordination.agency.Behaviour
 
-class Generator<T>(val supplier: () -> T) : AbstractBehaviour<T>() {
+class Generator<T>(val supplier: (Behaviour.Controller<T>) -> T) : AbstractBehaviour<T>() {
 
     override fun onExecute(ctl: Behaviour.Controller<T>) {
-        ctl.end(supplier())
+        ctl.end(supplier(ctl))
     }
 
     override fun clone(): Behaviour<T> {
