@@ -17,6 +17,7 @@ plugins {
     id ("org.danilopianini.git-sensitive-semantic-versioning") version Versions.org_danilopianini_git_sensitive_semantic_versioning_gradle_plugin
     id("de.fayard.buildSrcVersions") version Versions.de_fayard_buildsrcversions_gradle_plugin
     id("com.github.breadmoirai.github-release") version Versions.com_github_breadmoirai_github_release_gradle_plugin
+    id("com.github.johnrengelman.shadow") version Versions.com_github_johnrengelman_shadow_gradle_plugin apply false
 }
 
 val javaVersion: String by project
@@ -55,6 +56,8 @@ val bintrayKey = getPropertyOrWarnForAbsence("bintrayKey")
 val ossrhUsername = getPropertyOrWarnForAbsence("ossrhUsername")
 // env ORG_GRADLE_PROJECT_ossrhPassword
 val ossrhPassword = getPropertyOrWarnForAbsence("ossrhPassword")
+// env ORG_GRADLE_PROJECT_gitHubToken
+val gitHubToken = getPropertyOrWarnForAbsence("gitHubToken")
 
 val publishAllToBintrayTask = tasks.create<DefaultTask>("publishAllToBintray") {
     group = "publishing"

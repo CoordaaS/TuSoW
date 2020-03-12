@@ -1,3 +1,4 @@
+import kotlin.String
 import org.gradle.plugin.use.PluginDependenciesSpec
 import org.gradle.plugin.use.PluginDependencySpec
 
@@ -22,6 +23,8 @@ object Versions {
     const val org_danilopianini_git_sensitive_semantic_versioning_gradle_plugin: String = "0.2.2"
 
     const val com_github_breadmoirai_github_release_gradle_plugin: String = "2.2.12"
+
+    const val com_github_johnrengelman_shadow_gradle_plugin: String = "5.2.0"
 
     const val de_fayard_buildsrcversions_gradle_plugin: String = "0.7.0"
 
