@@ -5,7 +5,7 @@ variables:
   CI: "true"
   BEFORE_TASK: ""
   AFTER_TASK: ""
-  GCMD: "gradle"
+  GCMD: "./gradlew"
   BUILD_TASK: "assemble"
   TEST_TASK: "check"
   BINTRAY_TASK: "publishAllToBintray"
