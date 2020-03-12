@@ -182,15 +182,19 @@ if (gitHubToken?.isNotBlank() ?: false) {
         releaseAssets(*jarTasks.map { it.archiveFile }.toTypedArray())
     }
 
-    tasks.withType(GithubReleaseTask::class) {
-        dependsOn(*jarTasks.toTypedArray())
-        doFirst {
-            configure<GithubReleaseExtension> {
-                body("""|
+    fun setUpChangelog() {
+        configure<GithubReleaseExtension> {
+            body("""|
                 |## CHANGELOG
                 |${changelog().call()}
                 """.trimMargin())
-            }
+        }
+    }
+
+    tasks.withType(GithubReleaseTask::class) {
+        dependsOn(*jarTasks.toTypedArray())
+        doFirst {
+            setUpChangelog()
         }
     }
 }

@@ -1,7 +1,12 @@
+val tusowFull = name
+
 dependencies {
-    rootProject.subprojects.map { it.name }.forEach {
-        api(project(":$it"))
-    }
+    rootProject.subprojects
+            .map { it.name }
+            .filter { it != tusowFull }
+            .forEach {
+                api(project(":$it"))
+            }
 }
 
 tasks.getByName<Jar>("shadowJar") {
