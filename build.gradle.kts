@@ -1,6 +1,6 @@
 
 plugins {
-    kotlin("jvm") version "1.3.60"
+    kotlin("jvm") version "1.3.70"
     `maven-publish`
     signing
     id("com.jfrog.bintray") version "1.8.4"
