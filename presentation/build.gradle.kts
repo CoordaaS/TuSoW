@@ -1,27 +1,14 @@
-plugins {
-    `java-library`
-    kotlin("jvm")
-}
-
-group = rootProject.group
-version = rootProject.version
-
-val javaVersion: String by project
-val junitVersion: String by project
-val jacksonVersion: String by project
-val ktFreeCompilerArgs: String by project
-
 dependencies {
+    api(Libs.jackson_core)
+    api(Libs.jackson_datatype_jsr310)
+    api(Libs.jackson_dataformat_xml)
+    api(Libs.jackson_dataformat_yaml)
+
     implementation(project(":utils"))
     implementation(project(":prologx"))
-
     implementation(kotlin("stdlib-jdk8"))
 
-    api("com.fasterxml.jackson.core", "jackson-core", jacksonVersion)
-    api("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", jacksonVersion)
-    api("com.fasterxml.jackson.dataformat", "jackson-dataformat-xml", jacksonVersion)
-    api("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml", jacksonVersion)
 
-    testImplementation("junit", "junit", junitVersion)
+    testImplementation(Libs.junit)
     testImplementation(project(":test-utils"))
 }
