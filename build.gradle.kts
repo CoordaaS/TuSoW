@@ -164,7 +164,7 @@ subprojects {
 
 if (gitHubToken?.isNotBlank() ?: false) {
 
-    val jarTasks: List<Jar> = subprojects("tusow", "tusow-cli")
+    val jarTasks: List<Jar> = subprojects("tusow-service", "tusow-cli")
             .flatMap { it.tasks.withType(Jar::class) }
             .filter { it.name == "shadowJar" }
             .toList()

@@ -48,7 +48,7 @@ tasks.getByName<Jar>("shadowJar") {
     manifest {
         attributes("Main-Class" to mainClass)
     }
-    archiveBaseName.set("${project.name}-service")
+    archiveBaseName.set(project.name)
     archiveVersion.set(project.version.toString())
     archiveClassifier.set("redist")
     from(files("${rootProject.projectDir}/LICENSE"))

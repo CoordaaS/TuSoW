@@ -8,7 +8,7 @@ dependencies {
 
 
     testImplementation(Libs.junit)
-    testImplementation(project(":tusow"))
+    testImplementation(project(":tusow-service"))
     testImplementation(project(":linda-test"))
     testImplementation(project(":test-utils"))
 }
