@@ -17,4 +17,4 @@ include("linda-text-client")
 include("tusow-service")
 include("tusow-cli")
 
-
+include("tusow-full")
