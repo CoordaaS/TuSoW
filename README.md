@@ -1,6 +1,6 @@
-# Coordination
+# Coordination with TuSoW
 
-The Coordination Project is made up of several modules generally tackling with the coordination of multi-threaded, 
+The _Coordination with TuSoW_ Project is made up of several modules generally tackling with the coordination of multi-threaded, 
 multi-processes, distributed, or multi-agent applications through **LINDA** _tuple spaces_.
 
 ## Modules `linda-*`
