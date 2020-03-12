@@ -1,3 +1,5 @@
+import com.github.breadmoirai.githubreleaseplugin.GithubReleaseExtension
+import com.github.breadmoirai.githubreleaseplugin.GithubReleaseTask
 import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
 
 buildscript {
@@ -73,6 +75,7 @@ subprojects {
     apply(plugin = "com.jfrog.bintray")
     apply(plugin = "java-library")
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "com.github.johnrengelman.shadow")
 
     configure<JavaPluginConvention> {
         targetCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
@@ -156,5 +159,33 @@ subprojects {
         task<Sign>("signAllPublications") {
             dependsOn(*pubs.toTypedArray())
         }
+    }
+}
+
+if (gitHubToken?.isNotBlank() ?: false) {
+
+    val jarTasks: List<Jar> = subprojects("tusow", "tusow-cli")
+            .flatMap { it.tasks.withType(Jar::class) }
+            .filter { it.name == "shadowJar" }
+            .toList()
+
+    configure<GithubReleaseExtension> {
+        token(gitHubToken)
+        owner("tuple-based-coord")
+        repo("TuSoW")
+        tagName { version.toString() }
+        releaseName { version.toString() }
+        overwrite { true }
+        allowUploadToExisting { true }
+        prerelease { !isFullVersion }
+        releaseAssets(*jarTasks.map { it.archiveFile }.toTypedArray())
+        body("""|
+                |## CHANGELOG
+                |${changelog().call()}
+                """.trimMargin())
+    }
+
+    tasks.withType(GithubReleaseTask::class) {
+        dependsOn(*jarTasks.toTypedArray())
     }
 }
