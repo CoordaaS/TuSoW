@@ -43,14 +43,6 @@ allprojects {
     version = rootProject.version
 }
 
-fun getPropertyOrWarnForAbsence(key: String): String? {
-    val value = property(key)?.toString()
-    if (value.isNullOrBlank()) {
-        System.err.println("WARNING: $key is not set")
-    }
-    return value
-}
-
 // env ORG_GRADLE_PROJECT_signingKey
 val signingKey = getPropertyOrWarnForAbsence("signingKey")
 // env ORG_GRADLE_PROJECT_signingPassword
@@ -87,7 +79,6 @@ subprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
             jvmTarget = "1.$javaVersion"
-//            jvmTarget = javaVersion
             freeCompilerArgs = ktFreeCompilerArgs.split(";").toList()
         }
     }
