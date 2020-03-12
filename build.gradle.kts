@@ -178,14 +178,19 @@ if (gitHubToken?.isNotBlank() ?: false) {
         overwrite { true }
         allowUploadToExisting { true }
         prerelease { !isFullVersion }
+        draft { false }
         releaseAssets(*jarTasks.map { it.archiveFile }.toTypedArray())
-        body("""|
-                |## CHANGELOG
-                |${changelog().call()}
-                """.trimMargin())
     }
 
     tasks.withType(GithubReleaseTask::class) {
         dependsOn(*jarTasks.toTypedArray())
+        doFirst {
+            configure<GithubReleaseExtension> {
+                body("""|
+                |## CHANGELOG
+                |${changelog().call()}
+                """.trimMargin())
+            }
+        }
     }
 }
