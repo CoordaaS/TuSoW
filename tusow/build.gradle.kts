@@ -1,3 +1,7 @@
+plugins {
+    id("com.github.johnrengelman.shadow")
+}
+
 dependencies {
     api(project(":linda-core"))
     api(project(":linda-logic"))
@@ -23,6 +27,8 @@ dependencies {
     testImplementation(project(":test-utils"))
 }
 
+val mainClass = "it.unibo.coordination.tusow.Service"
+
 task<JavaExec>("tusow") {
     group = "run"
     dependsOn("classes", "compileKotlin")
@@ -31,9 +37,19 @@ task<JavaExec>("tusow") {
             classpath = runtimeClasspath
         }
     }
-    main = "it.unibo.coordination.tusow.Service"
+    main = mainClass
     if (project.hasProperty("port")) {
         args = listOf("-p", project.property("port").toString())
     }
     standardInput = System.`in`
+}
+
+tasks.getByName<Jar>("shadowJar") {
+    manifest {
+        attributes("Main-Class" to mainClass)
+    }
+    archiveBaseName.set("${project.name}-service")
+    archiveVersion.set(project.version.toString())
+    archiveClassifier.set("redist")
+    from(files("${rootProject.projectDir}/LICENSE"))
 }

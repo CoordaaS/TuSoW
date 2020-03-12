@@ -1,5 +1,6 @@
 plugins {
     application
+    id("com.github.johnrengelman.shadow")
 }
 
 dependencies {
@@ -15,7 +16,18 @@ dependencies {
     testImplementation(project(":test-utils"))
 }
 
+val mainClass = "it.unibo.coordination.linda.cli.TusowCommandKt"
+
 application {
-    mainClassName = "it.unibo.coordination.linda.cli.TusowCommandKt"
+    mainClassName = mainClass
 }
 
+tasks.getByName<Jar>("shadowJar") {
+    manifest {
+        attributes("Main-Class" to mainClass)
+    }
+    archiveBaseName.set(project.name)
+    archiveVersion.set(project.version.toString())
+    archiveClassifier.set("redist")
+    from(files("${rootProject.projectDir}/LICENSE"))
+}
