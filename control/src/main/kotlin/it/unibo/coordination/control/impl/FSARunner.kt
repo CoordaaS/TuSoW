@@ -1,13 +1,16 @@
 package it.unibo.coordination.control.impl
 
-import it.unibo.coordination.Promise
 import it.unibo.coordination.control.Activity
 import it.unibo.coordination.control.Runner
-import it.unibo.coordination.control.impl.Continuation.*
+import it.unibo.coordination.control.impl.FSARunner.Continuation.*
 import it.unibo.coordination.control.impl.State.*
 
 
 abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Runner<E, T, R> {
+
+    protected enum class Continuation {
+        CONTINUE, PAUSE, RESTART, STOP;
+    }
 
     protected val controller: Activity.Controller<E, T, R> = object : Activity.Controller<E, T, R> {
         override fun stop(result: R) {
@@ -27,7 +30,7 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
 
         override fun pause() {
             continuation = PAUSE
-            onPause()
+            onPauseInvoked()
         }
 
         override fun `continue`(data: T) {
@@ -58,74 +61,78 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
     override val isPaused: Boolean
         get() = state == PAUSED
 
-    private fun doStateTransition(whatToDo: Continuation): Promise<*> {
-        return when (state) {
-            CREATED -> doStateTransitionFromCreated(whatToDo)
-            STARTED -> doStateTransitionFromStarted(whatToDo)
-            RUNNING -> doStateTransitionFromRunning(whatToDo)
-            PAUSED -> doStateTransitionFromPaused(whatToDo)
-            STOPPED -> doStateTransitionFromStopped(whatToDo)
-            else -> throw IllegalStateException()
-        }.let {
-            it.whenComplete { _, e ->
-                if (e !== null) {
-                    state = null
-                }
+    private fun doStateTransition(whatToDo: Continuation, action: (error: Throwable?) -> Unit) {
+        val a = { e: Throwable? ->
+            if (e !== null) {
+                state = null
             }
+            action(e)
+        }
+        return when (state) {
+            CREATED -> doStateTransitionFromCreated(whatToDo, a)
+            STARTED -> doStateTransitionFromStarted(whatToDo, a)
+            RUNNING -> doStateTransitionFromRunning(whatToDo, a)
+            PAUSED -> doStateTransitionFromPaused(whatToDo, a)
+            STOPPED -> doStateTransitionFromStopped(whatToDo, a)
+            else -> throw IllegalStateException("Illegal state: $state")
         }
     }
 
-    protected fun doStateTransitionFromCreated(whatToDo: Continuation): Promise<*> {
+    private fun doStateTransitionFromCreated(whatToDo: Continuation, action: (error: Throwable?) -> Unit) {
         return when (whatToDo) {
             CONTINUE -> {
                 state = STARTED
-                runBegin(environment!!)
+                runBegin(environment!!) { _, e -> action(e) }
             }
             else -> throw IllegalArgumentException("Unexpected transition: $state -$whatToDo-> ???")
         }
     }
 
-
-
-    protected fun doStateTransitionFromStarted(whatToDo: Continuation): Promise<*> {
-        return doStateTransitionFromRunning(whatToDo)
+    private fun doStateTransitionFromStarted(whatToDo: Continuation, action: (error: Throwable?) -> Unit) {
+        return doStateTransitionFromRunning(whatToDo, action)
     }
 
-    protected fun doStateTransitionFromPaused(whatToDo: Continuation): Promise<*> {
-        return doStateTransitionFromRunning(whatToDo)
+    private fun doStateTransitionFromPaused(whatToDo: Continuation, action: (error: Throwable?) -> Unit) {
+        return doStateTransitionFromRunning(whatToDo, action)
     }
 
-    protected fun doStateTransitionFromRunning(whatToDo: Continuation): Promise<*> {
+    private fun doStateTransitionFromRunning(whatToDo: Continuation, action: (error: Throwable?) -> Unit) {
         return when (whatToDo) {
             PAUSE -> {
                 state = PAUSED
-                Promise.completedFuture(data)
+                var exception: InterruptedException? = null
+                try {
+                    onPauseRealised()
+                } catch (e: InterruptedException) {
+                    exception = e
+                } finally {
+                    action(exception)
+                }
             }
             RESTART -> {
                 state = STARTED
-                runBegin(environment!!)
+                runBegin(environment!!) { _, e -> action(e) }
             }
             STOP -> {
                 state = STOPPED
-                runEnd(result!!)
+                runEnd(result!!) { _, _, _, e -> action(e) }
             }
             CONTINUE -> {
                 state = RUNNING
-                runStep(data!!)
+                runStep(data!!) { _, _, e -> action(e) }
             }
         }
     }
 
-    protected fun doStateTransitionFromStopped(whatToDo: Continuation): Promise<*> {
+    private fun doStateTransitionFromStopped(whatToDo: Continuation, action: (error: Throwable?) -> Unit) {
         return when (whatToDo) {
             RESTART -> {
                 state = STARTED
-                runBegin(environment!!)
+                runBegin(environment!!) { _, e -> action(e) }
             }
             else -> {
                 state = null
-//                termination.complete(null)
-                Promise.completedFuture(result)
+                action(null)
             }
         }
     }
@@ -140,16 +147,52 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
 
     protected abstract fun resumeImpl()
 
-    protected open fun onPause() {
+    protected open fun onPauseInvoked() = Unit
 
-    }
+    @Throws(InterruptedException::class)
+    protected open fun onPauseRealised() = Unit
 
-    override fun runNext(): Promise<*> {
+    override fun runNext(continuation: (error: Throwable?) -> Unit) {
         if (state !== null) {
-            return doStateTransition(continuation)
+            return doStateTransition(this.continuation, continuation)
         } else {
             throw IllegalStateException("Cannot run next step in terminated activity")
         }
     }
 
+    protected fun safeExecute(continuation: (environment: E, error: Throwable?) -> Unit,
+                                action: () -> Unit) {
+        var error: Throwable? = null
+        try {
+            action()
+        } catch (e: Throwable) {
+            error = e
+        } finally {
+            continuation(environment!!, error)
+        }
+    }
+
+    protected fun safeExecute(continuation: (environment: E, data: T, error: Throwable?) -> Unit,
+                              action: () -> Unit) {
+        var error: Throwable? = null
+        try {
+            action()
+        } catch (e: Throwable) {
+            error = e
+        } finally {
+            continuation(environment!!, data!!, error)
+        }
+    }
+
+    protected fun safeExecute(continuation: (environment: E, data: T, result: R, error: Throwable?) -> Unit,
+                              action: () -> Unit) {
+        var error: Throwable? = null
+        try {
+            action()
+        } catch (e: Throwable) {
+            error = e
+        } finally {
+            continuation(environment!!, data!!, result!!, error)
+        }
+    }
 }

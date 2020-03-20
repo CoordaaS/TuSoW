@@ -1,5 +1,5 @@
 import it.unibo.coordination.agency.Agent
-import it.unibo.coordination.control.runInCurrentThread
+import it.unibo.coordination.control.runOnBackgroundThread
 
 fun main() {
     val agent = Agent("Alice") {
@@ -11,12 +11,12 @@ fun main() {
                         valueOf(1)
                 ) map {
                     println("Result of anyOf: $it")
-                } then stopAgent()
+                } //then stopAgent()
 
             }
 
         }
     }
 
-    agent.runInCurrentThread()
+    agent.runOnBackgroundThread()
 }

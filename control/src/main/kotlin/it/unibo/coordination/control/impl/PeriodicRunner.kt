@@ -6,7 +6,8 @@ import it.unibo.coordination.utils.TimedEngine
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
-class PeriodicRunner<E, T, R>(private val period: Duration, activity: Activity<E, T, R>, override val engine: TimedEngine = Engines.defaultTimedEngine)
+class PeriodicRunner<E, T, R>(private val period: Duration, activity: Activity<E, T, R>,
+                              override val engine: TimedEngine = Engines.defaultTimedEngine)
     : AsyncRunner<E, T, R>(activity, engine) {
 
     constructor(period: Long, activity: Activity<E, T, R>, engine: TimedEngine = Engines.defaultTimedEngine)
