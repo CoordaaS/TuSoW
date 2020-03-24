@@ -4,8 +4,8 @@ val junitVersion: String by project
 val ktFreeCompilerArgs: String by project
 
 dependencies {
-    api("it.unibo.alice.tuprolog", "2p-presentation", tuprologVersion)
+    api(Libs.`2p_presentation`)
+    api(kotlin("stdlib-jdk8"))
 
-    testImplementation("junit", "junit", junitVersion)
-    implementation(kotlin("stdlib-jdk8"))
+    testImplementation(Libs.junit)
 }

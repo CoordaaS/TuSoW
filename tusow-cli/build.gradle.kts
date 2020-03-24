@@ -1,30 +1,34 @@
 plugins {
     application
+    id("com.github.johnrengelman.shadow")
 }
-
-val javaVersion: String by project
-val joolVersion: String by project
-val junitVersion: String by project
-val jacksonVersion: String by project
-val vertxVersion: String by project
-val commonsCliVersion: String by project
-val cliktVersion: String by project
-val ktFreeCompilerArgs: String by project
 
 dependencies {
     api(project(":linda-logic-client"))
     api(project(":linda-text-client"))
+    api(kotlin("stdlib-jdk8"))
+    api(Libs.clikt)
 
-    implementation("com.github.ajalt", "clikt", cliktVersion)
+    implementation(Libs.logback_classic)
 
-    testImplementation("junit", "junit", junitVersion)
-    testImplementation(project(":tusow"))
+    testImplementation(Libs.junit)
+    testImplementation(project(":tusow-service"))
     testImplementation(project(":linda-test"))
     testImplementation(project(":test-utils"))
-    implementation(kotlin("stdlib-jdk8"))
 }
+
+val mainClass = "it.unibo.coordination.tusow.Cli"
 
 application {
-    mainClassName = "it.unibo.coordination.linda.cli.TusowCommandKt"
+    mainClassName = mainClass
 }
 
+tasks.getByName<Jar>("shadowJar") {
+    manifest {
+        attributes("Main-Class" to mainClass)
+    }
+    archiveBaseName.set(project.name)
+    archiveVersion.set(project.version.toString())
+    archiveClassifier.set("redist")
+    from(files("${rootProject.projectDir}/LICENSE"))
+}

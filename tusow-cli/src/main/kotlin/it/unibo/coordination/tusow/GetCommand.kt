@@ -1,4 +1,4 @@
-package it.unibo.coordination.linda.cli
+package it.unibo.coordination.tusow
 
 import it.unibo.coordination.linda.core.Tuple
 import it.unibo.coordination.linda.logic.LogicSpace

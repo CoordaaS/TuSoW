@@ -1,6 +1,6 @@
-# Coordination
+# Coordination with TuSoW
 
-The Coordination Project is made up of several modules generally tackling with the coordination of multi-threaded, 
+The _Coordination with TuSoW_ Project is made up of several modules generally tackling with the coordination of multi-threaded, 
 multi-processes, distributed, or multi-agent applications through **LINDA** _tuple spaces_.
 
 ## Modules `linda-*`
@@ -8,7 +8,7 @@ multi-processes, distributed, or multi-agent applications through **LINDA** _tup
 Module `linda-core` and its implementations (currently, `linda-logic` and `linda-text`) are aimed at letting developers
 use tuple spaces programmatically in concurrent, local (i.e., **non-distributed**) applications.
 
-## Module `tusow` and remote tuples spaces in `linda-*-client`
+## Module `tusow-service` and remote tuples spaces in `linda-*-client`
 
 TuSoW (Tuple Spaces over the Web) is a Web wrapper for tuple spaces exposing them to the Internet as a Web Service,
 through a ReST-ful API.
@@ -20,7 +20,7 @@ remote tuple spaces using the exact same API used for local ones.
 This is the purpose of modules `linda-logic-client` and `linda-text-client`, which are the remote equivalents of 
 `linda-logic` and `linda-text`, respectively.
 
-Finally, module `cli` is aimed at letting users interact with TuSoW tuple spaced through a command line interface.
+Finally, module `tusow-cli` is aimed at letting users interact with TuSoW tuple spaced through a command line interface.
 
 ### Playground
 

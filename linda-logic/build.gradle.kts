@@ -1,15 +1,11 @@
-val javaVersion: String by project
-val tuprologVersion: String by project
-val junitVersion: String by project
-val ktFreeCompilerArgs: String by project
-
 dependencies {
-    api("it.unibo.alice.tuprolog", "2p-core", tuprologVersion)
+    api(Libs.`2p_core`)
     api(project(":linda-core"))
-    implementation(project(":utils"))
+    api(project(":utils"))
+    api(kotlin("stdlib-jdk8"))
+
     implementation(project(":prologx"))
 
-    testImplementation("junit", "junit", junitVersion)
+    testImplementation(Libs.junit)
     testImplementation(project(":linda-test"))
-    implementation(kotlin("stdlib-jdk8"))
 }
