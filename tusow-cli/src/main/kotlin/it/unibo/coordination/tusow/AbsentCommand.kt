@@ -1,19 +1,22 @@
-package it.unibo.coordination.linda.cli
+package it.unibo.coordination.tusow
 
-import it.unibo.coordination.linda.cli.TupleSpaceTypes.LOGIC
-import it.unibo.coordination.linda.cli.TupleSpaceTypes.TEXT
+import it.unibo.coordination.linda.core.Match
+import it.unibo.coordination.linda.core.Template
+import it.unibo.coordination.linda.core.Tuple
 import it.unibo.coordination.linda.logic.LogicSpace
 import it.unibo.coordination.linda.text.TextualSpace
+import it.unibo.coordination.tusow.TupleSpaceTypes.LOGIC
+import it.unibo.coordination.tusow.TupleSpaceTypes.TEXT
 
-class TakeCommand(
+class AbsentCommand(
         epilog: String = "",
-        name: String? = "take",
+        name: String? = "absent",
         invokeWithoutSubcommand: Boolean = false,
         printHelpOnEmptyArgs: Boolean = false,
         helpTags: Map<String, String> = emptyMap(),
         autoCompleteEnvvar: String? = ""
 ) : AbstractObserveCommand(
-        action = "consuming (i.e., taking or removing)",
+        action = "checking the absence of",
         epilog = epilog,
         name = name,
         invokeWithoutSubcommand = invokeWithoutSubcommand,
@@ -23,30 +26,30 @@ class TakeCommand(
 
     override fun run() {
         when {
-            bulk -> when (type) {
-                LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
-                        .takeAll(template)
-                        .defaultHandlerForMultipleResult()
-                TEXT -> getTupleSpace<TextualSpace>(tupleSpaceID)
-                        .takeAll(template)
-                        .defaultHandlerForMultipleResult()
-            }
+            bulk -> TODO("Currently not supported operation")
             predicative -> when (type) {
                 LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
-                        .tryTake(template)
+                        .tryAbsent(template)
                         .defaultHandlerForSingleResult()
                 TEXT -> getTupleSpace<TextualSpace>(tupleSpaceID)
-                        .tryTake(template)
+                        .tryAbsent(template)
                         .defaultHandlerForSingleResult()
             }
             else -> when (type) {
                 LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
-                        .take(template)
+                        .absent(template)
                         .defaultHandlerForSingleResult()
                 TEXT -> getTupleSpace<TextualSpace>(tupleSpaceID)
-                        .take(template)
+                        .absent(template)
                         .defaultHandlerForSingleResult()
             }
         }
     }
+
+    override fun <T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> M.isSuccess(): Boolean = !this.isMatching
+
+    override fun <T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> M.getResult(): Any =
+            if (isMatching) tuple.get().value else template
+
+    override fun <T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>, C : Collection<M>> C.isSuccess(): Boolean = isEmpty()
 }

@@ -17,7 +17,7 @@ dependencies {
     testImplementation(project(":test-utils"))
 }
 
-val mainClass = "it.unibo.coordination.linda.cli.Cli"
+val mainClass = "it.unibo.coordination.tusow.Cli"
 
 application {
     mainClassName = mainClass

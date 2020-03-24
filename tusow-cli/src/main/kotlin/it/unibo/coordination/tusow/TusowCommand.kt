@@ -1,4 +1,4 @@
-package it.unibo.coordination.linda.cli
+package it.unibo.coordination.tusow
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands

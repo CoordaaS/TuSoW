@@ -1,4 +1,4 @@
-package it.unibo.coordination.linda.cli
+package it.unibo.coordination.tusow
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
@@ -6,11 +6,11 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.int
-import it.unibo.coordination.linda.cli.TupleSpaceTypes.LOGIC
-import it.unibo.coordination.linda.cli.TupleSpaceTypes.TEXT
 import it.unibo.coordination.linda.core.TupleSpace
 import it.unibo.coordination.linda.logic.remote.RemoteLogicSpace
 import it.unibo.coordination.linda.text.remote.RemoteTextualSpace
+import it.unibo.coordination.tusow.TupleSpaceTypes.LOGIC
+import it.unibo.coordination.tusow.TupleSpaceTypes.TEXT
 import java.net.URL
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
