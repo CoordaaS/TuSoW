@@ -17,13 +17,3 @@ class TusowCommand() : CliktCommand(name="tusow") {
 
     override fun run() = Unit
 }
-
-fun main(args: Array<String>) {
-    try {
-        TusowCommand().main(args)
-        System.exit(0)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        System.exit(1)
-    }
-}

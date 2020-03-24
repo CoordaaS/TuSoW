@@ -1,10 +1,10 @@
 dependencies {
     api(Libs.`2p_core`)
     api(project(":linda-core"))
+    api(project(":utils"))
+    api(kotlin("stdlib-jdk8"))
 
-    implementation(project(":utils"))
     implementation(project(":prologx"))
-    implementation(kotlin("stdlib-jdk8"))
 
     testImplementation(Libs.junit)
     testImplementation(project(":linda-test"))

@@ -6,9 +6,10 @@ plugins {
 dependencies {
     api(project(":linda-logic-client"))
     api(project(":linda-text-client"))
+    api(kotlin("stdlib-jdk8"))
+    api(Libs.clikt)
 
-    implementation(Libs.clikt)
-    implementation(kotlin("stdlib-jdk8"))
+    implementation(Libs.logback_classic)
 
     testImplementation(Libs.junit)
     testImplementation(project(":tusow-service"))
@@ -16,7 +17,7 @@ dependencies {
     testImplementation(project(":test-utils"))
 }
 
-val mainClass = "it.unibo.coordination.linda.cli.TusowCommandKt"
+val mainClass = "it.unibo.coordination.linda.cli.Cli"
 
 application {
     mainClassName = mainClass
