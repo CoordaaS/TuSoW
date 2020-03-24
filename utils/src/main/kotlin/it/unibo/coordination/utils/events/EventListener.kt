@@ -1,3 +1,3 @@
 package it.unibo.coordination.utils.events
 
-typealias EventListener<T> = (T) -> Any
+typealias EventListener<T> = (T) -> Unit

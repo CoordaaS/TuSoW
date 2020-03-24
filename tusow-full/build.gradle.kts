@@ -7,6 +7,8 @@ dependencies {
             .forEach {
                 api(project(":$it"))
             }
+
+    implementation(Libs.logback_classic)
 }
 
 tasks.getByName<Jar>("shadowJar") {

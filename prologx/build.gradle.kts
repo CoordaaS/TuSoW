@@ -5,8 +5,7 @@ val ktFreeCompilerArgs: String by project
 
 dependencies {
     api(Libs.`2p_presentation`)
-
-    implementation(kotlin("stdlib-jdk8"))
+    api(kotlin("stdlib-jdk8"))
 
     testImplementation(Libs.junit)
 }

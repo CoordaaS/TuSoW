@@ -1,19 +1,19 @@
-package it.unibo.coordination.linda.cli
+package it.unibo.coordination.tusow
 
-import it.unibo.coordination.linda.cli.TupleSpaceTypes.LOGIC
-import it.unibo.coordination.linda.cli.TupleSpaceTypes.TEXT
 import it.unibo.coordination.linda.logic.LogicSpace
 import it.unibo.coordination.linda.text.TextualSpace
+import it.unibo.coordination.tusow.TupleSpaceTypes.LOGIC
+import it.unibo.coordination.tusow.TupleSpaceTypes.TEXT
 
-class ReadCommand(
+class TakeCommand(
         epilog: String = "",
-        name: String? = "read",
+        name: String? = "take",
         invokeWithoutSubcommand: Boolean = false,
         printHelpOnEmptyArgs: Boolean = false,
         helpTags: Map<String, String> = emptyMap(),
         autoCompleteEnvvar: String? = ""
 ) : AbstractObserveCommand(
-        action = "reading",
+        action = "consuming (i.e., taking or removing)",
         epilog = epilog,
         name = name,
         invokeWithoutSubcommand = invokeWithoutSubcommand,
@@ -25,26 +25,26 @@ class ReadCommand(
         when {
             bulk -> when (type) {
                 LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
-                        .readAll(template)
+                        .takeAll(template)
                         .defaultHandlerForMultipleResult()
                 TEXT -> getTupleSpace<TextualSpace>(tupleSpaceID)
-                        .readAll(template)
+                        .takeAll(template)
                         .defaultHandlerForMultipleResult()
             }
             predicative -> when (type) {
                 LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
-                        .tryRead(template)
+                        .tryTake(template)
                         .defaultHandlerForSingleResult()
                 TEXT -> getTupleSpace<TextualSpace>(tupleSpaceID)
-                        .tryRead(template)
+                        .tryTake(template)
                         .defaultHandlerForSingleResult()
             }
             else -> when (type) {
                 LOGIC -> getTupleSpace<LogicSpace>(tupleSpaceID)
-                        .read(template)
+                        .take(template)
                         .defaultHandlerForSingleResult()
                 TEXT -> getTupleSpace<TextualSpace>(tupleSpaceID)
-                        .read(template)
+                        .take(template)
                         .defaultHandlerForSingleResult()
             }
         }

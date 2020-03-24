@@ -3,6 +3,6 @@ val junitVersion: String by project
 val ktFreeCompilerArgs: String by project
 
 dependencies {
-    implementation(Libs.junit)
-    implementation(kotlin("stdlib-jdk8"))
+    api(kotlin("stdlib-jdk8"))
+    api(Libs.junit)
 }

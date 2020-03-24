@@ -3,7 +3,7 @@ dependencies {
     api(Libs.slf4j_api)
     api(project(":utils"))
 
-    implementation(kotlin("stdlib-jdk8"))
+    api(kotlin("stdlib-jdk8"))
 
     testImplementation(Libs.junit)
 }

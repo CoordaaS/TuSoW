@@ -1,9 +1,9 @@
 dependencies {
     api(project(":linda-logic"))
     api(project(":linda-core-presentation"))
+    api(kotlin("stdlib-jdk8"))
 
     implementation(project(":prologx"))
-    implementation(kotlin("stdlib-jdk8"))
 
     testImplementation(Libs.junit)
     testImplementation(project(":test-utils"))
