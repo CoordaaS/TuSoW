@@ -39,7 +39,10 @@ class ThreadRunner<E, T, R>(activity: Activity<E, T, R>) : FSARunner<E, T, R>(ac
     override fun run(environment: E): Promise<R> {
         this.environment = environment
         thread.start()
-        return finalResult
+        return finalResult.thenApplyAsync {
+            thread.join()
+            it
+        }
     }
 
     private fun runImpl() {
