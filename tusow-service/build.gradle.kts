@@ -27,7 +27,7 @@ dependencies {
     testImplementation(project(":test-utils"))
 }
 
-val mainClass = "it.unibo.coordination.tusow.Service"
+val mainClassName = "it.unibo.coordination.tusow.Service"
 
 task<JavaExec>("tusow") {
     group = "run"
@@ -37,7 +37,7 @@ task<JavaExec>("tusow") {
             classpath = runtimeClasspath
         }
     }
-    main = mainClass
+    main = mainClassName
     if (project.hasProperty("port")) {
         args = listOf("-p", project.property("port").toString())
     }
@@ -46,7 +46,7 @@ task<JavaExec>("tusow") {
 
 tasks.getByName<Jar>("shadowJar") {
     manifest {
-        attributes("Main-Class" to mainClass)
+        attributes("Main-Class" to mainClassName)
     }
     archiveBaseName.set(project.name)
     archiveVersion.set(project.version.toString())

@@ -17,15 +17,15 @@ dependencies {
     testImplementation(project(":test-utils"))
 }
 
-val mainClass = "it.unibo.coordination.tusow.Cli"
+val mainKlass = "it.unibo.coordination.tusow.Cli"
 
 application {
-    mainClassName = mainClass
+    mainClassName = mainKlass
 }
 
 tasks.getByName<Jar>("shadowJar") {
     manifest {
-        attributes("Main-Class" to mainClass)
+        attributes("Main-Class" to mainKlass)
     }
     archiveBaseName.set(project.name)
     archiveVersion.set(project.version.toString())
