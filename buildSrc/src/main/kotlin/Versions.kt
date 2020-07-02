@@ -12,11 +12,13 @@ import org.gradle.plugin.use.PluginDependencySpec
  * YOU are responsible for updating manually the dependency version.
  */
 object Versions {
-    const val com_fasterxml_jackson_dataformat: String = "2.9.8" // available: "2.10.3"
+    const val jackson_core: String = "2.10.3"
+
+    const val com_fasterxml_jackson_dataformat: String = jackson_core
 
     const val it_unibo_alice_tuprolog: String = "4.1.1"
 
-    const val org_jetbrains_kotlin: String = "1.3.70"
+    const val org_jetbrains_kotlin: String = "1.3.72"
 
     const val io_vertx: String = "3.8.5"
 
@@ -28,17 +30,15 @@ object Versions {
 
     const val de_fayard_buildsrcversions_gradle_plugin: String = "0.7.0"
 
-    const val org_jetbrains_kotlin_jvm_gradle_plugin: String = "1.3.70"
+    const val org_jetbrains_kotlin_jvm_gradle_plugin: String = org_jetbrains_kotlin
 
     const val com_jfrog_bintray_gradle_plugin: String = "1.8.4"
 
-    const val jackson_datatype_jsr310: String = "2.9.8" // available: "2.10.3"
+    const val jackson_datatype_jsr310: String = jackson_core
 
-    const val commons_collections4: String = "4.2" // available: "4.4"
+    const val commons_collections4: String = "4.4"
 
     const val logback_classic: String = "1.2.3"
-
-    const val jackson_core: String = "2.9.8" // available: "2.10.3"
 
     const val named_regexp: String = "0.2.5"
 
