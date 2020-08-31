@@ -43,6 +43,12 @@ object Libs {
     /**
      * https://gitlab.com/pika-lab/tuprolog/2p-in-kotlin
      */
+    const val serialize_core_jvm: String = "it.unibo.tuprolog:serialize-core-jvm:" +
+            Versions.it_unibo_tuprolog
+
+    /**
+     * https://gitlab.com/pika-lab/tuprolog/2p-in-kotlin
+     */
     const val theory_jvm: String = "it.unibo.tuprolog:theory-jvm:" + Versions.it_unibo_tuprolog
 
     const val vertx_core: String = "io.vertx:vertx-core:" + Versions.io_vertx
@@ -89,12 +95,6 @@ object Libs {
      */
     const val commons_collections4: String = "org.apache.commons:commons-collections4:" +
             Versions.commons_collections4
-
-    /**
-     * http://tuprolog.unibo.it
-     */
-    const val `2p_presentation`: String = "it.unibo.alice.tuprolog:2p-presentation:" +
-            Versions.2p_presentation
 
     /**
      * http://logback.qos.ch

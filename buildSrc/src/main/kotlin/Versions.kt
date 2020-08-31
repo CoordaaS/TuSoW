@@ -16,7 +16,7 @@ object Versions {
 
     const val org_jetbrains_kotlin: String = "1.4.0"
 
-    const val it_unibo_tuprolog: String = "0.11.1"
+    const val it_unibo_tuprolog: String = "0.11.2"
 
     const val io_vertx: String = "3.9.2"
 
@@ -48,7 +48,7 @@ object Versions {
 
     const val slf4j_api: String = "1.7.30"
 
-    const val clikt: String = "2.2.0" // available: "2.8.0"
+    const val clikt: String = "2.8.0"
 
     const val junit: String = "4.13"
 

@@ -14,7 +14,6 @@ dependencies {
 
     implementation(Libs.logback_classic)
 
-    implementation(project(":prologx"))
     implementation(Libs.commons_cli)
     implementation(Libs.jackson_core)
     implementation(Libs.jackson_datatype_jsr310)

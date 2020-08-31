@@ -6,8 +6,6 @@ dependencies {
     api(kotlin("stdlib-jdk8"))
     api(project(":utils"))
 
-    implementation(project(":prologx"))
-
     testImplementation(Libs.junit)
     testImplementation(project(":test-utils"))
 }
