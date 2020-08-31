@@ -120,7 +120,7 @@ object Libs {
     const val slf4j_api: String = "org.slf4j:slf4j-api:" + Versions.slf4j_api
 
     /**
-     * 2.5.0
+     * 2.8.0
      */
     const val clikt: String = "com.github.ajalt:clikt:" + Versions.clikt
 
