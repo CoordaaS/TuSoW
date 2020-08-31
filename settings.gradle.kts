@@ -1,7 +1,6 @@
 rootProject.name = "coordination"
 
 include("utils")
-include("prologx")
 include("linda-core")
 include("linda-logic")
 include("linda-text")

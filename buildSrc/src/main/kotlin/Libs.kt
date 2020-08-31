@@ -22,18 +22,6 @@ object Libs {
             Versions.com_fasterxml_jackson_dataformat
 
     /**
-     * http://tuprolog.unibo.it
-     */
-    const val `2p_core`: String = "it.unibo.alice.tuprolog:2p-core:" +
-            Versions.it_unibo_alice_tuprolog
-
-    /**
-     * http://tuprolog.unibo.it
-     */
-    const val `2p_presentation`: String = "it.unibo.alice.tuprolog:2p-presentation:" +
-            Versions.it_unibo_alice_tuprolog
-
-    /**
      * https://kotlinlang.org/
      */
     const val kotlin_scripting_compiler_embeddable: String =
@@ -45,6 +33,17 @@ object Libs {
      */
     const val kotlin_stdlib_jdk8: String = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:" +
             Versions.org_jetbrains_kotlin
+
+    /**
+     * https://gitlab.com/pika-lab/tuprolog/2p-in-kotlin
+     */
+    const val parser_core_jvm: String = "it.unibo.tuprolog:parser-core-jvm:" +
+            Versions.it_unibo_tuprolog
+
+    /**
+     * https://gitlab.com/pika-lab/tuprolog/2p-in-kotlin
+     */
+    const val theory_jvm: String = "it.unibo.tuprolog:theory-jvm:" + Versions.it_unibo_tuprolog
 
     const val vertx_core: String = "io.vertx:vertx-core:" + Versions.io_vertx
 
@@ -92,6 +91,12 @@ object Libs {
             Versions.commons_collections4
 
     /**
+     * http://tuprolog.unibo.it
+     */
+    const val `2p_presentation`: String = "it.unibo.alice.tuprolog:2p-presentation:" +
+            Versions.2p_presentation
+
+    /**
      * http://logback.qos.ch
      */
     const val logback_classic: String = "ch.qos.logback:logback-classic:" + Versions.logback_classic
@@ -120,7 +125,7 @@ object Libs {
     const val slf4j_api: String = "org.slf4j:slf4j-api:" + Versions.slf4j_api
 
     /**
-     * 2.8.0
+     * https://github.com/ajalt/clikt
      */
     const val clikt: String = "com.github.ajalt:clikt:" + Versions.clikt
 
