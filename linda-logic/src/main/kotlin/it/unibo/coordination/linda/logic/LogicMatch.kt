@@ -1,32 +1,31 @@
 package it.unibo.coordination.linda.logic
 
-import alice.tuprolog.Struct
-import alice.tuprolog.Term
-import alice.tuprolog.Var
 import it.unibo.coordination.linda.core.Match
-import it.unibo.coordination.prologx.PrologUtils
+import it.unibo.tuprolog.core.Scope
+import it.unibo.tuprolog.core.Struct
+import it.unibo.tuprolog.core.Substitution
+import it.unibo.tuprolog.core.Term
 import java.util.*
 
 interface LogicMatch : Match<LogicTuple, LogicTemplate, String, Term> {
 
     @JvmDefault
     fun asTerm(): Struct {
-        return Struct.of("match",
-                Struct.of("success", if (isMatching) Struct.atom("yes") else Struct.atom("no")),
-                template.asTerm(),
-                tuple.map { it.asTerm() }.orElse(Struct.atom("empty")),
-                Struct.list(
-                        toMap().entries.stream()
-                                .map { kv -> PrologUtils.unificationTerm(kv.key, kv.value) }
-                )
-        )
+        return Scope.empty {
+            structOf("match",
+                    structOf("success", if (isMatching) atomOf("yes") else atomOf("no")),
+                    template.asTerm(),
+                    tuple.map { it.asTerm() }.orElse(atomOf("empty")),
+                    listOf(toMap().entries.map { (k, v) -> structOf("=", atomOf(k), v) })
+            )
+        }
     }
 
     companion object {
 
         @JvmStatic
         fun failed(template: LogicTemplate): LogicMatch {
-            return LogicMatchImpl(template, null, null)
+            return LogicMatchImpl(template, null)
         }
 
         @JvmStatic
@@ -53,7 +52,7 @@ interface LogicMatch : Match<LogicTuple, LogicTemplate, String, Term> {
                     }
 
                     override fun toString(): String {
-                        return LogicMatch.toString(this)
+                        return toString(this)
                     }
 
                     override fun equals(other: Any?): Boolean {
@@ -70,12 +69,15 @@ interface LogicMatch : Match<LogicTuple, LogicTemplate, String, Term> {
 
         @JvmStatic
         val pattern: Struct
-            get() = Struct.of("match",
-                    Struct.of("success", Var.of("Success")),
-                    LogicTemplate.pattern,
-                    Var.of("Tuple"),
-                    Var.of("Mappings")
-            )
+            get() = Scope.empty {
+                structOf(
+                        "match",
+                        structOf("success", varOf("Success")),
+                        LogicTemplate.pattern,
+                        varOf("Tuple"),
+                        varOf("Mappings")
+                )
+            }
 
         @JvmStatic
         fun toString(match: LogicMatch): String {

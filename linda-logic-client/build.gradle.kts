@@ -5,8 +5,6 @@ dependencies {
     api(kotlin("stdlib-jdk8"))
     api(Libs.vertx_web_client)
 
-    implementation(project(":prologx"))
-
     testImplementation(Libs.junit)
     testImplementation(project(":tusow-service"))
     testImplementation(project(":linda-test"))

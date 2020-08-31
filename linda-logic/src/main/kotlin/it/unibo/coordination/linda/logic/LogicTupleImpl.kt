@@ -1,17 +1,19 @@
 package it.unibo.coordination.linda.logic
 
-import alice.tuprolog.Struct
-import alice.tuprolog.Term
+import it.unibo.tuprolog.core.Struct
+import it.unibo.tuprolog.core.Term
+import it.unibo.tuprolog.unify.Unificator.Companion.matches
+
 
 internal class LogicTupleImpl(term: Term) : LogicTuple {
 
     private val term: Struct
 
     override val value: Term
-        get() = asTerm().getArg(0)
+        get() = asTerm()[0]
 
     init {
-        if (term is Struct && LogicTuple.pattern.match(term)) {
+        if (term is Struct && LogicTuple.pattern.matches(term)) {
             this.term = term
         } else {
             this.term = LogicTuple.getPattern(term)

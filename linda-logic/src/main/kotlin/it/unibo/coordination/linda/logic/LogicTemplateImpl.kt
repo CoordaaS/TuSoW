@@ -1,18 +1,18 @@
 package it.unibo.coordination.linda.logic
 
-import alice.tuprolog.Prolog
-import alice.tuprolog.Struct
-import alice.tuprolog.Term
-import it.unibo.coordination.prologx.PrologUtils
+import it.unibo.tuprolog.core.Struct
+import it.unibo.tuprolog.core.Term
+import it.unibo.tuprolog.unify.Unificator.Companion.matches
+import it.unibo.tuprolog.unify.Unificator.Companion.mguWith
 
 internal class LogicTemplateImpl(term: Term) : LogicTemplate {
     private val term: Struct
 
     override val template: Term
-        get() = term.getArg(0)
+        get() = term[0]
 
     init {
-        if (term is Struct && LogicTemplate.pattern.match(term)) {
+        if (term is Struct && LogicTemplate.pattern.matches(term)) {
             this.term = term
         } else {
             this.term = LogicTemplate.getPattern(term)
@@ -20,8 +20,7 @@ internal class LogicTemplateImpl(term: Term) : LogicTemplate {
     }
 
     override fun matchWith(tuple: LogicTuple): LogicMatch {
-        val si = ENGINE.solve(PrologUtils.unificationTerm(template, tuple.value))
-        return LogicMatchImpl(this, si, tuple)
+        return LogicMatchImpl(this, tuple)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -39,10 +38,4 @@ internal class LogicTemplateImpl(term: Term) : LogicTemplate {
     override fun asTerm(): Struct {
         return term
     }
-
-    companion object {
-
-        private val ENGINE = Prolog()
-    }
-
 }

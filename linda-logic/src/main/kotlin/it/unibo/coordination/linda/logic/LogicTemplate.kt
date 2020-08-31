@@ -1,9 +1,10 @@
 package it.unibo.coordination.linda.logic
 
-import alice.tuprolog.Struct
-import alice.tuprolog.Term
-import alice.tuprolog.Var
 import it.unibo.coordination.linda.core.Template
+import it.unibo.tuprolog.core.Struct
+import it.unibo.tuprolog.core.Term
+import it.unibo.tuprolog.core.Var
+import it.unibo.tuprolog.core.parsing.parse
 import java.util.*
 
 interface LogicTemplate : Template<LogicTuple> {
@@ -23,7 +24,7 @@ interface LogicTemplate : Template<LogicTuple> {
 
         @JvmStatic
         fun of(template: String): LogicTemplate {
-            return of(Term.createTerm(Objects.requireNonNull(template)))
+            return of(Term.parse(template))
         }
 
         @JvmStatic
@@ -32,8 +33,7 @@ interface LogicTemplate : Template<LogicTuple> {
         }
 
         @JvmStatic
-        val pattern: Struct
-            get() = Struct.of("template", Var.of("T"))
+        val pattern: Struct = Struct.of("template", Var.of("T"))
 
         @JvmStatic
         fun getPattern(term: Term): Struct {
