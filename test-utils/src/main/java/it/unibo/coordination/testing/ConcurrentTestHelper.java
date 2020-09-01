@@ -26,7 +26,7 @@ public class ConcurrentTestHelper implements IConcurrentTestHelper {
 
     @Override
     public void await() throws Exception {
-        latch.await();
+        latch.await(BLOCKING_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
         for (final ThrowableRunnable throwableRunnable : toDoList) {
             throwableRunnable.run();
         }
