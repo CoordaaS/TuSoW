@@ -1,6 +1,6 @@
 package it.unibo.coordination.linda.logic;
 
-import alice.tuprolog.Term;
+
 import it.unibo.coordination.linda.core.OperationType;
 import it.unibo.coordination.linda.core.PendingRequest;
 import it.unibo.coordination.linda.core.RequestTypes;
@@ -12,6 +12,7 @@ import it.unibo.presentation.Deserializer;
 import it.unibo.presentation.MIMETypes;
 import it.unibo.presentation.Serializer;
 import it.unibo.presentation.TypeToken;
+import it.unibo.tuprolog.core.Term;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

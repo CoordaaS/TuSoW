@@ -1,11 +1,11 @@
 package it.unibo.coordination.linda.logic;
 
-import alice.tuprolog.Term;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import it.unibo.coordination.linda.test.TestBaseLinda;
 import it.unibo.presentation.MIMETypes;
+import it.unibo.tuprolog.core.Term;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
