@@ -15,9 +15,6 @@ import it.unibo.presentation.Deserializer
 import it.unibo.presentation.MIMETypes
 import it.unibo.presentation.MIMETypes.Companion.parse
 import it.unibo.presentation.Serializer
-import org.jooq.lambda.tuple.Tuple3
-import org.jooq.lambda.tuple.Tuple4
-import org.jooq.lambda.tuple.Tuple6
 import java.util.*
 
 @Suppress("UNUSED_PARAMETER")
@@ -74,7 +71,7 @@ abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : 
                         validateOutputsForPost(cleanInputs, it)
                     }
             )
-            api.createNewTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), result)
+            api.createNewTuples(cleanInputs.tupleSpaceName, cleanInputs.bulk, cleanInputs.tuples, result)
         } catch (e: HttpError) {
             result.fail(e)
         } catch (e: IllegalArgumentException) {
@@ -96,26 +93,25 @@ abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : 
         }
     }
 
-    private fun validateOutputsForPost(inputs: Tuple3<String, Boolean, List<T>>, output: Collection<T>): Collection<T> {
-        return validateOutputsForPost(inputs.v1(), inputs.v2(), inputs.v3(), output)
-    }
+    private data class InputsForPost<T>(val tupleSpaceName: String, val bulk: Boolean, val tuples: List<T>)
 
-    private fun validateInputsForPost(tupleSpaceName: String, bulk: Optional<Boolean>, tuples: List<T>): Tuple3<String, Boolean, List<T>> {
+    private fun validateInputsForPost(tupleSpaceName: String, bulk: Optional<Boolean>, tuples: List<T>): InputsForPost<T> {
         val bulkValue = bulk.orElse(false)
-        if (!bulkValue && tuples.size != 1) {
+        return if (!bulkValue && tuples.size != 1) {
             throw BadContentError()
-        } else if (tuples.size == 0) {
+        } else if (tuples.isEmpty()) {
             throw BadContentError()
+        } else {
+            InputsForPost(
+                    Objects.requireNonNull(tupleSpaceName),
+                    bulkValue,
+                    tuples
+            )
         }
-        return org.jooq.lambda.tuple.Tuple.tuple(
-                Objects.requireNonNull(tupleSpaceName),
-                bulkValue,
-                tuples
-        )
     }
 
-    private fun validateOutputsForPost(tupleSpaceName: String, bulk: Boolean, input: List<T>, output: Collection<T>): Collection<T> {
-        if (input.size != output.size) {
+    private fun validateOutputsForPost(inputs: InputsForPost<T>, output: Collection<T>): Collection<T> {
+        if (inputs.tuples.size != output.size) {
             throw InternalServerError()
         }
         return output
@@ -137,7 +133,7 @@ abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : 
                         validateOutputsForDelete(cleanInputs, it)
                     }
             )
-            api.consumeTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), cleanInputs.v4(), result)
+            api.consumeTuples(cleanInputs.tupleSpaceName, cleanInputs.bulk, cleanInputs.predicative, cleanInputs.template, result)
         } catch (e: HttpError) {
             result.fail(e)
         } catch (e: IllegalArgumentException) {
@@ -157,8 +153,15 @@ abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : 
 
     protected abstract fun getMatchUnmarshaller(mimeType: MIMETypes): Deserializer<M>
 
-    private fun validateInputsForDelete(tupleSpaceName: String, bulk: Optional<Boolean>, predicative: Optional<Boolean>, template: TT): Tuple4<String, Boolean, Boolean, TT> {
-        return org.jooq.lambda.tuple.Tuple.tuple(
+    private data class InputsForDelete<TT>(
+            val tupleSpaceName: String,
+            val bulk: Boolean,
+            val predicative: Boolean,
+            val template: TT
+    )
+
+    private fun validateInputsForDelete(tupleSpaceName: String, bulk: Optional<Boolean>, predicative: Optional<Boolean>, template: TT): InputsForDelete<TT> {
+        return InputsForDelete(
                 tupleSpaceName,
                 bulk.orElse(false),
                 predicative.orElse(false),
@@ -166,16 +169,13 @@ abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : 
         )
     }
 
-    private fun <ML : Collection<M>> validateOutputsForDelete(inputs: Tuple4<String, Boolean, Boolean, TT>, output: ML): ML {
-        return validateOutputsForDelete(inputs.v1(), inputs.v2(), inputs.v3(), inputs.v4(), output)
-    }
-
-    private fun <ML : Collection<M>> validateOutputsForDelete(tupleSpaceName: String, bulk: Boolean, predicative: Boolean, template: TT, output: ML): ML {
-        if (!bulk && output.size > 1) {
+    private fun <ML : Collection<M>> validateOutputsForDelete(inputs: InputsForDelete<TT>, output: ML): ML {
+        if (!inputs.bulk && output.size > 1) {
             throw InternalServerError()
         }
         return output
     }
+
 
     operator fun get(routingContext: RoutingContext) {
         val api = getTupleSpaceApi(routingContext)
@@ -193,24 +193,24 @@ abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : 
                 template = getTemplatesUnmarshaller(mimeType).fromString(routingContext.bodyAsString)
             }
             val cleanInputs = validateInputsForGet(tupleSpaceName, bulk, predicative, negated, all, template)
-            if (cleanInputs.v5()) {
+            if (cleanInputs.all) {
                 val res: Promise<Collection<T>> = Promise.promise()
                 res.future().onSuccess(
-                        successfulResponseHandlerWithManyContents(routingContext,this::getTuplesMarshaller) {
+                        successfulResponseHandlerWithManyContents(routingContext, this::getTuplesMarshaller) {
                             validateOutputsForGetAll(cleanInputs, it)
                         }
                 )
                 result = res
-                api.getAllTuples(cleanInputs.v1(), res)
+                api.getAllTuples(cleanInputs.tupleSpaceName, res)
             } else {
                 val res: Promise<Collection<M>> = Promise.promise()
                 res.future().onSuccess(
-                        successfulResponseHandlerWithManyContents(routingContext,this::getMatchMarshaller) {
+                        successfulResponseHandlerWithManyContents(routingContext, this::getMatchMarshaller) {
                             validateOutputsForGet(cleanInputs, it)
                         }
                 )
                 result = res
-                api.observeTuples(cleanInputs.v1(), cleanInputs.v2(), cleanInputs.v3(), cleanInputs.v4(), cleanInputs.v6()!!, res)
+                api.observeTuples(cleanInputs.tupleSpaceName, cleanInputs.bulk, cleanInputs.predicative, cleanInputs.negated, cleanInputs.template!!, res)
             }
         } catch (e: HttpError) {
             result.fail(e)
@@ -219,11 +219,20 @@ abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : 
         }
     }
 
-    private fun validateInputsForGet(tupleSpaceName: String, bulk: Optional<Boolean>, predicative: Optional<Boolean>, negated: Optional<Boolean>, all: Optional<Boolean>, template: TT?): Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT?> {
+    private data class InputsForGet<TT>(
+            val tupleSpaceName: String,
+            val bulk: Boolean,
+            val predicative: Boolean,
+            val negated: Boolean,
+            val all: Boolean,
+            val template: TT?
+    )
+
+    private fun validateInputsForGet(tupleSpaceName: String, bulk: Optional<Boolean>, predicative: Optional<Boolean>, negated: Optional<Boolean>, all: Optional<Boolean>, template: TT?): InputsForGet<TT> {
         if (template == null && Optional.of(true) != all) {
             throw BadContentError("The lack of body for GET is only supported in case query parameter `all` is true")
         }
-        return org.jooq.lambda.tuple.Tuple.tuple(
+        return InputsForGet(
                 Objects.requireNonNull(tupleSpaceName),
                 bulk.orElse(false),
                 predicative.orElse(false),
@@ -233,23 +242,15 @@ abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : 
         )
     }
 
-    private fun <TL : Collection<M>> validateOutputsForGet(inputs: Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT?>, output: TL): TL {
-        return validateOutputsForGet(inputs.v1(), inputs.v2(), inputs.v3(), inputs.v4(), inputs.v5(), inputs.v6(), output)
-    }
-
-    private fun <TL : Collection<M>> validateOutputsForGet(tupleSpaceName: String, bulk: Boolean, predicative: Boolean, negated: Boolean, all: Boolean, template: TT?, output: TL): TL {
-        if (!bulk && !all && output.size > 1) {
+    private fun <TL : Collection<M>> validateOutputsForGet(inputs: InputsForGet<TT>, output: TL): TL {
+        if (!inputs.bulk && !inputs.all && output.size > 1) {
             throw InternalServerError()
         }
         return output
     }
 
-    private fun <TL : Collection<T>> validateOutputsForGetAll(inputs: Tuple6<String, Boolean, Boolean, Boolean, Boolean, TT?>, output: TL): TL {
-        return validateOutputsForGetAll(inputs.v1(), inputs.v2(), inputs.v3(), inputs.v4(), inputs.v5(), inputs.v6(), output)
-    }
-
-    private fun <TL : Collection<T>> validateOutputsForGetAll(tupleSpaceName: String, bulk: Boolean, predicative: Boolean, negated: Boolean, all: Boolean, template: TT?, output: TL): TL {
-        if (!bulk && !all && output.size > 1) {
+    private fun <TL : Collection<T>> validateOutputsForGetAll(inputs: InputsForGet<TT>, output: TL): TL {
+        if (!inputs.bulk && !inputs.all && output.size > 1) {
             throw InternalServerError()
         }
         return output

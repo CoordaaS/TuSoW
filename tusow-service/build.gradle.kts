@@ -8,7 +8,7 @@ dependencies {
     api(project(":linda-logic-presentation"))
     api(project(":linda-text"))
     api(project(":linda-text-presentation"))
-    api(kotlin("stdlib-jdk8"))
+    api(Libs.kotlin_stdlib_jdk8)
     api(Libs.vertx_core)
     api(Libs.vertx_web)
 
@@ -19,7 +19,7 @@ dependencies {
     implementation(Libs.jackson_datatype_jsr310)
     implementation(Libs.jackson_dataformat_xml)
     implementation(Libs.jackson_dataformat_yaml)
-    implementation(Libs.jool)
+//    implementation(Libs.jool)
 
     testImplementation(Libs.vertx_unit)
     testImplementation(Libs.junit)
