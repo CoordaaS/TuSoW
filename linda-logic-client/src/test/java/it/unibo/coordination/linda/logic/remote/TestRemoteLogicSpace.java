@@ -1,11 +1,11 @@
 package it.unibo.coordination.linda.logic.remote;
 
-import alice.tuprolog.Term;
 import it.unibo.coordination.linda.logic.LogicMatch;
 import it.unibo.coordination.linda.logic.LogicTemplate;
 import it.unibo.coordination.linda.logic.LogicTuple;
 import it.unibo.coordination.linda.test.TestTupleSpace;
 import it.unibo.coordination.tusow.Service;
+import it.unibo.tuprolog.core.Term;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

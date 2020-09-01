@@ -20,6 +20,7 @@ import org.jooq.lambda.tuple.Tuple4
 import org.jooq.lambda.tuple.Tuple6
 import java.util.*
 
+@Suppress("UNUSED_PARAMETER")
 abstract class AbstractTupleSpacePath<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>>(tupleSpaceType: String) : Path("/$tupleSpaceType/:tupleSpaceName") {
 
     override fun setupRoutes() {
