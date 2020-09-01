@@ -2,7 +2,8 @@ package it.unibo.coordination.testing;
 
 import java.time.Duration;
 
-public abstract class ActiveObject {
+@SuppressWarnings("unchecked")
+public abstract class ActiveObject<A extends ActiveObject<A>> {
     private final String name;
     private final Thread thread;
     private volatile boolean running = true;
@@ -43,24 +44,24 @@ public abstract class ActiveObject {
         e.printStackTrace();
     }
 
-    public ActiveObject start() {
+    public A start() {
         thread.start();
-        return this;
+        return (A) this;
     }
 
-    public ActiveObject stop() {
+    public A stop() {
         running = false;
         thread.interrupt();
-        return this;
+        return (A) this;
     }
 
-    public ActiveObject await() {
+    public A awaitTermination() {
         try {
             thread.join();
         } catch (final InterruptedException e) {
             // Do nothing
         }
-        return this;
+        return (A) this;
     }
 
     protected void log(final String format, final Object... args) {

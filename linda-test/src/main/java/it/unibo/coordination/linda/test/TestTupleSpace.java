@@ -4,8 +4,8 @@ import it.unibo.coordination.linda.core.Match;
 import it.unibo.coordination.linda.core.Template;
 import it.unibo.coordination.linda.core.Tuple;
 import it.unibo.coordination.linda.core.TupleSpace;
-import it.unibo.coordination.testing.ActiveObject;
 import it.unibo.coordination.testing.ConcurrentTestHelper;
+import it.unibo.coordination.testing.TestAgent;
 import it.unibo.coordination.utils.CollectionUtils;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+@SuppressWarnings("RedundantThrows")
 public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>, K, V, M extends Match<T, TT, K, V>, TS extends TupleSpace<T, TT, K, V, M>> extends TestBaseLinda<T, TT, K, V, M> {
 
     protected ExecutorService executor;
@@ -47,71 +48,49 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testInitiallyEmpty() throws Exception {
         test.setThreadCount(1);
 
-        final ActiveObject alice = new ActiveObject("Alice") {
-
+        final TestAgent alice = new TestAgent("Alice", test) {
             @Override
-            protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.getSize(), 0, "The tuple space must initially be empty");
-                stop();
+            protected void main() throws Exception {
+                assertEquals(tupleSpace.getSize(), 0, "The tuple space must initially be empty");
             }
-
-            @Override
-            protected void onEnd() {
-                test.done();
-            }
-
         }.start();
 
         test.await();
-        alice.await();
+        alice.awaitTermination();
     }
 
     @Test
     public void testReadSuspensiveSemantics() throws Exception {
         test.setThreadCount(1);
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertBlocksIndefinitely(tupleSpace.readTuple(getATemplate()),
+            protected void main() throws Exception {
+                assertBlocksIndefinitely(tupleSpace.readTuple(getATemplate()),
                         "A read operation should block if no tuple matching the requested template is available");
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
             }
 
         }.start();
 
         test.await();
-        alice.await();
+        alice.awaitTermination();
     }
 
     @Test
     public void testTakeSuspensiveSemantics() throws Exception {
         test.setThreadCount(1);
 
-        final ActiveObject alice = new ActiveObject("Alice") {
-
+        final TestAgent alice = new TestAgent("Alice", test) {
             @Override
-            protected void loop() throws Exception {
-                test.assertBlocksIndefinitely(tupleSpace.takeTuple(getATemplate()),
+            protected void main() throws Exception {
+                assertBlocksIndefinitely(tupleSpace.takeTuple(getATemplate()),
                         "A take operation should block if no tuple matching the requested template is available");
-                stop();
             }
-
-            @Override
-            protected void onEnd() {
-                test.done();
-            }
-
         }.start();
 
         test.await();
-        alice.await();
+        alice.awaitTermination();
     }
 
     @Test
@@ -120,25 +99,19 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
 
         final T tuple = getATuple();
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.getSize(), 0, "The tuple space should be initially empty");
-                test.assertEquals(tupleSpace.write(tuple), tuple, "A write operation should always return the tuple it has inserted");
-                test.assertEquals(tupleSpace.getSize(), 1, "After a write, the tuple space should contain one more tuple");
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEquals(tupleSpace.getSize(), 0, "The tuple space should be initially empty");
+                assertEquals(tupleSpace.write(tuple), tuple, "A write operation should always return the tuple it has inserted");
+                assertEquals(tupleSpace.getSize(), 1, "After a write, the tuple space should contain one more tuple");
             }
 
         }.start();
 
         test.await();
-        alice.await();
+        alice.awaitTermination();
     }
 
     @Test
@@ -147,43 +120,31 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
 
         final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
 
-        final ActiveObject bob = new ActiveObject("Bob") {
+        final TestAgent bob = new TestAgent("Bob", test) {
 
             @Override
-            protected void loop() throws Exception {
+            protected void main() throws Exception {
                 for (int i = rand.nextInt(10) + 1; i >= 0; i--) {
-                    test.assertEquals(tupleSpace.readTuple(tupleAndTemplate.getValue1()), tupleAndTemplate.getValue0());
+                    assertEquals(tupleSpace.readTuple(tupleAndTemplate.getValue1()), tupleAndTemplate.getValue0());
                 }
-                test.assertEquals(tupleSpace.readTuple(tupleAndTemplate.getValue1()), tupleAndTemplate.getValue0());
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+                assertEquals(tupleSpace.readTuple(tupleAndTemplate.getValue1()), tupleAndTemplate.getValue0());
             }
 
         };
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEventuallyReturns(tupleSpace.write(tupleAndTemplate.getValue0()));
+            protected void main() throws Exception {
+                assertEventuallyReturns(tupleSpace.write(tupleAndTemplate.getValue0()));
                 bob.start();
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
             }
 
         }.start();
 
         test.await();
-        alice.await();
-        bob.await();
+        alice.awaitTermination();
+        bob.awaitTermination();
     }
 
     @Test
@@ -192,46 +153,33 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
 
         final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEventuallyReturns(tupleSpace.write(tupleAndTemplate.getValue0()));
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEventuallyReturns(tupleSpace.write(tupleAndTemplate.getValue0()));
             }
 
         };
 
-        final ActiveObject bob = new ActiveObject("Bob") {
+        final TestAgent bob = new TestAgent("Bob", test) {
 
             @Override
-            protected void loop() throws Exception {
+            protected void main() throws Exception {
                 final Future<T> toBeRead1 = tupleSpace.readTuple(tupleAndTemplate.getValue1());
                 final Future<T> toBeRead2 = tupleSpace.readTuple(tupleAndTemplate.getValue1());
 
                 alice.start();
 
-                test.assertEquals(toBeRead1, tupleAndTemplate.getValue0());
-                test.assertEquals(toBeRead2, tupleAndTemplate.getValue0());
-
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+                assertEquals(toBeRead1, tupleAndTemplate.getValue0());
+                assertEquals(toBeRead2, tupleAndTemplate.getValue0());
             }
 
         }.start();
 
         test.await();
-        alice.await();
-        bob.await();
+        alice.awaitTermination();
+        bob.awaitTermination();
     }
 
     @Test
@@ -240,41 +188,29 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
 
         final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
 
-        final ActiveObject bob = new ActiveObject("Bob") {
+        final TestAgent bob = new TestAgent("Bob", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.takeTuple(tupleAndTemplate.getValue1()), tupleAndTemplate.getValue0());
-                test.assertBlocksIndefinitely(tupleSpace.takeTuple(tupleAndTemplate.getValue1()));
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEquals(tupleSpace.takeTuple(tupleAndTemplate.getValue1()), tupleAndTemplate.getValue0());
+                assertBlocksIndefinitely(tupleSpace.takeTuple(tupleAndTemplate.getValue1()));
             }
 
         };
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEventuallyReturns(tupleSpace.write(tupleAndTemplate.getValue0()));
+            protected void main() throws Exception {
+                assertEventuallyReturns(tupleSpace.write(tupleAndTemplate.getValue0()));
                 bob.start();
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
             }
 
         }.start();
 
         test.await();
-        alice.await();
-        bob.await();
+        alice.awaitTermination();
+        bob.awaitTermination();
     }
 
     @Test
@@ -283,42 +219,30 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
 
         final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEventuallyReturns(tupleSpace.write(tupleAndTemplate.getValue0()));
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEventuallyReturns(tupleSpace.write(tupleAndTemplate.getValue0()));
             }
 
         };
 
-        final ActiveObject bob = new ActiveObject("Bob") {
+        final TestAgent bob = new TestAgent("Bob", test) {
 
             @Override
-            protected void loop() throws Exception {
+            protected void main() throws Exception {
                 final CompletableFuture<T> toBeWritten = tupleSpace.takeTuple(tupleAndTemplate.getValue1());
                 alice.start();
-                test.assertEquals(toBeWritten, tupleAndTemplate.getValue0());
-                test.assertBlocksIndefinitely(tupleSpace.takeTuple(tupleAndTemplate.getValue1()));
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+                assertEquals(toBeWritten, tupleAndTemplate.getValue0());
+                assertBlocksIndefinitely(tupleSpace.takeTuple(tupleAndTemplate.getValue1()));
             }
 
         }.start();
 
         test.await();
-        alice.await();
-        bob.await();
+        alice.awaitTermination();
+        bob.awaitTermination();
     }
 
     @Test
@@ -328,62 +252,43 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
         final T tuple4Bob = getMessageTuple("Bob", "hi Bob");
         final T tuple4Carl = getMessageTuple("Carl", "hi Carl");
 
-        final ActiveObject carl = new ActiveObject("Carl") {
+        final TestAgent carl = new TestAgent("Carl", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.readTuple(getMessageTemplate("Carl")), tuple4Carl, "The tuple read by Carl should be equal to " + tuple4Carl);
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEquals(tupleSpace.readTuple(getMessageTemplate("Carl")), tuple4Carl, "The tuple read by Carl should be equal to " + tuple4Carl);
             }
 
         }.start();
 
-        final ActiveObject bob = new ActiveObject("Bob") {
+        final TestAgent bob = new TestAgent("Bob", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.readTuple(getMessageTemplate("Bob")), tuple4Bob, "The tuple read by Bob should be equal to " + tuple4Bob);
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEquals(tupleSpace.readTuple(getMessageTemplate("Bob")), tuple4Bob, "The tuple read by Bob should be equal to " + tuple4Bob);
             }
 
         }.start();
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEventuallyReturns(tupleSpace.write(tuple4Bob), "Alice should eventually be able to insert " + tuple4Bob);
-                test.assertEventuallyReturns(tupleSpace.write(tuple4Carl), "Alice should eventually be able to insert " + tuple4Carl);
+            protected void main() throws Exception {
+                assertEventuallyReturns(tupleSpace.write(tuple4Bob), "Alice should eventually be able to insert " + tuple4Bob);
+                assertEventuallyReturns(tupleSpace.write(tuple4Carl), "Alice should eventually be able to insert " + tuple4Carl);
 
                 final Set<T> ts = CollectionUtils.setOf(tuple4Bob, tuple4Carl);
 
-                test.assertOneOf(tupleSpace.takeTuple(getGeneralMessageTemplate()), ts, "The first tuple taken by Alice should be equal to any of" + ts);
-                test.assertOneOf(tupleSpace.takeTuple(getGeneralMessageTemplate()), ts, "The second tuple taken by Alice should be equal to any of" + ts);
-
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+                assertOneOf(tupleSpace.takeTuple(getGeneralMessageTemplate()), ts, "The first tuple taken by Alice should be equal to any of" + ts);
+                assertOneOf(tupleSpace.takeTuple(getGeneralMessageTemplate()), ts, "The second tuple taken by Alice should be equal to any of" + ts);
             }
 
         }.start();
 
         test.await();
-        alice.await();
-        bob.await();
-        carl.await();
+        alice.awaitTermination();
+        bob.awaitTermination();
+        carl.awaitTermination();
     }
 
     @Test
@@ -392,33 +297,26 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
 
         final Pair<T, TT> tupleAndTemplate = getATupleAndATemplateMatchingIt();
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.getSize(), 0);
-                test.assertEventuallyReturns(tupleSpace.write(tupleAndTemplate.getValue0()));
-                test.assertEquals(tupleSpace.getSize(), 1);
-                test.assertEventuallyReturns(tupleSpace.write(tupleAndTemplate.getValue0()));
-                test.assertEquals(tupleSpace.getSize(), 2);
-                test.assertEventuallyReturns(tupleSpace.write(tupleAndTemplate.getValue0()));
-                test.assertEquals(tupleSpace.getSize(), 3);
+            protected void main() throws Exception {
+                assertEquals(tupleSpace.getSize(), 0);
+                assertEventuallyReturns(tupleSpace.write(tupleAndTemplate.getValue0()));
+                assertEquals(tupleSpace.getSize(), 1);
+                assertEventuallyReturns(tupleSpace.write(tupleAndTemplate.getValue0()));
+                assertEquals(tupleSpace.getSize(), 2);
+                assertEventuallyReturns(tupleSpace.write(tupleAndTemplate.getValue0()));
+                assertEquals(tupleSpace.getSize(), 3);
 
-                test.assertEventuallyReturns(tupleSpace.takeTuple(tupleAndTemplate.getValue1()));
-                test.assertEquals(tupleSpace.getSize(), 2);
-
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+                assertEventuallyReturns(tupleSpace.takeTuple(tupleAndTemplate.getValue1()));
+                assertEquals(tupleSpace.getSize(), 2);
             }
 
         }.start();
 
         test.await();
-        alice.await();
+        alice.awaitTermination();
     }
 
     @Test
@@ -427,31 +325,23 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
 
         final MultiSet<T> expected = getSomeTuples();
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
+            protected void main() throws Exception {
 
                 for (T tuple : expected) {
-                    test.assertEventuallyReturns(tupleSpace.write(tuple));
+                    assertEventuallyReturns(tupleSpace.write(tuple));
                 }
 
-                test.assertEquals(tupleSpace.getSize(), expected.size());
-
-                test.assertEquals(tupleSpace.get(), expected);
-
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+                assertEquals(tupleSpace.getSize(), expected.size());
+                assertEquals(tupleSpace.get(), expected);
             }
 
         }.start();
 
         test.await();
-        alice.await();
+        alice.awaitTermination();
     }
 
     @Test
@@ -460,27 +350,20 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
 
         final MultiSet<T> tuples = getSomeTuples();
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.getSize(), 0, "The tuple space should initially be empty");
-                test.assertEquals(tupleSpace.writeAll(tuples), tuples, "The write all operation should return all the inserted tuples");
-                test.assertEquals(tupleSpace.getSize(), tuples.size(), "The tuple space size should now be equal to the amount of inserted tuples");
-                test.assertEquals(tupleSpace.get(), tuples, "The get primitive should now retrieve all the tuples inserted so far");
-
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEquals(tupleSpace.getSize(), 0, "The tuple space should initially be empty");
+                assertEquals(tupleSpace.writeAll(tuples), tuples, "The write all operation should return all the inserted tuples");
+                assertEquals(tupleSpace.getSize(), tuples.size(), "The tuple space size should now be equal to the amount of inserted tuples");
+                assertEquals(tupleSpace.get(), tuples, "The get primitive should now retrieve all the tuples inserted so far");
             }
 
         }.start();
 
         test.await();
-        alice.await();
+        alice.awaitTermination();
     }
 
     @Test
@@ -495,47 +378,33 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
         final TT template1 = someTuplesOfTwoSorts.getValue1();
         final TT template2 = someTuplesOfTwoSorts.getValue3();
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEventuallyReturns(tupleSpace.writeAll(tuples));
-
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEventuallyReturns(tupleSpace.writeAll(tuples));
             }
 
         };
 
-        final ActiveObject bob = new ActiveObject("Bob") {
+        final TestAgent bob = new TestAgent("Bob", test) {
 
             @Override
-            protected void loop() throws Exception {
+            protected void main() throws Exception {
                 final CompletableFuture<T> toBeRead = tupleSpace.readTuple(template1);
                 final CompletableFuture<T> toBeTaken = tupleSpace.takeTuple(template2);
 
                 alice.start();
 
-                test.assertOneOf(toBeRead, tuples1);
-                test.assertOneOf(toBeTaken, tuples2);
-
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+                assertOneOf(toBeRead, tuples1);
+                assertOneOf(toBeTaken, tuples2);
             }
 
         }.start();
 
         test.await();
-        alice.await();
-        bob.await();
+        alice.awaitTermination();
+        bob.awaitTermination();
     }
 
     @Test
@@ -550,29 +419,22 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
         final TT template = someTuplesOfTwoSorts.getValue1();
         final MultiSet<T> expected = someTuplesOfTwoSorts.getValue0();
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.getSize(), 0);
-                test.assertEventuallyReturns(tupleSpace.writeAll(tuples));
-                test.assertEquals(tupleSpace.getSize(), tuples.size());
-                test.assertEquals(tupleSpace.readAllTuples(template), expected);
-                test.assertEquals(tupleSpace.readAllTuples(template), expected);
-                test.assertEquals(tupleSpace.getSize(), tuples.size());
-
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEquals(tupleSpace.getSize(), 0);
+                assertEventuallyReturns(tupleSpace.writeAll(tuples));
+                assertEquals(tupleSpace.getSize(), tuples.size());
+                assertEquals(tupleSpace.readAllTuples(template), expected);
+                assertEquals(tupleSpace.readAllTuples(template), expected);
+                assertEquals(tupleSpace.getSize(), tuples.size());
             }
 
         }.start();
 
         test.await();
-        alice.await();
+        alice.awaitTermination();
     }
 
     @Test
@@ -583,29 +445,23 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
         final T tuple = tupleAndTemplate.getValue0();
         final TT template = tupleAndTemplate.getValue1();
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.getSize(), 0);
-                test.assertEventuallyReturns(tupleSpace.write(tuple));
-                test.assertEquals(tupleSpace.getSize(), 1);
-                test.assertEquals(tupleSpace.tryReadTuple(template), Optional.of(tuple));
-                test.assertEquals(tupleSpace.getSize(), 1);
-                test.assertEquals(tupleSpace.tryReadTuple(template), Optional.of(tuple));
-                test.assertEquals(tupleSpace.getSize(), 1);
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEquals(tupleSpace.getSize(), 0);
+                assertEventuallyReturns(tupleSpace.write(tuple));
+                assertEquals(tupleSpace.getSize(), 1);
+                assertEquals(tupleSpace.tryReadTuple(template), Optional.of(tuple));
+                assertEquals(tupleSpace.getSize(), 1);
+                assertEquals(tupleSpace.tryReadTuple(template), Optional.of(tuple));
+                assertEquals(tupleSpace.getSize(), 1);
             }
 
         }.start();
 
         test.await();
-        alice.await();
+        alice.awaitTermination();
     }
 
     @Test
@@ -616,28 +472,22 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
         final T tuple = tupleAndTemplate.getValue0();
         final TT template = tupleAndTemplate.getValue1();
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.getSize(), 0);
-                test.assertEventuallyReturns(tupleSpace.write(tuple));
-                test.assertEquals(tupleSpace.getSize(), 1);
-                test.assertEquals(tupleSpace.tryTakeTuple(template), Optional.of(tuple));
-                test.assertEquals(tupleSpace.getSize(), 0);
-                test.assertEquals(tupleSpace.tryTakeTuple(template), Optional.empty());
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEquals(tupleSpace.getSize(), 0);
+                assertEventuallyReturns(tupleSpace.write(tuple));
+                assertEquals(tupleSpace.getSize(), 1);
+                assertEquals(tupleSpace.tryTakeTuple(template), Optional.of(tuple));
+                assertEquals(tupleSpace.getSize(), 0);
+                assertEquals(tupleSpace.tryTakeTuple(template), Optional.empty());
             }
 
         }.start();
 
         test.await();
-        alice.await();
+        alice.awaitTermination();
     }
 
     @Test
@@ -652,29 +502,22 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
         final TT template = someTuplesOfTwoSorts.getValue1();
         final MultiSet<T> expected = someTuplesOfTwoSorts.getValue0();
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.getSize(), 0);
-                test.assertEventuallyReturns(tupleSpace.writeAll(tuples));
-                test.assertEquals(tupleSpace.getSize(), tuples.size());
-                test.assertEquals(tupleSpace.takeAllTuples(template), expected);
-                test.assertEquals(tupleSpace.takeAllTuples(template), new HashMultiSet<>());
-                test.assertEquals(tupleSpace.getSize(), tuples.size() - expected.size());
-
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEquals(tupleSpace.getSize(), 0);
+                assertEventuallyReturns(tupleSpace.writeAll(tuples));
+                assertEquals(tupleSpace.getSize(), tuples.size());
+                assertEquals(tupleSpace.takeAllTuples(template), expected);
+                assertEquals(tupleSpace.takeAllTuples(template), new HashMultiSet<>());
+                assertEquals(tupleSpace.getSize(), tuples.size() - expected.size());
             }
 
         }.start();
 
 
-        alice.await();
+        alice.awaitTermination();
         test.await();
     }
 
@@ -682,23 +525,17 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
     public void testAbsentReturns() throws Exception {
         test.setThreadCount(1);
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEventuallyReturns(tupleSpace.absent(getATemplate()));
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEventuallyReturns(tupleSpace.absent(getATemplate()));
             }
 
         }.start();
 
         test.await();
-        alice.await();
+        alice.awaitTermination();
     }
 
     @Test
@@ -709,47 +546,35 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
         final T tuple = tupleAndTemplate.getValue0();
         final TT template = tupleAndTemplate.getValue1();
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEventuallyReturns(tupleSpace.write(tuple));
-                test.assertBlocksIndefinitely(tupleSpace.absent(template));
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEventuallyReturns(tupleSpace.write(tuple));
+                assertBlocksIndefinitely(tupleSpace.absent(template));
             }
 
         }.start();
 
         test.await();
-        alice.await();
+        alice.awaitTermination();
     }
 
     @Test
     public void testTryAbsentSucceeds() throws Exception {
         test.setThreadCount(1);
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertTrue(tupleSpace.tryAbsentTuple(getATemplate()), opt -> !opt.isPresent());
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertTrue(tupleSpace.tryAbsentTuple(getATemplate()), opt -> !opt.isPresent());
             }
 
         }.start();
 
         test.await();
-        alice.await();
+        alice.awaitTermination();
     }
 
     @Test
@@ -760,25 +585,18 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
         final T tuple = tupleAndTemplate.getValue0();
         final TT template = tupleAndTemplate.getValue1();
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEventuallyReturns(tupleSpace.write(tuple));
-                test.assertEquals(tupleSpace.tryAbsentTuple(template), Optional.of(tuple));
-
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEventuallyReturns(tupleSpace.write(tuple));
+                assertEquals(tupleSpace.tryAbsentTuple(template), Optional.of(tuple));
             }
 
         }.start();
 
         test.await();
-        alice.await();
+        alice.awaitTermination();
     }
 
     @Test
@@ -789,42 +607,30 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
         final T tuple = tupleAndTemplate.getValue0();
         final TT template = tupleAndTemplate.getValue1();
 
-        final ActiveObject bob = new ActiveObject("Bob") {
+        final TestAgent bob = new TestAgent("Bob", test) {
 
             @Override
-            protected void loop() {
-                test.assertEquals(tupleSpace.takeTuple(template), tuple);
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() {
+                assertEquals(tupleSpace.takeTuple(template), tuple);
             }
 
         };
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEventuallyReturns(tupleSpace.write(tuple));
+            protected void main() throws Exception {
+                assertEventuallyReturns(tupleSpace.write(tuple));
                 final Future<?> toBeAbsent = tupleSpace.absent(template);
                 bob.start();
-                test.assertEventuallyReturns(toBeAbsent);
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+                assertEventuallyReturns(toBeAbsent);
             }
 
         }.start();
 
         test.await();
-        alice.await();
-        bob.await();
+        alice.awaitTermination();
+        bob.awaitTermination();
     }
 
     @Test
@@ -835,42 +641,30 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
         final T tuple = tupleAndTemplate.getValue0();
         final TT template = tupleAndTemplate.getValue1();
 
-        final ActiveObject bob = new ActiveObject("Bob") {
+        final TestAgent bob = new TestAgent("Bob", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.tryTakeTuple(template), Optional.of(tuple));
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEquals(tupleSpace.tryTakeTuple(template), Optional.of(tuple));
             }
 
         };
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEventuallyReturns(tupleSpace.write(tuple));
+            protected void main() throws Exception {
+                assertEventuallyReturns(tupleSpace.write(tuple));
                 final Future<?> toBeAbsent = tupleSpace.absent(template);
                 bob.start();
-                test.assertEventuallyReturns(toBeAbsent);
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+                assertEventuallyReturns(toBeAbsent);
             }
 
         }.start();
 
         test.await();
-        alice.await();
-        bob.await();
+        alice.awaitTermination();
+        bob.awaitTermination();
     }
 
     @Test
@@ -881,41 +675,29 @@ public abstract class TestTupleSpace<T extends Tuple<T>, TT extends Template<T>,
         final MultiSet<T> tuples = someTuplesOfASort.getValue0();
         final TT template = someTuplesOfASort.getValue1();
 
-        final ActiveObject bob = new ActiveObject("Bob") {
+        final TestAgent bob = new TestAgent("Bob", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.takeAllTuples(template), tuples);
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+            protected void main() throws Exception {
+                assertEquals(tupleSpace.takeAllTuples(template), tuples);
             }
 
         };
 
-        final ActiveObject alice = new ActiveObject("Alice") {
+        final TestAgent alice = new TestAgent("Alice", test) {
 
             @Override
-            protected void loop() throws Exception {
-                test.assertEquals(tupleSpace.writeAll(tuples), tuples);
+            protected void main() throws Exception {
+                assertEquals(tupleSpace.writeAll(tuples), tuples);
                 final Future<?> toBeAbsent = tupleSpace.absent(template);
                 bob.start();
-                test.assertEventuallyReturns(toBeAbsent);
-                stop();
-            }
-
-            @Override
-            protected void onEnd() {
-                test.done();
+                assertEventuallyReturns(toBeAbsent);
             }
 
         }.start();
 
         test.await();
-        alice.await();
-        bob.await();
+        alice.awaitTermination();
+        bob.awaitTermination();
     }
 }
