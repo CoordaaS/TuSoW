@@ -16,6 +16,7 @@ import it.unibo.presentation.Serializer
 import java.util.*
 import java.util.stream.Collectors
 
+@Suppress("DEPRECATION")
 class UsersPath : Path("/users") {
     override fun setupRoutes() {
         addRoute(HttpMethod.POST, Handler { post(it) })

@@ -12,6 +12,7 @@ interface UsersApi : Api {
     fun updateUser(identifier: String, newUserData: User, promise: Promise<User>)
 
     companion object {
+        @Suppress("UNUSED_PARAMETER")
         @JvmStatic
         operator fun get(context: RoutingContext): UsersApi {
             throw UnsupportedOperationException("not implemented")
