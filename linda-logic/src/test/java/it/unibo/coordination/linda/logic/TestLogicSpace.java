@@ -1,7 +1,7 @@
 package it.unibo.coordination.linda.logic;
 
-import alice.tuprolog.Term;
 import it.unibo.coordination.linda.test.TestTupleSpace;
+import it.unibo.tuprolog.core.Term;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 

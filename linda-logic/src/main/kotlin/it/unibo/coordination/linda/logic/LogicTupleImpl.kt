@@ -7,32 +7,22 @@ import it.unibo.tuprolog.unify.Unificator.Companion.matches
 
 internal class LogicTupleImpl(term: Term) : LogicTuple {
 
-    private val term: Struct
+    private val term: Struct by lazy {
+        if (term is Struct && LogicTuple.pattern.matches(term)) {
+            term
+        } else {
+            LogicTuple.getPattern(term)
+        }
+    }
 
     override val value: Term
         get() = asTerm()[0]
 
-    init {
-        if (term is Struct && LogicTuple.pattern.matches(term)) {
-            this.term = term
-        } else {
-            this.term = LogicTuple.getPattern(term)
-        }
-    }
+    override fun toString(): String = asTerm().toString()
 
-    override fun toString(): String {
-        return asTerm().toString()
-    }
+    override fun equals(other: Any?): Boolean = other is LogicTuple && LogicTuple.equals(this, other as LogicTuple?)
 
-    override fun equals(other: Any?): Boolean {
-        return other is LogicTuple && LogicTuple.equals(this, other as LogicTuple?)
-    }
+    override fun hashCode(): Int = LogicTuple.hashCode(this)
 
-    override fun hashCode(): Int {
-        return LogicTuple.hashCode(this)
-    }
-
-    override fun asTerm(): Struct {
-        return term
-    }
+    override fun asTerm(): Struct = term
 }

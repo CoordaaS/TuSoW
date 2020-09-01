@@ -3,48 +3,42 @@ package it.unibo.coordination.linda.logic
 import it.unibo.coordination.linda.core.impl.AbstractTupleSpace
 import it.unibo.coordination.linda.logic.LogicMatch.Companion.failed
 import it.unibo.tuprolog.collections.MutableClauseMultiSet
-import it.unibo.tuprolog.collections.MutableClauseQueue
 import it.unibo.tuprolog.collections.RetrieveResult
-import it.unibo.tuprolog.core.Clause
 import it.unibo.tuprolog.core.Fact
 import it.unibo.tuprolog.core.Term
 import java.util.concurrent.ExecutorService
 import java.util.stream.Stream
 import kotlin.streams.asStream
 
-internal abstract class AbstractLogicSpaceImpl(name: String, executor: ExecutorService) :
+internal abstract class AbstractLogicSpaceImpl(name: String?, executor: ExecutorService) :
         AbstractTupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch>(name, executor), InspectableLogicSpace {
 
     private val tupleStore = MutableClauseMultiSet.empty()
 
-    override fun lookForTuples(template: LogicTemplate, limit: Int): Stream<LogicMatch> {
-        return tupleStore[Fact.of(template.asTerm())]
-                .filterIsInstance<Fact>()
-                .map { it.head }
-                .map(LogicTuple::of)
-                .map(template::matchWith)
-                .take(limit)
-                .asStream()
-    }
+    override fun lookForTuples(template: LogicTemplate, limit: Int): Stream<LogicMatch> =
+            tupleStore[Fact.of(template.asTerm())]
+                    .filterIsInstance<Fact>()
+                    .map { it.head }
+                    .map(LogicTuple::of)
+                    .map(template::matchWith)
+                    .take(limit)
+                    .asStream()
 
-    override fun lookForTuple(template: LogicTemplate): LogicMatch {
-        return lookForTuples(template, 1).findAny().orElseGet { failed(template) }
-    }
+    override fun lookForTuple(template: LogicTemplate): LogicMatch =
+            lookForTuples(template, 1).findAny().orElseGet { failed(template) }
 
-    override fun retrieveTuples(template: LogicTemplate, limit: Int): Stream<LogicMatch> {
-        return sequence {
-            for (i in 0 until limit) {
-                when (val taken = tupleStore.retrieve(Fact.of(template.asTerm()))) {
-                    is RetrieveResult.Success<*> -> yieldAll(taken.clauses)
-                    else -> break
-                }
+    override fun retrieveTuples(template: LogicTemplate, limit: Int): Stream<LogicMatch> = sequence {
+        for (i in 0 until limit) {
+            when (val taken = tupleStore.retrieve(Fact.of(template.asTerm()))) {
+                is RetrieveResult.Success<*> -> yieldAll(taken.clauses)
+                else -> break
             }
-        }.filterIsInstance<Fact>()
-                .map { it.head }
-                .map(LogicTuple::of)
-                .map(template::matchWith)
-                .asStream()
-    }
+        }
+    }.filterIsInstance<Fact>()
+            .map { it.head }
+            .map(LogicTuple::of)
+            .map(template::matchWith)
+            .asStream()
 
     override fun retrieveTuple(template: LogicTemplate): LogicMatch =
             when (val taken = tupleStore.retrieve(Fact.of(template.asTerm()))) {
@@ -65,11 +59,7 @@ internal abstract class AbstractLogicSpaceImpl(name: String, executor: ExecutorS
 
     override fun countTuples(): Int = tupleStore.size
 
-    override fun match(template: LogicTemplate, tuple: LogicTuple): LogicMatch {
-        return template.matchWith(tuple)
-    }
+    override fun match(template: LogicTemplate, tuple: LogicTuple): LogicMatch = template.matchWith(tuple)
 
-    override fun failedMatch(template: LogicTemplate): LogicMatch {
-        return failed(template)
-    }
+    override fun failedMatch(template: LogicTemplate): LogicMatch = failed(template)
 }

@@ -5,6 +5,7 @@ import it.unibo.coordination.linda.core.*
 import it.unibo.coordination.linda.core.events.OperationEvent
 import it.unibo.coordination.linda.core.events.PendingRequestEvent
 import it.unibo.coordination.linda.core.events.TupleEvent
+import it.unibo.coordination.utils.asStream
 import it.unibo.coordination.utils.events.EventSource
 import it.unibo.coordination.utils.events.SyncEventEmitter
 import it.unibo.coordination.utils.events.filterByType
@@ -13,17 +14,16 @@ import org.apache.commons.collections4.MultiSet
 import org.apache.commons.collections4.multiset.HashMultiSet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.locks.ReentrantLock
-import java.util.function.Function
 import java.util.stream.Stream
 import kotlin.streams.toList
 
 
+@Suppress("MemberVisibilityCanBePrivate")
 abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>>
-    constructor(name: String?, val executor: ExecutorService)
+constructor(name: String?, val executor: ExecutorService)
     : InspectableTupleSpace<T, TT, K, V, M> {
 
     companion object {
@@ -34,20 +34,20 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
     override val name: String = name ?: this.javaClass.simpleName + "_" + System.identityHashCode(this)
 
     private val lock = ReentrantLock(true)
-    
+
     private val tupleEventEmitter: SyncEventEmitter<TupleEvent<T, TT>> =
             SyncEventEmitter.ordered()
-    override val tupleEvent: EventSource<TupleEvent<T, TT>>
+    final override val tupleEvent: EventSource<TupleEvent<T, TT>>
         get() = tupleEventEmitter.eventSource
-    
+
     private val operationEventEmitter: SyncEventEmitter<OperationEvent<T, TT>> =
             SyncEventEmitter.ordered()
-    override val operationEvent: EventSource<OperationEvent<T, TT>>
+    final override val operationEvent: EventSource<OperationEvent<T, TT>>
         get() = operationEventEmitter.eventSource
 
     private val pendingRequestEventEmitter: SyncEventEmitter<PendingRequestEvent<T, TT>> =
             SyncEventEmitter.ordered()
-    override val pendingRequestEvent: EventSource<PendingRequestEvent<T, TT>>
+    final override val pendingRequestEvent: EventSource<PendingRequestEvent<T, TT>>
         get() = pendingRequestEventEmitter.eventSource
 
     override val operationInvoked: EventSource<OperationEvent.Invocation<T, TT>> =
@@ -145,7 +145,7 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
     }
 
     protected fun <X, Y> Promise<X>.map(f: (X) -> Y): Promise<Y> {
-        return thenApplyAsync(Function<X, Y> { f(it) }, executor)
+        return thenApplyAsync({ f(it) }, executor)
     }
 
     override fun read(template: TT): Promise<M> {
@@ -445,7 +445,7 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
         log("Invoked `tryTake` operation on template: %s", template)
         return postpone(this::handleTryTake, template).map {
             it.also {
-                operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(it.tuple.stream().toList()))
+                operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(it.tuple.asStream().toList()))
                 log("Completed `tryTake` operation on template '%s', result: %s", template, it)
             }
         }
@@ -464,7 +464,7 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
         log("Invoked `tryRead` operation on template: %s", template)
         return postpone(this::handleTryRead, template).map {
             it.also {
-                operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(it.tuple.stream().toList()))
+                operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(it.tuple.asStream().toList()))
                 log("Completed `tryRead` operation on template '%s', result: %s", template, it)
             }
         }
@@ -533,7 +533,7 @@ abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Matc
         log("Invoked `tryAbsent` operation on template: %s", template)
         return postpone(this::handleTryAbsent, template).map {
             it.also {
-                operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(it.tuple.stream().toList()))
+                operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(it.tuple.asStream().toList()))
                 log("Completed `tryAbsent` operation on template '%s', result: %s", template, it)
             }
         }

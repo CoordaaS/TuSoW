@@ -37,7 +37,7 @@ interface LogicTemplate : Template<LogicTuple> {
 
         @JvmStatic
         fun getPattern(term: Term): Struct {
-            return Struct.of("template", Objects.requireNonNull(term))
+            return Struct.of("template", term)
         }
 
         @JvmStatic

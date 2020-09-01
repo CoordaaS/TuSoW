@@ -18,39 +18,29 @@ interface LogicTuple : Tuple<LogicTuple>, Comparable<LogicTuple> {
     override fun hashCode(): Int
 
     @JvmDefault
-    override fun compareTo(other: LogicTuple): Int {
-        return value.toString().compareTo(other.value.toString())
-    }
+    override fun compareTo(other: LogicTuple): Int = value.toString().compareTo(other.value.toString())
 
     companion object {
 
         @JvmStatic
-        fun of(tuple: String): LogicTuple {
-            return of(Term.parse(tuple))
-        }
+        fun of(tuple: String): LogicTuple = of(Term.parse(tuple))
 
         @JvmStatic
-        fun of(term: Term): LogicTuple {
-            return LogicTupleImpl(term)
-        }
+        fun of(term: Term): LogicTuple = LogicTupleImpl(term)
 
         @JvmStatic
         val pattern: Struct = Struct.of("tuple", Var.of("T"))
 
         @JvmStatic
-        fun getPattern(term: Term): Struct {
-            return Struct.of("tuple", term)
-        }
+        fun getPattern(term: Term): Struct = Struct.of("tuple", term)
 
         @JvmStatic
-        fun equals(t1: LogicTuple?, t2: LogicTuple?): Boolean {
-            if (t1 === t2) return true
-            return if (t1 == null || t2 == null) false else t1.value == t2.value
-        }
+        fun equals(t1: LogicTuple?, t2: LogicTuple?): Boolean =
+                if (t1 === t2) true
+                else if (t1 == null || t2 == null) false
+                else t1.value == t2.value
 
         @JvmStatic
-        fun hashCode(t: LogicTuple): Int {
-            return Objects.hashCode(t.asTerm())
-        }
+        fun hashCode(t: LogicTuple): Int = Objects.hashCode(t.asTerm())
     }
 }
