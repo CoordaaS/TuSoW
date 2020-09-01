@@ -6,7 +6,9 @@ import it.unibo.tuprolog.core.Term;
 import it.unibo.tuprolog.core.parsing.TermParser;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static it.unibo.coordination.linda.logic.LogicTestsUtils.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class TestLogicMatches extends TestMatch<LogicTuple, LogicTemplate, String, Term, LogicMatch> {
 

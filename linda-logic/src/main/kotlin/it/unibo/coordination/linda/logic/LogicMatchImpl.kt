@@ -12,7 +12,7 @@ internal class LogicMatchImpl(override val template: LogicTemplate, tuple: Logic
 
     private val cache: Substitution by lazy {
         when (tuple) {
-            null -> Substitution.empty()
+            null -> Substitution.failed()
             else -> template.template mguWith tuple.value
         }
     }

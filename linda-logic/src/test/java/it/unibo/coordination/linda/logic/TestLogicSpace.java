@@ -22,6 +22,6 @@ public class TestLogicSpace extends TestTupleSpace<LogicTuple, LogicTemplate, St
 
     @Parameterized.Parameters
     public static Object[][] getParams() {
-        return IntStream.range(0, 5).mapToObj(i -> new Object[] { i }).toArray(Object[][]::new);
+        return IntStream.range(0, 1).mapToObj(i -> new Object[]{i}).toArray(Object[][]::new);
     }
 }
