@@ -22,7 +22,6 @@ internal class LogicMatchImpl(override val template: LogicTemplate, tuple: Logic
 
     override fun get(key: String): Optional<Term> = Optional.ofNullable(toMap()[key])
 
-
     override fun toMap(): Map<String, Term> = cache.mapKeys { (k, _) -> k.name }
 
     override fun toString(): String = LogicMatch.toString(this)
