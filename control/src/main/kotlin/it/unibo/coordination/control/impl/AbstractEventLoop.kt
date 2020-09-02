@@ -4,7 +4,7 @@ import it.unibo.coordination.control.Activity
 import it.unibo.coordination.control.EventLoop
 import java.util.*
 
-internal abstract class AbstractEventLoop<E> : EventLoop<E> {
+abstract class AbstractEventLoop<E> : EventLoop<E> {
 
     private val eventDeque: Deque<E> = LinkedList()
 
@@ -33,7 +33,13 @@ internal abstract class AbstractEventLoop<E> : EventLoop<E> {
         }
     }
 
-    override fun onStep(input: Unit, lastData: E, controller: Activity.Controller<Unit, E, Unit>) {
+    private val emptyData = Optional.empty<E>()
+
+    override fun onBegin(input: Unit, controller: Activity.Controller<Unit, Optional<E>, Unit>) {
+        controller.`continue`(emptyData)
+    }
+
+    override fun onStep(input: Unit, lastData: Optional<E>, controller: Activity.Controller<Unit, Optional<E>, Unit>) {
         synchronized(eventDeque) {
             if (eventDeque.isEmpty()) {
                 onResume = { resume(controller) }
@@ -41,12 +47,12 @@ internal abstract class AbstractEventLoop<E> : EventLoop<E> {
             } else {
                 val event = eventDeque.pollFirst()
                 onEvent(event)
-                controller.`continue`(event)
+                controller.`continue`(Optional.of(event))
             }
         }
     }
 
-    private fun resume(controller: Activity.Controller<Unit, E, Unit>) {
+    private fun resume(controller: Activity.Controller<Unit, Optional<E>, Unit>) {
         controller.resume()
         onResume = null
     }

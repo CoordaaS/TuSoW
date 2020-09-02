@@ -8,11 +8,15 @@ interface Activity<E, T, R> {
         fun pause(data: T)
         fun pause()
         fun `continue`(data: T)
+
+        @Deprecated("The lack of data upon continue is currently unsupported")
         fun `continue`()
         fun resume()
     }
 
     fun onBegin(input: E, controller: Controller<E, T, R>)
+
     fun onStep(input: E, lastData: T, controller: Controller<E, T, R>)
-    fun onEnd(input: E, lastData: T, result: R, controller: Controller<E, T, R>)
+
+    fun onEnd(input: E, lastData: T, result: R, controller: Controller<E, T, R>) = Unit
 }

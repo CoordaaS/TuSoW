@@ -62,18 +62,18 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
         get() = state == PAUSED
 
     private fun doStateTransition(whatToDo: Continuation, action: (error: Throwable?) -> Unit) {
-        val a = { e: Throwable? ->
+        val onError = { e: Throwable? ->
             if (e !== null) {
                 state = null
             }
             action(e)
         }
         return when (state) {
-            CREATED -> doStateTransitionFromCreated(whatToDo, a)
-            STARTED -> doStateTransitionFromStarted(whatToDo, a)
-            RUNNING -> doStateTransitionFromRunning(whatToDo, a)
-            PAUSED -> doStateTransitionFromPaused(whatToDo, a)
-            STOPPED -> doStateTransitionFromStopped(whatToDo, a)
+            CREATED -> doStateTransitionFromCreated(whatToDo, onError)
+            STARTED -> doStateTransitionFromStarted(whatToDo, onError)
+            RUNNING -> doStateTransitionFromRunning(whatToDo, onError)
+            PAUSED -> doStateTransitionFromPaused(whatToDo, onError)
+            STOPPED -> doStateTransitionFromStopped(whatToDo, onError)
             else -> throw IllegalStateException("Illegal state: $state")
         }
     }

@@ -1,8 +1,9 @@
 package it.unibo.coordination.control
 
 import it.unibo.coordination.control.impl.AbstractEventLoop
+import java.util.*
 
-interface EventLoop<E> : Activity<Unit, E, Unit> {
+interface EventLoop<E> : Activity<Unit, Optional<E>, Unit> {
 
     val eventQueue: List<E>
 
@@ -13,10 +14,6 @@ interface EventLoop<E> : Activity<Unit, E, Unit> {
     fun schedule(event: E)
 
     fun scheduleFirst(event: E)
-
-    override fun onBegin(input: Unit, controller: Activity.Controller<Unit, E, Unit>) = Unit
-
-    override fun onEnd(input: Unit, lastData: E, result: Unit, controller: Activity.Controller<Unit, E, Unit>) = Unit
 
     companion object {
         fun <E> of(handler: (E) -> Unit): EventLoop<E> =
