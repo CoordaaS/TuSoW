@@ -1,11 +1,10 @@
 package it.unibo.coordination.control
 
-import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.concurrent.Semaphore
 
-abstract class AbstractTestActivity(private val pause: Boolean = true) {
+abstract class AbstractTestActivity {
 
     companion object {
         const val STEPS = 10
@@ -47,16 +46,9 @@ abstract class AbstractTestActivity(private val pause: Boolean = true) {
                 if (lastData >= STEPS) {
                     controller.stop(-1L)
                 } else if (lastData == STEPS / 2) {
-                    if (pause) {
-                        onPause(events, controller)
-                        controller.pause(lastData + 1)
-                        pausedSignal.release()
-                    } else {
-                        Assert.assertThrows(IllegalStateException::class.java) {
-                            controller.pause(lastData + 1)
-                        }
-                        controller.`continue`(lastData + 1)
-                    }
+                    onPause(events, controller)
+                    controller.pause(lastData + 1)
+                    pausedSignal.release()
                 } else {
                     controller.`continue`(lastData + 1)
                 }
@@ -78,11 +70,9 @@ abstract class AbstractTestActivity(private val pause: Boolean = true) {
 
         terminationSignal.acquire()
         assertEquals(-1L, result!!)
-        with(if (pause) listOf("pause") else emptyList()) {
-            assertEquals(
-                    listOf("0") + (0..STEPS / 2) + this + ((STEPS / 2 + 1)..10) + listOf(-1L),
-                    events
-            )
-        }
+        assertEquals(
+                listOf("0") + (0..STEPS / 2) + listOf("pause") + ((STEPS / 2 + 1)..10) + listOf(-1L),
+                events
+        )
     }
 }
