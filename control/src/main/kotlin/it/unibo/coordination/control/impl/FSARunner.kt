@@ -18,8 +18,8 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
             continuation = STOP
         }
 
-        override fun restart(environment: E) {
-            this@FSARunner.environment = environment
+        override fun restart(input: E) {
+            this@FSARunner.environment = input
             continuation = RESTART
         }
 

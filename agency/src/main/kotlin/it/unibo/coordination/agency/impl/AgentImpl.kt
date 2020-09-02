@@ -61,7 +61,7 @@ class AgentImpl(name: String) : Agent {
         cleaners.add(cleaner)
     }
 
-    override fun onBegin(environment: Unit, controller: Activity.Controller<Unit, Unit, Unit>) {
+    override fun onBegin(input: Unit, controller: Activity.Controller<Unit, Unit, Unit>) {
         val ctl = ControllerImpl(controller)
         for (initializer in initializers) {
             initializer(ctl)
@@ -69,7 +69,7 @@ class AgentImpl(name: String) : Agent {
         ctl.`continue`()
     }
 
-    override fun onStep(environment: Unit, lastData: Unit, controller: Activity.Controller<Unit, Unit, Unit>) {
+    override fun onStep(input: Unit, lastData: Unit, controller: Activity.Controller<Unit, Unit, Unit>) {
         val ctl = ControllerImpl(controller)
         if (toDoList.isEmpty()) {
             ctl.pause()
@@ -98,7 +98,7 @@ class AgentImpl(name: String) : Agent {
         }
     }
 
-    override fun onEnd(environment: Unit, lastData: Unit, result: Unit, controller: Activity.Controller<Unit, Unit, Unit>) {
+    override fun onEnd(input: Unit, lastData: Unit, result: Unit, controller: Activity.Controller<Unit, Unit, Unit>) {
         for (cleaner in cleaners) {
             cleaner(this)
         }

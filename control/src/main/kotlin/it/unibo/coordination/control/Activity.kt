@@ -4,7 +4,7 @@ interface Activity<E, T, R> {
 
     interface Controller<E, T, R> {
         fun stop(result: R)
-        fun restart(environment: E)
+        fun restart(input: E)
         fun pause(data: T)
         fun pause()
         fun `continue`(data: T)
@@ -12,7 +12,7 @@ interface Activity<E, T, R> {
         fun resume()
     }
 
-    fun onBegin(environment: E, controller: Controller<E, T, R>)
-    fun onStep(environment: E, lastData: T, controller: Controller<E, T, R>)
-    fun onEnd(environment: E, lastData: T, result: R, controller: Controller<E, T, R>)
+    fun onBegin(input: E, controller: Controller<E, T, R>)
+    fun onStep(input: E, lastData: T, controller: Controller<E, T, R>)
+    fun onEnd(input: E, lastData: T, result: R, controller: Controller<E, T, R>)
 }
