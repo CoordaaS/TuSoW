@@ -17,7 +17,7 @@ interface Runner<E, T, R> {
     val isOver: Boolean
     val isPaused: Boolean
 
-    fun runBegin(environment: E, continuation: (E, error: Throwable?) -> Unit = { _, _ -> Unit })
+    fun runBegin(input: E, continuation: (E, error: Throwable?) -> Unit = { _, _ -> Unit })
     fun runStep(data: T, continuation: (E, T, error: Throwable?) -> Unit = { _, _, _ -> Unit })
     fun runEnd(result: R, continuation: (E, T, R, error: Throwable?) -> Unit = { _, _, _, _ -> Unit })
 
@@ -25,7 +25,7 @@ interface Runner<E, T, R> {
 
     fun runNext(continuation: (error: Throwable?) -> Unit = { _ -> Unit })
 
-    fun run(environment: E): Promise<R>
+    fun run(input: E): Promise<R>
 
     companion object {
 

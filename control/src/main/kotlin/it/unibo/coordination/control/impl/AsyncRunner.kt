@@ -32,9 +32,9 @@ open class AsyncRunner<E, T, R>(activity: Activity<E, T, R>, protected open val 
         }
     }
 
-    override fun runBegin(environment: E, continuation: (E, error: Throwable?) -> Unit) {
+    override fun runBegin(input: E, continuation: (E, error: Throwable?) -> Unit) {
         scheduleAndThen(continuation) {
-            activity.onBegin(environment, controller)
+            activity.onBegin(input, controller)
         }
     }
 
@@ -68,8 +68,8 @@ open class AsyncRunner<E, T, R>(activity: Activity<E, T, R>, protected open val 
         runImpl(finalResult)
     }
 
-    override fun run(environment: E): Promise<R> {
-        this.environment = environment
+    override fun run(input: E): Promise<R> {
+        this.environment = input
         runImpl(finalResult)
         return finalResult
     }

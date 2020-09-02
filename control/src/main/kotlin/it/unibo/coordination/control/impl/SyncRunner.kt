@@ -8,9 +8,9 @@ class SyncRunner<E, T, R>(activity: Activity<E, T, R>) : FSARunner<E, T, R>(acti
 
     private val resumeSignal = Semaphore(0)
 
-    override fun runBegin(environment: E, continuation: (E, error: Throwable?) -> Unit) {
+    override fun runBegin(input: E, continuation: (E, error: Throwable?) -> Unit) {
         safeExecute(continuation) {
-            activity.onBegin(environment, controller)
+            activity.onBegin(input, controller)
         }
     }
 
@@ -34,9 +34,9 @@ class SyncRunner<E, T, R>(activity: Activity<E, T, R>) : FSARunner<E, T, R>(acti
         resumeSignal.acquire()
     }
 
-    override fun run(environment: E): Promise<R> {
+    override fun run(input: E): Promise<R> {
         val result = Promise<R>()
-        this.environment = environment
+        this.environment = input
         while (!isOver) {
             runNext {
                 if (it != null) {

@@ -4,9 +4,14 @@ import it.unibo.coordination.control.Activity
 import it.unibo.coordination.control.EventLoop
 import java.util.*
 
-abstract class AbstractEventLoop<E> : EventLoop<E> {
+internal abstract class AbstractEventLoop<E> : EventLoop<E> {
 
     private val eventDeque: Deque<E> = LinkedList()
+
+    override val isIdle: Boolean
+        get() = synchronized(eventDeque) {
+            eventDeque.isEmpty()
+        }
 
     @Volatile
     private var onResume: (() -> Unit)? = null
@@ -28,7 +33,7 @@ abstract class AbstractEventLoop<E> : EventLoop<E> {
         }
     }
 
-    override fun onStep(input: Nothing, lastData: E, controller: Activity.Controller<Nothing, E, Unit>) {
+    override fun onStep(input: Unit, lastData: E, controller: Activity.Controller<Unit, E, Unit>) {
         synchronized(eventDeque) {
             if (eventDeque.isEmpty()) {
                 onResume = { resume(controller) }
@@ -41,7 +46,7 @@ abstract class AbstractEventLoop<E> : EventLoop<E> {
         }
     }
 
-    private fun resume(controller: Activity.Controller<Nothing, E, Unit>) {
+    private fun resume(controller: Activity.Controller<Unit, E, Unit>) {
         controller.resume()
         onResume = null
     }
