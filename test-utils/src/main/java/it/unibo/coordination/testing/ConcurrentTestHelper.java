@@ -12,15 +12,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ConcurrentTestHelper {
+public class ConcurrentTestHelper implements IConcurrentTestHelper {
 
     private static final Duration BLOCKING_THRESHOLD = Duration.ofSeconds(3);
     private static final Duration GET_THRESHOLD = Duration.ofSeconds(2);
-
-    @FunctionalInterface
-    public interface ThrowableRunnable {
-        void run() throws Exception;
-    }
 
     private final List<ThrowableRunnable> toDoList = Collections.synchronizedList(new ArrayList<>());
     private CountDownLatch latch;
@@ -29,59 +24,87 @@ public class ConcurrentTestHelper {
         this.latch = new CountDownLatch(n);
     }
 
+    @Override
     public void await() throws Exception {
-        latch.await();
+        latch.await(BLOCKING_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
         for (final ThrowableRunnable throwableRunnable : toDoList) {
             throwableRunnable.run();
         }
     }
 
+    @Override
     public void done() {
         latch.countDown();
     }
 
+    @Override
     public void fail(final Exception t) {
-        toDoList.add(() -> {
+        propagateExceptions(() -> {
             throw new AssertionError(t);
         });
     }
 
+    @Override
     public void fail(final String message, final Exception t) {
-        toDoList.add(() -> {
+        propagateExceptions(() -> {
             throw new AssertionError(message, t);
         });
     }
 
+    @Override
     public void fail(final String message) {
-        toDoList.add(() -> Assert.fail(message));
+        propagateExceptions(() -> Assert.fail(message));
     }
 
+    @Override
     public void fail() {
-        toDoList.add(() -> Assert.fail());
-
+        propagateExceptions(() -> Assert.fail());
     }
 
+    @Override
     public void success() {
-        toDoList.add(() -> Assert.assertTrue(true));
+        propagateExceptions(() -> Assert.assertTrue(true));
     }
 
+    @Override
     public void assertTrue(final boolean condition) {
-        toDoList.add(() -> Assert.assertTrue(condition));
+        propagateExceptions(() -> Assert.assertTrue(condition));
     }
 
+    @Override
     public void assertTrue(final boolean condition, final String message) {
-        toDoList.add(() -> Assert.assertTrue(message, condition));
+        propagateExceptions(() -> Assert.assertTrue(message, condition));
     }
 
+    private void propagateExceptions(ThrowableRunnable action) {
+        try {
+            action.run();
+        } catch (Throwable e) {
+            toDoList.add(() -> {
+                throw e;
+            });
+            if (e instanceof RuntimeException) {
+                throw ((RuntimeException) e);
+            } else if (e instanceof Error) {
+                throw ((Error) e);
+            } else {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
     public <T> void assertEquals(final T actual, final T expected, final String message) {
         assertTrue(expected.equals(actual), message);
     }
 
+    @Override
     public <T> void assertEquals(final T actual, final T expected) {
         assertTrue(expected.equals(actual),
                 String.format("Failed assertion: %s must be equals to %s", actual, expected));
     }
 
+    @Override
     public <T> void assertEquals(final Future<T> actualFuture, final T expected) {
         try {
             final T actual = actualFuture.get(GET_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
@@ -91,6 +114,7 @@ public class ConcurrentTestHelper {
         }
     }
 
+    @Override
     public <T> void assertTrue(final Future<T> actualFuture, final Predicate<T> p) {
         try {
             final T actual = actualFuture.get(GET_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
@@ -100,6 +124,7 @@ public class ConcurrentTestHelper {
         }
     }
 
+    @Override
     public <T> void assertEquals(final Future<T> actualFuture, final T expected, final String message) {
         try {
             final T actual = actualFuture.get(GET_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
@@ -109,15 +134,18 @@ public class ConcurrentTestHelper {
         }
     }
 
+    @Override
     public <T> void assertOneOf(final Future<T> actualFuture, final T expected1,
-            @SuppressWarnings("unchecked") final T... expected) {
+                                @SuppressWarnings("unchecked") final T... expected) {
         assertOneOf(actualFuture, Stream.concat(Stream.of(expected1), Stream.of(expected)).collect(Collectors.toSet()));
     }
 
+    @Override
     public <T> void assertOneOf(final Future<T> actualFuture, final Collection<? extends T> expected) {
         assertOneOf(actualFuture, expected, null);
     }
 
+    @Override
     public <T> void assertOneOf(final Future<T> actualFuture, final Collection<? extends T> expected, String message) {
         try {
             final T actual = actualFuture.get(GET_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
@@ -130,6 +158,7 @@ public class ConcurrentTestHelper {
         }
     }
 
+    @Override
     public void assertBlocksIndefinitely(final Future<?> future, final String message) {
         try {
             future.get(BLOCKING_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
@@ -141,10 +170,12 @@ public class ConcurrentTestHelper {
         }
     }
 
+    @Override
     public void assertBlocksIndefinitely(final Future<?> future) {
         assertBlocksIndefinitely(future, null);
     }
 
+    @Override
     public void assertEventuallyReturns(final Future<?> future, final String message) {
         try {
             future.get(BLOCKING_THRESHOLD.toMillis(), TimeUnit.MILLISECONDS);
@@ -156,6 +187,7 @@ public class ConcurrentTestHelper {
         }
     }
 
+    @Override
     public void assertEventuallyReturns(final Future<?> future) {
         assertEventuallyReturns(future, null);
     }

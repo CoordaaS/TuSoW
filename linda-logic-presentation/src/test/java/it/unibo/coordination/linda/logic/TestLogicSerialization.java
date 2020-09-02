@@ -1,11 +1,11 @@
 package it.unibo.coordination.linda.logic;
 
-import alice.tuprolog.Term;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import it.unibo.coordination.linda.test.TestBaseLinda;
 import it.unibo.presentation.MIMETypes;
+import it.unibo.tuprolog.core.Term;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -120,19 +120,19 @@ public class TestLogicSerialization extends TestBaseLinda<LogicTuple, LogicTempl
         final String resultString =
                 "fun: \"f\"\n" +
                 "args:\n" +
-                "- 1\n" +
-                "- var: \"A\"\n" +
-                "- var: \"B\"\n" +
-                "- var: \"C\"\n" +
-                "- var: \"D\"\n" +
-                "- fun: \"g\"\n" +
-                "  args:\n" +
-                "  - var: \"E\"\n" +
-                "  - list: \n" +
-                "    - var: \"F\"\n" +
-                "    - tail: \n" +
-                "        var: \"G\"\n" +
-                "- var: \"H\"\n";
+                        "- 1\n" +
+                        "- var: \"A\"\n" +
+                        "- var: \"B\"\n" +
+                        "- var: \"C\"\n" +
+                        "- var: \"D\"\n" +
+                        "- fun: \"g\"\n" +
+                        "  args:\n" +
+                        "  - var: \"E\"\n" +
+                        "  - list: \n" +
+                        "    - var: \"F\"\n" +
+                        "    tail: \n" +
+                        "      var: \"G\"\n" +
+                        "- var: \"H\"\n";
 
         final JsonNode result = yamlMapper.readTree(resultString);
 
@@ -146,7 +146,7 @@ public class TestLogicSerialization extends TestBaseLinda<LogicTuple, LogicTempl
     @Test
     public void testLogicTemplateSerialisationToJSON() throws IOException {
         final LogicTemplate template = LogicTemplate.of("f(1, A, B, C, D, g(E, [F | G]), H)");
-        final String resultString = "{\"fun\":\"f\",\"args\":[1,{\"var\":\"A\"},{\"var\":\"B\"},{\"var\":\"C\"},{\"var\":\"D\"},{\"fun\":\"g\",\"args\":[{\"var\":\"E\"},{\"list\":[{\"var\":\"F\"},{\"tail\":{\"var\":\"G\"}}]}]},{\"var\":\"H\"}]}";
+        final String resultString = "{\"fun\":\"f\",\"args\":[1,{\"var\":\"A\"},{\"var\":\"B\"},{\"var\":\"C\"},{\"var\":\"D\"},{\"fun\":\"g\",\"args\":[{\"var\":\"E\"},{\"list\":[{\"var\":\"F\"}],\"tail\":{\"var\":\"G\"}}]},{\"var\":\"H\"}]}";
 
         final JsonNode result = jsonMapper.readTree(resultString);
 

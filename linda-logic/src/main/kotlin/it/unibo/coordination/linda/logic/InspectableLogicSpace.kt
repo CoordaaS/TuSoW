@@ -1,8 +1,8 @@
 package it.unibo.coordination.linda.logic
 
-import alice.tuprolog.Term
 import it.unibo.coordination.Engines
 import it.unibo.coordination.linda.core.InspectableTupleSpace
+import it.unibo.tuprolog.core.Term
 
 import java.util.concurrent.ExecutorService
 

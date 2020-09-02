@@ -1,9 +1,8 @@
 dependencies {
+    api(Libs.serialize_core_jvm)
+    api(Libs.kotlin_stdlib_jdk8)
     api(project(":linda-logic"))
     api(project(":linda-core-presentation"))
-
-    implementation(project(":prologx"))
-    implementation(kotlin("stdlib-jdk8"))
 
     testImplementation(Libs.junit)
     testImplementation(project(":test-utils"))

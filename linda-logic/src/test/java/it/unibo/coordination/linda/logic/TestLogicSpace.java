@@ -1,7 +1,7 @@
 package it.unibo.coordination.linda.logic;
 
-import alice.tuprolog.Term;
 import it.unibo.coordination.linda.test.TestTupleSpace;
+import it.unibo.tuprolog.core.Term;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -22,6 +22,6 @@ public class TestLogicSpace extends TestTupleSpace<LogicTuple, LogicTemplate, St
 
     @Parameterized.Parameters
     public static Object[][] getParams() {
-        return IntStream.range(0, 5).mapToObj(i -> new Object[] { i }).toArray(Object[][]::new);
+        return IntStream.range(0, 5).mapToObj(i -> new Object[]{i}).toArray(Object[][]::new);
     }
 }

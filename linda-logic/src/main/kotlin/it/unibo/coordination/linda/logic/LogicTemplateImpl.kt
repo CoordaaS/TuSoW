@@ -1,48 +1,30 @@
 package it.unibo.coordination.linda.logic
 
-import alice.tuprolog.Prolog
-import alice.tuprolog.Struct
-import alice.tuprolog.Term
-import it.unibo.coordination.prologx.PrologUtils
+import it.unibo.tuprolog.core.Struct
+import it.unibo.tuprolog.core.Term
+import it.unibo.tuprolog.unify.Unificator.Companion.matches
 
 internal class LogicTemplateImpl(term: Term) : LogicTemplate {
-    private val term: Struct
 
-    override val template: Term
-        get() = term.getArg(0)
-
-    init {
-        if (term is Struct && LogicTemplate.pattern.match(term)) {
-            this.term = term
+    private val term: Struct by lazy {
+        if (term is Struct && LogicTemplate.pattern.matches(term)) {
+            term
         } else {
-            this.term = LogicTemplate.getPattern(term)
+            LogicTemplate.getPattern(term)
         }
     }
 
-    override fun matchWith(tuple: LogicTuple): LogicMatch {
-        val si = ENGINE.solve(PrologUtils.unificationTerm(template, tuple.value))
-        return LogicMatchImpl(this, si, tuple)
-    }
+    override val template: Term
+        get() = term[0]
 
-    override fun equals(other: Any?): Boolean {
-        return other is LogicTemplate && LogicTemplate.equals(this, other as LogicTemplate?)
-    }
+    override fun matchWith(tuple: LogicTuple): LogicMatch = LogicMatchImpl(this, tuple)
 
-    override fun hashCode(): Int {
-        return LogicTemplate.hashCode(this)
-    }
+    override fun equals(other: Any?): Boolean =
+            other is LogicTemplate && LogicTemplate.equals(this, other as LogicTemplate?)
 
-    override fun toString(): String {
-        return term.toString()
-    }
+    override fun hashCode(): Int = LogicTemplate.hashCode(this)
 
-    override fun asTerm(): Struct {
-        return term
-    }
+    override fun toString(): String = term.toString()
 
-    companion object {
-
-        private val ENGINE = Prolog()
-    }
-
+    override fun asTerm(): Struct = term
 }

@@ -48,6 +48,7 @@ public class TestMatch<T extends Tuple<T>, TT extends Template<T>, K, V, M exten
         Assert.assertEquals(Collections.emptyMap(), match.toMap());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testSuccessfulMatch() {
         final Triplet<T, TT, M> successfulMatch = getSuccessfulMatch();

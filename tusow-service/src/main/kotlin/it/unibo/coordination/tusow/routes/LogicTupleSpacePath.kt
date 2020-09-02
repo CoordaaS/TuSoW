@@ -1,6 +1,5 @@
 package it.unibo.coordination.tusow.routes
 
-import alice.tuprolog.Term
 import io.vertx.ext.web.RoutingContext
 import it.unibo.coordination.linda.logic.LogicMatch
 import it.unibo.coordination.linda.logic.LogicTemplate
@@ -12,6 +11,7 @@ import it.unibo.presentation.Deserializer
 import it.unibo.presentation.MIMETypes
 import it.unibo.presentation.Presentation
 import it.unibo.presentation.Serializer
+import it.unibo.tuprolog.core.Term
 
 class LogicTupleSpacePath : AbstractTupleSpacePath<LogicTuple, LogicTemplate, String, Term, LogicMatch>("logic") {
     override fun getTupleSpaceApi(routingContext: RoutingContext): TupleSpaceApi<LogicTuple, LogicTemplate, String, Term, LogicMatch> {

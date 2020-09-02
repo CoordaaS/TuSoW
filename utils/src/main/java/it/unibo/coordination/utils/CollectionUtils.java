@@ -10,10 +10,12 @@ public class CollectionUtils {
 
     private static final Random RAND = new Random();
 
+    @SafeVarargs
     public static <T> Set<T> setOf(T... items) {
         return Stream.of(items).collect(Collectors.toSet());
     }
 
+    @SafeVarargs
     public static <T> List<T> listOf(T... items) {
         return Stream.of(items).collect(Collectors.toList());
     }

@@ -1,4 +1,4 @@
-image: pikalab/ci:jdk13oracle-git
+image: pikalab/ci:ubuntu-jdk14-git-gradle-graphviz
 
 variables:
   GOPTS: "--no-daemon --console=plain"
@@ -6,13 +6,21 @@ variables:
   BEFORE_TASK: ""
   AFTER_TASK: ""
   GCMD: "./gradlew"
-  BUILD_TASK: "assemble"
+  BUILD_TASK: "clean assemble"
   TEST_TASK: "check"
   BINTRAY_TASK: "publishAllToBintray"
   GITHUB_TASK: "githubRelease"
 
 before_script:
   - chmod +x gradlew
+  - source $HOME/.sdkman/bin/sdkman-init.sh
+
+cache:
+  paths:
+    - $HOME/.gradle/
+    - gradle/
+    - .gradle/
+    - build/
 
 Compile:
   stage: build

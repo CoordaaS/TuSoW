@@ -1,7 +1,6 @@
 rootProject.name = "coordination"
 
 include("utils")
-include("prologx")
 include("linda-core")
 include("linda-logic")
 include("linda-text")
@@ -16,6 +15,9 @@ include("linda-logic-client")
 include("linda-text-client")
 include("tusow-service")
 include("tusow-cli")
+
+include("control")
+include("agency")
 
 include("respect-core")
 

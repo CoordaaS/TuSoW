@@ -8,26 +8,25 @@ dependencies {
     api(project(":linda-logic-presentation"))
     api(project(":linda-text"))
     api(project(":linda-text-presentation"))
+    api(Libs.kotlin_stdlib_jdk8)
     api(Libs.vertx_core)
     api(Libs.vertx_web)
 
-    runtimeOnly(Libs.logback_classic)
+    implementation(Libs.logback_classic)
 
-    implementation(project(":prologx"))
     implementation(Libs.commons_cli)
     implementation(Libs.jackson_core)
     implementation(Libs.jackson_datatype_jsr310)
     implementation(Libs.jackson_dataformat_xml)
     implementation(Libs.jackson_dataformat_yaml)
-    implementation(Libs.jool)
-    implementation(kotlin("stdlib-jdk8"))
+//    implementation(Libs.jool)
 
     testImplementation(Libs.vertx_unit)
     testImplementation(Libs.junit)
     testImplementation(project(":test-utils"))
 }
 
-val mainClass = "it.unibo.coordination.tusow.Service"
+val mainClassName = "it.unibo.coordination.tusow.Service"
 
 task<JavaExec>("tusow") {
     group = "run"
@@ -37,7 +36,7 @@ task<JavaExec>("tusow") {
             classpath = runtimeClasspath
         }
     }
-    main = mainClass
+    main = mainClassName
     if (project.hasProperty("port")) {
         args = listOf("-p", project.property("port").toString())
     }
@@ -46,7 +45,7 @@ task<JavaExec>("tusow") {
 
 tasks.getByName<Jar>("shadowJar") {
     manifest {
-        attributes("Main-Class" to mainClass)
+        attributes("Main-Class" to mainClassName)
     }
     archiveBaseName.set(project.name)
     archiveVersion.set(project.version.toString())
