@@ -7,43 +7,56 @@ import java.util.concurrent.CompletableFuture
 
 open class AsyncRunner<E, T, R>(activity: Activity<E, T, R>, protected open val engine: Engine) : FSARunner<E, T, R>(activity) {
 
-    override fun runBegin(environment: E): Promise<T> = scheduleWithPromise {
-        activity.onBegin(environment, controller)
-        it.complete(data)
-    }
+    private val finalResult = Promise<R>()
 
     protected open fun schedule(action: () -> Unit) {
         engine.execute(action)
     }
 
-    protected fun <X> scheduleWithPromise(action: (Promise<X>) -> Unit): Promise<X> {
-        val promise  = Promise<X>()
+    private fun scheduleAndThen(continuation: (environment: E, error: Throwable?) -> Unit,
+                                action: () -> Unit) {
         schedule {
-            try {
-                action(promise)
-            } catch (e: Throwable) {
-                e.printStackTrace()
-                promise.completeExceptionally(e)
-            }
+            safeExecute(continuation, action)
         }
-        return promise
     }
 
-    override fun runStep(data: T): Promise<T> = scheduleWithPromise {
-        activity.onStep(environment!!, data, controller)
-        it.complete(data)
+    private fun scheduleAndThen(continuation: (environment: E, data: T, error: Throwable?) -> Unit,
+                                action: () -> Unit) {
+        schedule {
+            safeExecute(continuation, action)
+        }
     }
 
-    override fun runEnd(result: R): Promise<T> = scheduleWithPromise {
-        activity.onEnd(environment!!, data!!, result, controller)
-        it.complete(data!!)
+    private fun scheduleAndThen(continuation: (environment: E, data: T, result: R, error: Throwable?) -> Unit,
+                                action: () -> Unit) {
+        schedule {
+            safeExecute(continuation, action)
+        }
+    }
+
+    override fun runBegin(environment: E, continuation: (E, error: Throwable?) -> Unit) {
+        scheduleAndThen(continuation) {
+            activity.onBegin(environment, controller)
+        }
+    }
+
+    override fun runStep(data: T, continuation: (E, T, error: Throwable?) -> Unit) {
+        scheduleAndThen(continuation) {
+            activity.onStep(environment!!, data, controller)
+        }
+    }
+
+    override fun runEnd(result: R, continuation: (E, T, R, error: Throwable?) -> Unit) {
+        scheduleAndThen(continuation) {
+            activity.onEnd(environment!!, data!!, result, controller)
+        }
     }
 
     private fun runImpl(result: CompletableFuture<R>) {
         if (isOver) {
             result.complete(this.result)
         } else if (!isPaused) {
-            runNext().whenComplete { _, e ->
+            runNext { e ->
                 if (e !== null) {
                     result.completeExceptionally(e.cause)
                 } else {
@@ -56,8 +69,6 @@ open class AsyncRunner<E, T, R>(activity: Activity<E, T, R>, protected open val 
     override fun resumeImpl() {
         runImpl(finalResult)
     }
-
-    private val finalResult = Promise<R>()
 
     override fun run(environment: E): Promise<R> {
         this.environment = environment

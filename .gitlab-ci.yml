@@ -6,7 +6,7 @@ variables:
   BEFORE_TASK: ""
   AFTER_TASK: ""
   GCMD: "./gradlew"
-  BUILD_TASK: "assemble"
+  BUILD_TASK: "clean assemble"
   TEST_TASK: "check"
   BINTRAY_TASK: "publishAllToBintray"
   GITHUB_TASK: "githubRelease"

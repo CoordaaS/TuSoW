@@ -1,6 +1,6 @@
-import it.unibo.coordination.Engines
 import it.unibo.coordination.control.Activity
-import it.unibo.coordination.control.run
+import it.unibo.coordination.control.runOnBackgroundThread
+import kotlin.system.exitProcess
 
 fun main() {
     lateinit var x: Activity.Controller<Int, Int, Int>
@@ -28,7 +28,7 @@ fun main() {
         }
     }
 
-    val y = Engines.defaultTimedEngine.run(0, activity).whenComplete { res, e ->
+    val y = activity.runOnBackgroundThread(0).whenComplete { res, e ->
         if (res != null) {
             println(res)
         }
@@ -40,4 +40,5 @@ fun main() {
     Thread.sleep(2000)
     x.resume()
     print("Result=" + y.get())
+    exitProcess(0)
 }

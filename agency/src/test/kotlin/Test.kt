@@ -1,5 +1,6 @@
 import it.unibo.coordination.agency.Agent
-import it.unibo.coordination.control.runInCurrentThread
+import it.unibo.coordination.control.runOnBackgroundThread
+import kotlin.system.exitProcess
 
 fun main() {
     val agent = Agent("Alice") {
@@ -18,5 +19,5 @@ fun main() {
         }
     }
 
-    agent.runInCurrentThread()
+    agent.runOnBackgroundThread().get()
 }

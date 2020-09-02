@@ -2,8 +2,13 @@ package it.unibo.coordination.control.impl
 
 import it.unibo.coordination.Promise
 import it.unibo.coordination.control.Activity
+import java.util.concurrent.Semaphore
 
-class SyncRunner<E, T, R>(activity: Activity<E, T, R>) : FSARunner<E, T, R>(activity) {
+class ThreadRunner<E, T, R>(activity: Activity<E, T, R>) : FSARunner<E, T, R>(activity) {
+
+    private val finalResult = Promise<R>()
+    private val thread = Thread(this::runImpl)
+    private val mutex = Semaphore(0)
 
     override fun runBegin(environment: E, continuation: (E, error: Throwable?) -> Unit) {
         safeExecute(continuation) {
@@ -24,24 +29,30 @@ class SyncRunner<E, T, R>(activity: Activity<E, T, R>) : FSARunner<E, T, R>(acti
     }
 
     override fun resumeImpl() {
-        throw IllegalStateException("Resuming an activity run by a ${SyncRunner::class.java.name} is currently not supported")
+        mutex.release()
     }
 
-    override fun onPauseInvoked() {
-        throw IllegalStateException("Pausing an activity run by a ${SyncRunner::class.java.name} is currently not supported")
+    override fun onPauseRealised() {
+        mutex.acquire()
     }
 
     override fun run(environment: E): Promise<R> {
-        val result = Promise<R>()
         this.environment = environment
+        thread.start()
+        return finalResult.thenApplyAsync {
+            thread.join()
+            it
+        }
+    }
+
+    private fun runImpl() {
         while (!isOver) {
             runNext {
                 if (it != null) {
-                    result.completeExceptionally(it)
+                    finalResult.completeExceptionally(it)
                 }
             }
         }
-        result.complete(this.result)
-        return result
+        finalResult.complete(result)
     }
 }
