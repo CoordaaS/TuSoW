@@ -4,7 +4,7 @@ import java.util.*
 
 enum class OperationType(val classicName: String) {
     GET("get"),
-    SET("get"),
+    SET("set"),
 
     WRITE("out"),
     READ("rd"),
