@@ -1,7 +1,7 @@
 package it.unibo.coordination.control
 
 import it.unibo.coordination.Engines
-import org.junit.Assert
+import it.unibo.coordination.testing.assertLastsAtLeast
 import org.junit.Test
 import java.time.Duration
 import java.util.concurrent.Semaphore
@@ -12,7 +12,7 @@ class TestPeriodicActivity : AbstractTestActivity() {
     companion object {
         const val PERIOD: Long = 200
         const val PAUSE: Long = 500
-        const val TOTAL: Long = PERIOD * (STEPS + 2) + PAUSE
+        val TOTAL: Duration = Duration.ofMillis(PERIOD * (STEPS + 2) + PAUSE)
     }
 
     private val timedEngine = Engines.defaultTimedEngine
@@ -30,13 +30,8 @@ class TestPeriodicActivity : AbstractTestActivity() {
 
     @Test
     override fun testActivity() {
-        val initTime = System.currentTimeMillis()
-        super.testActivity()
-        val endTime = System.currentTimeMillis()
-        val elapsedTime = endTime - initTime
-        Assert.assertTrue(
-                "The activity execution should have required at least $TOTAL ms, while it required only $elapsedTime ms",
-                elapsedTime >= TOTAL
-        )
+        assertLastsAtLeast(TOTAL) {
+            super.testActivity()
+        }
     }
 }

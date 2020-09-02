@@ -2,8 +2,11 @@ package it.unibo.coordination.control.impl
 
 import it.unibo.coordination.Promise
 import it.unibo.coordination.control.Activity
+import java.util.concurrent.Semaphore
 
 class SyncRunner<E, T, R>(activity: Activity<E, T, R>) : FSARunner<E, T, R>(activity) {
+
+    private val resumeSignal = Semaphore(0)
 
     override fun runBegin(environment: E, continuation: (E, error: Throwable?) -> Unit) {
         safeExecute(continuation) {
@@ -24,15 +27,11 @@ class SyncRunner<E, T, R>(activity: Activity<E, T, R>) : FSARunner<E, T, R>(acti
     }
 
     override fun resumeImpl() {
-        throw IllegalStateException("Resuming an activity run by a ${SyncRunner::class.java.name} is currently not supported")
+        resumeSignal.release()
     }
 
-    override fun onPauseInvoked() {
-        throw IllegalStateException("Pausing an activity run by a ${SyncRunner::class.java.name} is currently not supported")
-    }
-
-    override fun resume() {
-        throw IllegalStateException("Resuming an activity run by a ${SyncRunner::class.java.name} is currently not supported")
+    override fun onPauseRealised() {
+        resumeSignal.acquire()
     }
 
     override fun run(environment: E): Promise<R> {

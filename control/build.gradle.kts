@@ -4,4 +4,5 @@ dependencies {
     api(Libs.kotlin_stdlib_jdk8)
 
     testImplementation(Libs.junit)
+    testImplementation(project(":test-utils"))
 }
