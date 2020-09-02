@@ -1,18 +1,10 @@
-val javaVersion: String by project
-val joolVersion: String by project
-val junitVersion: String by project
-val jacksonVersion: String by project
-val vertxVersion: String by project
-val commonsCliVersion: String by project
-val ktFreeCompilerArgs: String by project
-
 dependencies {
+    api(Libs.serialize_core_jvm)
+    api(Libs.kotlin_stdlib_jdk8)
     api(project(":linda-logic"))
     api(project(":linda-core-presentation"))
-    implementation(project(":prologx"))
-    implementation(kotlin("stdlib-jdk8"))
 
-    testImplementation("junit", "junit", junitVersion)
+    testImplementation(Libs.junit)
     testImplementation(project(":test-utils"))
     testImplementation(project(":linda-test"))
 }

@@ -1,7 +1,8 @@
 package it.unibo.coordination.linda.logic;
 
-import alice.tuprolog.Term;
+
 import it.unibo.coordination.linda.test.TestTupleSpaceInspectability;
+import it.unibo.tuprolog.core.Term;
 
 import java.util.concurrent.ExecutorService;
 

@@ -1,10 +1,25 @@
+import com.github.breadmoirai.githubreleaseplugin.GithubReleaseExtension
+import com.github.breadmoirai.githubreleaseplugin.GithubReleaseTask
+import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
+
+buildscript {
+    repositories {
+        mavenCentral()
+//        jcenter()
+        gradlePluginPortal()
+    }
+}
+
 
 plugins {
-    kotlin("jvm") version "1.3.60"
+    kotlin("jvm") version Versions.org_jetbrains_kotlin_jvm_gradle_plugin
     `maven-publish`
     signing
-    id("com.jfrog.bintray") version "1.8.4"
-    id ("org.danilopianini.git-sensitive-semantic-versioning") version "0.2.2"
+    id("com.jfrog.bintray") version Versions.com_jfrog_bintray_gradle_plugin
+    id ("org.danilopianini.git-sensitive-semantic-versioning") version Versions.org_danilopianini_git_sensitive_semantic_versioning_gradle_plugin
+    id("de.fayard.buildSrcVersions") version Versions.de_fayard_buildsrcversions_gradle_plugin
+    id("com.github.breadmoirai.github-release") version Versions.com_github_breadmoirai_github_release_gradle_plugin
+    id("com.github.johnrengelman.shadow") version Versions.com_github_johnrengelman_shadow_gradle_plugin apply false
 }
 
 val javaVersion: String by project
@@ -23,25 +38,12 @@ gitSemVer {
 println("Coordination, version: $version")
 
 allprojects {
-    // In this section you declare where to find the dependencies of all projects
     repositories {
         mavenCentral()
     }
 
     group = rootProject.group
     version = rootProject.version
-}
-
-fun capitalize(s: String): String {
-    return s[0].toUpperCase() + s.substring(1)
-}
-
-fun getPropertyOrWarnForAbsence(key: String): String? {
-    val value = property(key)?.toString()
-    if (value.isNullOrBlank()) {
-        System.err.println("WARNING: $key is not set")
-    }
-    return value
 }
 
 // env ORG_GRADLE_PROJECT_signingKey
@@ -56,6 +58,8 @@ val bintrayKey = getPropertyOrWarnForAbsence("bintrayKey")
 val ossrhUsername = getPropertyOrWarnForAbsence("ossrhUsername")
 // env ORG_GRADLE_PROJECT_ossrhPassword
 val ossrhPassword = getPropertyOrWarnForAbsence("ossrhPassword")
+// env ORG_GRADLE_PROJECT_gitHubToken
+val gitHubToken = getPropertyOrWarnForAbsence("gitHubToken")
 
 val publishAllToBintrayTask = tasks.create<DefaultTask>("publishAllToBintray") {
     group = "publishing"
@@ -71,6 +75,7 @@ subprojects {
     apply(plugin = "com.jfrog.bintray")
     apply(plugin = "java-library")
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "com.github.johnrengelman.shadow")
 
     configure<JavaPluginConvention> {
         targetCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
@@ -80,13 +85,10 @@ subprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
             jvmTarget = "1.$javaVersion"
-//            jvmTarget = javaVersion
             freeCompilerArgs = ktFreeCompilerArgs.split(";").toList()
         }
     }
 
-    // https://central.sonatype.org/pages/requirements.html
-    // https://docs.gradle.org/current/userguide/signing_plugin.html
     publishing {
 
         publications.create<MavenPublication>("maven") {
@@ -141,22 +143,58 @@ subprojects {
             }
         }
 
-        tasks.withType<com.jfrog.bintray.gradle.tasks.BintrayUploadTask> {
+        tasks.withType<BintrayUploadTask> {
             publishAllToBintrayTask.dependsOn(this)
         }
     }
 
     signing {
         useInMemoryPgpKeys(signingKey, signingPassword)
-//        useGpgCmd()
         sign(publishing.publications)
     }
 
     publishing {
-        val pubs = publications.withType<MavenPublication>().map { "sign${capitalize(it.name)}Publication" }
+        val pubs = publications.withType<MavenPublication>().map { "sign${it.name.capitalize()}Publication" }
 
         task<Sign>("signAllPublications") {
             dependsOn(*pubs.toTypedArray())
+        }
+    }
+}
+
+if (gitHubToken?.isNotBlank() ?: false) {
+
+    val jarTasks: List<Jar> = subprojects("tusow-service", "tusow-cli", "tusow-full")
+            .flatMap { it.tasks.withType(Jar::class) }
+            .filter { it.name == "shadowJar" }
+            .toList()
+
+    configure<GithubReleaseExtension> {
+        token(gitHubToken)
+        owner("tuple-based-coord")
+        repo("TuSoW")
+        tagName { version.toString() }
+        releaseName { version.toString() }
+        overwrite { true }
+        allowUploadToExisting { true }
+        prerelease { !isFullVersion }
+        draft { false }
+        releaseAssets(*jarTasks.map { it.archiveFile }.toTypedArray())
+    }
+
+    fun setUpChangelog() {
+        configure<GithubReleaseExtension> {
+            body("""|
+                |## CHANGELOG
+                |${changelog().call()}
+                """.trimMargin())
+        }
+    }
+
+    tasks.withType(GithubReleaseTask::class) {
+        dependsOn(*jarTasks.toTypedArray())
+        doFirst {
+            setUpChangelog()
         }
     }
 }

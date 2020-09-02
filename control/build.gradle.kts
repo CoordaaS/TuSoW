@@ -1,14 +1,7 @@
-val javaVersion: String by project
-val tuprologVersion: String by project
-val junitVersion: String by project
-val ktFreeCompilerArgs: String by project
-val slf4jVersion: String by project
-
 dependencies {
-    api("org.slf4j", "slf4j-api", slf4jVersion)
+    api(Libs.slf4j_api)
+    api(Libs.kotlin_stdlib_jdk8)
     api(project(":utils"))
 
-    implementation(kotlin("stdlib-jdk8"))
-
-    testImplementation("junit", "junit", junitVersion)
+    testImplementation(Libs.kotlin_stdlib_jdk8)
 }

@@ -1,11 +1,11 @@
 package it.unibo.coordination.linda.logic.remote
 
-import alice.tuprolog.Term
 import it.unibo.coordination.linda.logic.LogicMatch
 import it.unibo.coordination.linda.logic.LogicSpace
 import it.unibo.coordination.linda.logic.LogicTemplate
 import it.unibo.coordination.linda.logic.LogicTuple
 import it.unibo.coordination.linda.remote.RemoteTupleSpace
+import it.unibo.tuprolog.core.Term
 import java.net.URL
 
 interface RemoteLogicSpace : LogicSpace, RemoteTupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch> {

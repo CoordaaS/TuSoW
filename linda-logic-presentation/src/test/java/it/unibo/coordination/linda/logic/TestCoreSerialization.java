@@ -1,6 +1,6 @@
 package it.unibo.coordination.linda.logic;
 
-import alice.tuprolog.Term;
+
 import it.unibo.coordination.linda.core.OperationType;
 import it.unibo.coordination.linda.core.PendingRequest;
 import it.unibo.coordination.linda.core.RequestTypes;
@@ -12,13 +12,15 @@ import it.unibo.presentation.Deserializer;
 import it.unibo.presentation.MIMETypes;
 import it.unibo.presentation.Serializer;
 import it.unibo.presentation.TypeToken;
-import org.junit.Assert;
+import it.unibo.tuprolog.core.Term;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.stream.Stream;
+
+import static it.unibo.coordination.linda.logic.LogicTestsUtils.assertSerializationWorks;
 
 @RunWith(Parameterized.class)
 public class TestCoreSerialization extends TestBaseLinda<LogicTuple, LogicTemplate, String, Term, LogicMatch> {
@@ -41,7 +43,7 @@ public class TestCoreSerialization extends TestBaseLinda<LogicTuple, LogicTempla
 
     @Parameterized.Parameters
     public static Object[][] getParams() {
-        return MIMETypes.JSON_YAML.stream().map(it -> new Object[] { it }).toArray(Object[][]::new);
+        return MIMETypes.JSON_YAML.stream().map(it -> new Object[]{it}).toArray(Object[][]::new);
     }
 
     private final MIMETypes mimeType;
@@ -68,52 +70,52 @@ public class TestCoreSerialization extends TestBaseLinda<LogicTuple, LogicTempla
 
     @Test
     public void testTupleEvent() {
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 TupleEvent.beforeAbsent("name", getATemplate(), getATuple()),
                 tupleEventSerializer,
                 tupleEventDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 TupleEvent.afterAbsent("name0", getATemplate(), getATuple()),
                 tupleEventSerializer,
                 tupleEventDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 TupleEvent.beforeAbsent("name1", getATemplate()),
                 tupleEventSerializer,
                 tupleEventDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 TupleEvent.afterAbsent("name2", getATemplate()),
                 tupleEventSerializer,
                 tupleEventDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 TupleEvent.beforeReading("name3", getATuple()),
                 tupleEventSerializer,
                 tupleEventDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 TupleEvent.afterReading("name4", getATuple()),
                 tupleEventSerializer,
                 tupleEventDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 TupleEvent.beforeTaking("name5", getATuple()),
                 tupleEventSerializer,
                 tupleEventDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 TupleEvent.afterTaking("name6", getATuple()),
                 tupleEventSerializer,
                 tupleEventDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 TupleEvent.beforeWriting("name7", getATuple()),
                 tupleEventSerializer,
                 tupleEventDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 TupleEvent.afterWriting("name8", getATuple()),
                 tupleEventSerializer,
                 tupleEventDeserializer
@@ -122,7 +124,7 @@ public class TestCoreSerialization extends TestBaseLinda<LogicTuple, LogicTempla
 
     @Test
     public void testPendingRequestEvent() {
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 PendingRequestEvent.of(
                         "name1",
                         PendingRequestEvent.Effect.RESUMING,
@@ -131,7 +133,7 @@ public class TestCoreSerialization extends TestBaseLinda<LogicTuple, LogicTempla
                 pendingRequestEventSerializer,
                 pendingRequestEventDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 PendingRequestEvent.of(
                         "name2",
                         PendingRequestEvent.Effect.SUSPENDING,
@@ -140,7 +142,7 @@ public class TestCoreSerialization extends TestBaseLinda<LogicTuple, LogicTempla
                 pendingRequestEventSerializer,
                 pendingRequestEventDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 PendingRequestEvent.of(
                         "name2",
                         PendingRequestEvent.Effect.RESUMING,
@@ -149,7 +151,7 @@ public class TestCoreSerialization extends TestBaseLinda<LogicTuple, LogicTempla
                 pendingRequestEventSerializer,
                 pendingRequestEventDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 PendingRequestEvent.of(
                         "name2",
                         PendingRequestEvent.Effect.SUSPENDING,
@@ -158,7 +160,7 @@ public class TestCoreSerialization extends TestBaseLinda<LogicTuple, LogicTempla
                 pendingRequestEventSerializer,
                 pendingRequestEventDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 PendingRequestEvent.of(
                         "name3",
                         PendingRequestEvent.Effect.RESUMING,
@@ -167,7 +169,7 @@ public class TestCoreSerialization extends TestBaseLinda<LogicTuple, LogicTempla
                 pendingRequestEventSerializer,
                 pendingRequestEventDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 PendingRequestEvent.of(
                         "name3",
                         PendingRequestEvent.Effect.SUSPENDING,
@@ -180,17 +182,17 @@ public class TestCoreSerialization extends TestBaseLinda<LogicTuple, LogicTempla
 
     @Test
     public void testPendingRequest() {
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 PendingRequest.of("id1", RequestTypes.ABSENT, getATemplate()),
                 pendingRequestSerializer,
                 pendingRequestDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 PendingRequest.of("id2", RequestTypes.READ, getATemplate()),
                 pendingRequestSerializer,
                 pendingRequestDeserializer
         );
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 PendingRequest.of("id3", RequestTypes.TAKE, getATemplate()),
                 pendingRequestSerializer,
                 pendingRequestDeserializer
@@ -206,13 +208,13 @@ public class TestCoreSerialization extends TestBaseLinda<LogicTuple, LogicTempla
                 Stream.of(getATemplate())
         );
 
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 value,
                 operationEventSerializer,
                 operationEventDeserializer
         );
 
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 value.toCompletion(Stream.of(getATuple()), Stream.empty()),
                 operationEventSerializer,
                 operationEventDeserializer
@@ -225,26 +227,16 @@ public class TestCoreSerialization extends TestBaseLinda<LogicTuple, LogicTempla
                 Stream.of(getSomeTuplesOfTwoSorts().getValue1(), getSomeTuplesOfTwoSorts().getValue3())
         );
 
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 value,
                 operationEventSerializer,
                 operationEventDeserializer
         );
 
-        assertSerializationAndDeserializationWorks(
+        assertSerializationWorks(
                 value.toCompletion(getSomeTuplesOfTwoSorts().getValue2().stream(), Stream.of(getATemplate())),
                 operationEventSerializer,
                 operationEventDeserializer
         );
-    }
-
-    public static<T> void assertSerializationAndDeserializationWorks(T value, Serializer<T> serializer, Deserializer<T> deserializer) {
-        final String serialized = serializer.toString(value);
-        System.out.println(value);
-        System.out.println(serialized);
-        final T deserialized = deserializer.fromString(serialized);
-        System.out.println(deserialized);
-        System.out.println("-------------------------------");
-        Assert.assertEquals(value, deserialized);
     }
 }

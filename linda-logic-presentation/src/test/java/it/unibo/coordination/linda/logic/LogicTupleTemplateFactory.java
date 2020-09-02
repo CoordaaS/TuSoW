@@ -1,7 +1,7 @@
 package it.unibo.coordination.linda.logic;
 
-import alice.tuprolog.Term;
 import it.unibo.coordination.linda.test.TupleTemplateFactory;
+import it.unibo.tuprolog.core.Term;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 import org.javatuples.Pair;
