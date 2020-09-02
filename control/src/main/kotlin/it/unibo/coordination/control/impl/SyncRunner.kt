@@ -31,6 +31,10 @@ class SyncRunner<E, T, R>(activity: Activity<E, T, R>) : FSARunner<E, T, R>(acti
         throw IllegalStateException("Pausing an activity run by a ${SyncRunner::class.java.name} is currently not supported")
     }
 
+    override fun resume() {
+        throw IllegalStateException("Resuming an activity run by a ${SyncRunner::class.java.name} is currently not supported")
+    }
+
     override fun run(environment: E): Promise<R> {
         val result = Promise<R>()
         this.environment = environment

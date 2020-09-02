@@ -6,12 +6,12 @@ fun main() {
     lateinit var x: Activity.Controller<Int, Int, Int>
 
     val activity = object : Activity<Int, Int, Int> {
-        override fun onBegin(environment: Int, controller: Activity.Controller<Int, Int, Int>) {
-            println(environment)
-            controller.`continue`(environment + 1)
+        override fun onBegin(input: Int, controller: Activity.Controller<Int, Int, Int>) {
+            println(input)
+            controller.`continue`(input + 1)
         }
 
-        override fun onStep(environment: Int, lastData: Int, controller: Activity.Controller<Int, Int, Int>) {
+        override fun onStep(input: Int, lastData: Int, controller: Activity.Controller<Int, Int, Int>) {
             println(lastData)
             if (lastData >= 10) {
                 controller.stop(-1)
@@ -23,7 +23,7 @@ fun main() {
             }
         }
 
-        override fun onEnd(environment: Int, lastData: Int, result: Int, controller: Activity.Controller<Int, Int, Int>) {
+        override fun onEnd(input: Int, lastData: Int, result: Int, controller: Activity.Controller<Int, Int, Int>) {
             println(result)
         }
     }

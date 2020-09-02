@@ -13,15 +13,13 @@ open class AsyncRunner<E, T, R>(activity: Activity<E, T, R>, protected open val 
         engine.execute(action)
     }
 
-    private fun scheduleAndThen(continuation: (environment: E, error: Throwable?) -> Unit,
-                                action: () -> Unit) {
+    private fun scheduleAndThen(continuation: (environment: E, error: Throwable?) -> Unit, action: () -> Unit) {
         schedule {
             safeExecute(continuation, action)
         }
     }
 
-    private fun scheduleAndThen(continuation: (environment: E, data: T, error: Throwable?) -> Unit,
-                                action: () -> Unit) {
+    private fun scheduleAndThen(continuation: (environment: E, data: T, error: Throwable?) -> Unit, action: () -> Unit) {
         schedule {
             safeExecute(continuation, action)
         }
