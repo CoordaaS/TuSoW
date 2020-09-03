@@ -36,7 +36,7 @@ abstract class AbstractEventLoop<E> : EventLoop<E> {
     private val emptyData = Optional.empty<E>()
 
     override fun onBegin(input: Unit, controller: Activity.Controller<Unit, Optional<E>, Unit>) {
-        controller.`continue`(emptyData)
+        onStep(input, Optional.empty(), controller)
     }
 
     override fun onStep(input: Unit, lastData: Optional<E>, controller: Activity.Controller<Unit, Optional<E>, Unit>) {
