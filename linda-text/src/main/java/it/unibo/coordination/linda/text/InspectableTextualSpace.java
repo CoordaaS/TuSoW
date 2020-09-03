@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 public interface InspectableTextualSpace extends TextualSpace, InspectableTupleSpace<StringTuple, RegexTemplate, Object, String, RegularMatch> {
 
     static InspectableTextualSpace local(String name, ExecutorService executorService) {
-        return new TextualSpaceImpl(name, executorService);
+        return name == null ? new TextualSpaceImpl(executorService) : new TextualSpaceImpl(name, executorService);
     }
 
     static InspectableTextualSpace local(String name) {

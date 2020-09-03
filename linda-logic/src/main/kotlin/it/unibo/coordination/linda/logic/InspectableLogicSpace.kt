@@ -11,7 +11,10 @@ interface InspectableLogicSpace : LogicSpace, InspectableTupleSpace<LogicTuple, 
 
         @JvmStatic
         fun local(name: String?, executorService: ExecutorService): InspectableLogicSpace {
-            return LogicSpaceImpl(name, executorService)
+            return when (name) {
+                null -> LogicSpaceImpl(executor = executorService)
+                else -> LogicSpaceImpl(name, executorService)
+            }
         }
 
         @JvmStatic

@@ -148,6 +148,10 @@ constructor(
         }
     }
 
+    override fun onTaking(tuple: T) {
+        callbacks.onTaking(tuple)
+        resumePendingAbsentRequests(tuple)
+    }
 
     override fun onWriting(tuple: T) {
         callbacks.onWriting(tuple)

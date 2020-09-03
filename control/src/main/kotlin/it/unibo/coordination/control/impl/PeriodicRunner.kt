@@ -13,9 +13,6 @@ class PeriodicRunner<E, T, R>(private val period: Duration, activity: Activity<E
     constructor(period: Long, activity: Activity<E, T, R>, engine: TimedEngine = Engines.defaultTimedEngine)
             : this(Duration.ofMillis(period), activity, engine)
 
-    constructor(amount: Long, unit: TimeUnit, activity: Activity<E, T, R>, engine: TimedEngine = Engines.defaultTimedEngine)
-            : this(Duration.of(amount, unit.toChronoUnit()), activity, engine)
-
     override fun schedule(action: () -> Unit) {
         engine.schedule(action, period.toMillis(), TimeUnit.MILLISECONDS)
     }
