@@ -2,28 +2,31 @@ package it.unibo.coordination.linda.core
 
 import java.util.*
 
-enum class OperationType(val classicName: String) {
-    GET("get"),
-    SET("set"),
+enum class OperationType {
+    GET,
+    SET,
 
-    WRITE("out"),
-    READ("rd"),
-    TAKE("in"),
-    ABSENT("no"),
+    WRITE,
+    READ,
+    TAKE,
+    ABSENT,
 
-    WRITE_ALL("out_all"),
-    READ_ALL("rd_all"),
-    TAKE_ALL("take_all"),
+    WRITE_ALL,
+    READ_ALL,
+    TAKE_ALL,
 
-    TRY_READ("rdp"),
-    TRY_TAKE("inp"),
-    TRY_ABSENT("nop");
+    TRY_READ,
+    TRY_TAKE,
+    TRY_ABSENT,
+
+    GET_SIZE,
+    GET_PENDING_REQUESTS;
 
 
     companion object {
 
         @JvmStatic
-        val NOTHING_ACCEPTING: EnumSet<OperationType> = EnumSet.of(GET)
+        val NOTHING_ACCEPTING: EnumSet<OperationType> = EnumSet.of(GET, GET_SIZE, GET_PENDING_REQUESTS)
 
         @JvmStatic
         private val TEMPLATE_ACCEPTING = EnumSet.of(READ, TAKE, TRY_TAKE, TRY_READ, ABSENT, TRY_ABSENT, READ_ALL, TAKE_ALL)
@@ -48,6 +51,14 @@ enum class OperationType(val classicName: String) {
 
         @JvmStatic
         private val TEMPLATES_RETURNING = EnumSet.of(TRY_ABSENT)
+
+        @JvmStatic
+        private val ANY_RETURNING = EnumSet.of(GET_SIZE, GET_PENDING_REQUESTS)
+
+        @JvmStatic
+        fun anyReturning(): EnumSet<OperationType> {
+            return ANY_RETURNING
+        }
 
         @JvmStatic
         fun nothingAcceptingSet(): EnumSet<OperationType> {
@@ -137,6 +148,11 @@ enum class OperationType(val classicName: String) {
         @JvmStatic
         fun isTemplatesReturning(type: OperationType): Boolean {
             return templatesReturningSet().contains(type)
+        }
+
+        @JvmStatic
+        fun isAnyReturning(type: OperationType): Boolean {
+            return anyReturning().contains(type)
         }
     }
 }

@@ -7,12 +7,15 @@ import it.unibo.tuprolog.collections.RetrieveResult
 import it.unibo.tuprolog.core.Clause
 import it.unibo.tuprolog.core.Fact
 import it.unibo.tuprolog.core.Term
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.stream.Stream
 import kotlin.streams.asStream
 
-internal abstract class AbstractLogicSpaceImpl(name: String?, executor: ExecutorService) :
-        AbstractTupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch>(name, executor), InspectableLogicSpace {
+internal abstract class AbstractLogicSpaceImpl(
+        name: String = "${AbstractLogicSpaceImpl::class.simpleName}-${UUID.randomUUID()}",
+        executor: ExecutorService
+) : AbstractTupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch>(name, executor), InspectableLogicSpace {
 
     private val tupleStore = MutableClauseMultiSet.empty()
 

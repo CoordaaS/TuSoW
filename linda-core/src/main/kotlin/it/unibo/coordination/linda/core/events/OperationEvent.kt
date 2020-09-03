@@ -19,7 +19,8 @@ sealed class OperationEvent<T : Tuple<T>, TT : Template<T>>(
         open val argumentTuples: List<T> = emptyList(),
         open val argumentTemplates: List<TT> = emptyList(),
         open val resultTuples: MultiSet<T> = emptyMultiSet(),
-        open val resultTemplates: MultiSet<TT> = emptyMultiSet()
+        open val resultTemplates: MultiSet<TT> = emptyMultiSet(),
+        open val results: List<Any> = emptyList()
 ) : TupleSpaceEvent<T, TT> {
 
     val argumentTuple: Optional<T>
@@ -30,6 +31,9 @@ sealed class OperationEvent<T : Tuple<T>, TT : Template<T>>(
 
     val isArgumentPresent: Boolean
         get() = argumentTuples.isNotEmpty() || argumentTemplates.isNotEmpty()
+
+    val result: Optional<Any>
+        get() = results.stream().findFirst()
 
     val resultTuple: Optional<T>
         get() = resultTuples.stream().findFirst()
@@ -44,21 +48,26 @@ sealed class OperationEvent<T : Tuple<T>, TT : Template<T>>(
             override val tupleSpaceName: String,
             override val operationType: OperationType,
             override val argumentTuples: List<T>,
-            override val argumentTemplates: List<TT>)
-        : OperationEvent<T, TT>(tupleSpaceName,
+            override val argumentTemplates: List<TT>
+    ) : OperationEvent<T, TT>(tupleSpaceName,
             operationType,
             OperationPhase.INVOCATION,
             argumentTuples,
             argumentTemplates) {
 
-        private fun toCompletion(resultTuples: MultiSet<T> = emptyMultiSet(), resultTemplates: MultiSet<TT> = emptyMultiSet()): Completion<T, TT> {
+        private fun toCompletion(
+                resultTuples: MultiSet<T> = emptyMultiSet(),
+                resultTemplates: MultiSet<TT> = emptyMultiSet(),
+                results: List<Any> = emptyList()
+        ): Completion<T, TT> {
             return Completion(
                     tupleSpaceName = tupleSpaceName,
                     operationType = operationType,
                     argumentTuples = argumentTuples,
                     argumentTemplates = argumentTemplates,
                     resultTuples = resultTuples,
-                    resultTemplates = resultTemplates
+                    resultTemplates = resultTemplates,
+                    results = results
             )
         }
 
@@ -102,6 +111,14 @@ sealed class OperationEvent<T : Tuple<T>, TT : Template<T>>(
             )
         }
 
+        fun toAnyReturningCompletion(results: Collection<Any>): Completion<T, TT> {
+            check(OperationType.isAnyReturning(operationType))
+
+            return toCompletion(
+                    results = results.toList()
+            )
+        }
+
         fun toCompletion(resultTuples: Stream<out T>, resultTemplates: Stream<out TT>): Completion<T, TT> {
             return toCompletion(
                     resultTuples = resultTuples.map { it }.toMultiSet(),
@@ -116,7 +133,8 @@ sealed class OperationEvent<T : Tuple<T>, TT : Template<T>>(
             override val argumentTuples: List<T>,
             override val argumentTemplates: List<TT>,
             override val resultTuples: MultiSet<T>,
-            override val resultTemplates: MultiSet<TT>
+            override val resultTemplates: MultiSet<TT>,
+            override val results: List<Any>
     ) : OperationEvent<T, TT>(
             tupleSpaceName,
             operationType,
@@ -124,14 +142,23 @@ sealed class OperationEvent<T : Tuple<T>, TT : Template<T>>(
             argumentTuples,
             argumentTemplates,
             resultTuples,
-            resultTemplates
-    )
+            resultTemplates,
+            results)
 
     companion object {
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> of(tupleSpaceName: String, operationType: OperationType, operationPhase: OperationPhase, argumentTuples: Stream<out X> = Stream.empty(), argumentTemplates: Stream<out Y> = Stream.empty(), resultTuples: Stream<out X> = Stream.empty(), resultTemplates: Stream<out Y> = Stream.empty()): OperationEvent<X, Y> {
-            return when(operationPhase) {
+        fun <X : Tuple<X>, Y : Template<X>> of(
+                tupleSpaceName: String,
+                operationType: OperationType,
+                operationPhase: OperationPhase,
+                argumentTuples: Stream<out X> = Stream.empty(),
+                argumentTemplates: Stream<out Y> = Stream.empty(),
+                resultTuples: Stream<out X> = Stream.empty(),
+                resultTemplates: Stream<out Y> = Stream.empty(),
+                results: Stream<Any> = Stream.empty(),
+        ): OperationEvent<X, Y> {
+            return when (operationPhase) {
                 OperationPhase.INVOCATION -> invocation(
                         tupleSpaceName = tupleSpaceName,
                         operationType = operationType,
@@ -144,13 +171,19 @@ sealed class OperationEvent<T : Tuple<T>, TT : Template<T>>(
                         argumentTuples = argumentTuples,
                         argumentTemplates = argumentTemplates,
                         resultTuples = resultTuples,
-                        resultTemplates = resultTemplates
+                        resultTemplates = resultTemplates,
+                        results = results
                 )
             }
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> invocation(tupleSpaceName: String, operationType: OperationType, argumentTuples: Stream<out X> = Stream.empty(), argumentTemplates: Stream<out Y> = Stream.empty()): Invocation<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> invocation(
+                tupleSpaceName: String,
+                operationType: OperationType,
+                argumentTuples: Stream<out X> = Stream.empty(),
+                argumentTemplates: Stream<out Y> = Stream.empty()
+        ): Invocation<X, Y> {
             return Invocation(
                     tupleSpaceName = tupleSpaceName,
                     operationType = operationType,
@@ -160,14 +193,23 @@ sealed class OperationEvent<T : Tuple<T>, TT : Template<T>>(
         }
 
         @JvmStatic
-        fun <X : Tuple<X>, Y : Template<X>> completion(tupleSpaceName: String, operationType: OperationType, argumentTuples: Stream<out X> = Stream.empty(), argumentTemplates: Stream<out Y> = Stream.empty(), resultTuples: Stream<out X> = Stream.empty(), resultTemplates: Stream<out Y> = Stream.empty()): Completion<X, Y> {
+        fun <X : Tuple<X>, Y : Template<X>> completion(
+                tupleSpaceName: String,
+                operationType: OperationType,
+                argumentTuples: Stream<out X> = Stream.empty(),
+                argumentTemplates: Stream<out Y> = Stream.empty(),
+                resultTuples: Stream<out X> = Stream.empty(),
+                resultTemplates: Stream<out Y> = Stream.empty(),
+                results: Stream<out Any> = Stream.empty()
+        ): Completion<X, Y> {
             return Completion(
                     tupleSpaceName = tupleSpaceName,
                     operationType = operationType,
                     argumentTuples = argumentTuples.toList(),
                     argumentTemplates = argumentTemplates.toList(),
                     resultTuples = resultTuples.map { it }.toMultiSet(),
-                    resultTemplates = resultTemplates.map { it }.toMultiSet()
+                    resultTemplates = resultTemplates.map { it }.toMultiSet(),
+                    results = results.toList()
             )
         }
 

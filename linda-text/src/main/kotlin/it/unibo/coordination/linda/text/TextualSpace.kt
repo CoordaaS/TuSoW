@@ -76,12 +76,15 @@ interface TextualSpace : TupleSpace<StringTuple, RegexTemplate, Any, String, Reg
     companion object {
         @JvmStatic
         fun local(name: String?, executorService: ExecutorService): TextualSpace {
-            return TextualSpaceImpl(name, executorService)
+            return when (name) {
+                null -> TextualSpaceImpl(executorService)
+                else -> TextualSpaceImpl(name, executorService)
+            }
         }
 
         @JvmStatic
         fun local(name: String?): TextualSpace {
-            return TextualSpaceImpl(name, defaultEngine)
+            return local(name, defaultEngine)
         }
 
         @JvmStatic

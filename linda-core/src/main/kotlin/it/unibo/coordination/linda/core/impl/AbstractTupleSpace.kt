@@ -3,8 +3,6 @@ package it.unibo.coordination.linda.core.impl
 import it.unibo.coordination.Promise
 import it.unibo.coordination.linda.core.*
 import it.unibo.coordination.linda.core.events.OperationEvent
-import it.unibo.coordination.linda.core.events.PendingRequestEvent
-import it.unibo.coordination.linda.core.events.TupleEvent
 import it.unibo.coordination.linda.core.traits.Inspectability
 import it.unibo.coordination.utils.asStream
 import it.unibo.coordination.utils.toMultiSet
@@ -21,17 +19,19 @@ import kotlin.streams.toList
 abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>>
 @JvmOverloads
 constructor(
-        name: String?,
+        override val name: String = "${AbstractTupleSpace::class.simpleName}-${UUID.randomUUID()})",
         val executor: ExecutorService,
-        private val emitters: InspectabilityEmitters<T, TT> = InspectabilityEmitters()
-) : InspectableTupleSpace<T, TT, K, V, M>, TupleSpaceImplementor<T, TT, K, V, M>, Inspectability<T, TT> by emitters {
+        private val emitters: InspectabilityEmitters<T, TT> = InspectabilityEmitters(),
+        private val callbacks: TupleSpaceInteralCallbacks<T, TT> = InspectabilityCallbacks(name, emitters)
+) : InspectableTupleSpace<T, TT, K, V, M>,
+        TupleSpaceImplementor<T, TT, K, V, M>,
+        Inspectability<T, TT> by emitters,
+        TupleSpaceInteralCallbacks<T, TT> by callbacks {
 
     companion object {
         @JvmStatic
         private val LOGGER: Logger = LoggerFactory.getLogger(this::class.java.name)
     }
-
-    override val name: String by lazy { name ?: this.javaClass.simpleName + "_" + System.identityHashCode(this) }
 
     private val lock = ReentrantLock(true)
 
@@ -148,58 +148,10 @@ constructor(
         }
     }
 
-    override fun onSuspending(request: PendingRequest<T, TT>) {
-        emitters.pendingRequestEventEmitter.syncEmit(
-                PendingRequestEvent.of(name, PendingRequestEvent.Effect.SUSPENDING, request)
-        )
-    }
-
-    override fun onResuming(request: PendingRequest<T, TT>) {
-        emitters.pendingRequestEventEmitter.syncEmit(
-                PendingRequestEvent.of(name, PendingRequestEvent.Effect.RESUMING, request)
-        )
-    }
-
-    override fun onTaking(tuple: T) {
-        emitters.tupleEventEmitter.syncEmit(TupleEvent.beforeTaking(name, tuple))
-        resumePendingAbsentRequests(tuple)
-    }
-
-    override fun onTaken(tuple: T) {
-        emitters.tupleEventEmitter.syncEmit(TupleEvent.afterTaking(name, tuple))
-    }
-
-    override fun onReading(tuple: T) {
-        emitters.tupleEventEmitter.syncEmit(TupleEvent.beforeReading(name, tuple))
-    }
-
-    override fun onRead(tuple: T) {
-        emitters.tupleEventEmitter.syncEmit(TupleEvent.afterReading(name, tuple))
-    }
 
     override fun onWriting(tuple: T) {
-        emitters.tupleEventEmitter.syncEmit(TupleEvent.beforeWriting(name, tuple))
+        callbacks.onWriting(tuple)
         resumePendingAccessRequests(tuple).ifPresent { insertTuple(it) }
-    }
-
-    override fun onWritten(tuple: T) {
-        emitters.tupleEventEmitter.syncEmit(TupleEvent.afterWriting(name, tuple))
-    }
-
-    override fun onMissing(template: TT) {
-        emitters.tupleEventEmitter.syncEmit(TupleEvent.beforeAbsent(name, template))
-    }
-
-    override fun onMissing(template: TT, counterExample: T) {
-        emitters.tupleEventEmitter.syncEmit(TupleEvent.beforeAbsent(name, template, counterExample))
-    }
-
-    override fun onMissed(template: TT) {
-        emitters.tupleEventEmitter.syncEmit(TupleEvent.afterAbsent(name, template))
-    }
-
-    override fun onMissed(template: TT, counterExample: T) {
-        emitters.tupleEventEmitter.syncEmit(TupleEvent.afterAbsent(name, template, counterExample))
     }
 
     override fun getAllPendingRequests(): Promise<Collection<PendingRequest<T, TT>>> {

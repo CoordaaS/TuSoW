@@ -7,6 +7,7 @@ import org.apache.commons.collections4.multiset.HashMultiSet;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
@@ -17,6 +18,10 @@ class TextualSpaceImpl extends AbstractTupleSpace<StringTuple, RegexTemplate, Ob
 
     public TextualSpaceImpl(String name, ExecutorService executor) {
         super(name, executor);
+    }
+
+    public TextualSpaceImpl(ExecutorService executor) {
+        super(String.format("%s-%s", TextualSpaceImpl.class.getSimpleName(), UUID.randomUUID()), executor);
     }
 
     @Override

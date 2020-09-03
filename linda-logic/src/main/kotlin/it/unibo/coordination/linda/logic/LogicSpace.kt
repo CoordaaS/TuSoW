@@ -55,7 +55,11 @@ interface LogicSpace : TupleSpace<LogicTuple, LogicTemplate, String, Term, Logic
     companion object {
 
         @JvmStatic
-        fun local(name: String?, executorService: ExecutorService): LogicSpace = LogicSpaceImpl(name, executorService)
+        fun local(name: String?, executorService: ExecutorService): LogicSpace =
+                when (name) {
+                    null -> LogicSpaceImpl(executor = executorService)
+                    else -> LogicSpaceImpl(name, executorService)
+                }
 
         @JvmStatic
         fun local(name: String?): LogicSpace = local(name, Engines.defaultEngine)
