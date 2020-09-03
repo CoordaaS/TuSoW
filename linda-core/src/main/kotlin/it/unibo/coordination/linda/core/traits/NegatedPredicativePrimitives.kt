@@ -2,7 +2,6 @@ package it.unibo.coordination.linda.core.traits
 
 import it.unibo.coordination.Promise
 import it.unibo.coordination.linda.core.Match
-import it.unibo.coordination.linda.core.NegatedTupleSpace
 import it.unibo.coordination.linda.core.Template
 import it.unibo.coordination.linda.core.Tuple
 import java.util.*

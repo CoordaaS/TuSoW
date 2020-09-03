@@ -5,10 +5,8 @@ import it.unibo.coordination.linda.core.*
 import it.unibo.coordination.linda.core.events.OperationEvent
 import it.unibo.coordination.linda.core.events.PendingRequestEvent
 import it.unibo.coordination.linda.core.events.TupleEvent
+import it.unibo.coordination.linda.core.traits.Inspectability
 import it.unibo.coordination.utils.asStream
-import it.unibo.coordination.utils.events.EventSource
-import it.unibo.coordination.utils.events.SyncEventEmitter
-import it.unibo.coordination.utils.events.filterByType
 import it.unibo.coordination.utils.toMultiSet
 import org.apache.commons.collections4.MultiSet
 import org.apache.commons.collections4.multiset.HashMultiSet
@@ -17,82 +15,27 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.locks.ReentrantLock
-import java.util.stream.Stream
 import kotlin.streams.toList
 
 
-@Suppress("MemberVisibilityCanBePrivate")
 abstract class AbstractTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>>
-constructor(name: String?, val executor: ExecutorService)
-    : InspectableTupleSpace<T, TT, K, V, M> {
+@JvmOverloads
+constructor(
+        name: String?,
+        val executor: ExecutorService,
+        private val emitters: InspectabilityEmitters<T, TT> = InspectabilityEmitters()
+) : InspectableTupleSpace<T, TT, K, V, M>, TupleSpaceImplementor<T, TT, K, V, M>, Inspectability<T, TT> by emitters {
 
     companion object {
         @JvmStatic
         private val LOGGER: Logger = LoggerFactory.getLogger(this::class.java.name)
     }
 
-    override val name: String = name ?: this.javaClass.simpleName + "_" + System.identityHashCode(this)
+    override val name: String by lazy { name ?: this.javaClass.simpleName + "_" + System.identityHashCode(this) }
 
     private val lock = ReentrantLock(true)
 
-    private val tupleEventEmitter: SyncEventEmitter<TupleEvent<T, TT>> =
-            SyncEventEmitter.ordered()
-    final override val tupleEvent: EventSource<TupleEvent<T, TT>>
-        get() = tupleEventEmitter.eventSource
-
-    private val operationEventEmitter: SyncEventEmitter<OperationEvent<T, TT>> =
-            SyncEventEmitter.ordered()
-    final override val operationEvent: EventSource<OperationEvent<T, TT>>
-        get() = operationEventEmitter.eventSource
-
-    private val pendingRequestEventEmitter: SyncEventEmitter<PendingRequestEvent<T, TT>> =
-            SyncEventEmitter.ordered()
-    final override val pendingRequestEvent: EventSource<PendingRequestEvent<T, TT>>
-        get() = pendingRequestEventEmitter.eventSource
-
-    override val operationInvoked: EventSource<OperationEvent.Invocation<T, TT>> =
-            operationEvent.filterByType()
-
-    override val operationCompleted: EventSource<OperationEvent.Completion<T, TT>> =
-            operationEvent.filterByType()
-
-    override val tupleWriting: EventSource<TupleEvent.Writing<T, TT>> =
-            tupleEvent.filter { it.isBefore }.filterByType()
-
-    override val tupleReading: EventSource<TupleEvent.Reading<T, TT>> =
-            tupleEvent.filter { it.isBefore }.filterByType()
-
-    override val tupleTaking: EventSource<TupleEvent.Taking<T, TT>> =
-            tupleEvent.filter { it.isBefore }.filterByType()
-
-    override val tupleMissing: EventSource<TupleEvent.Missing<T, TT>> =
-            tupleEvent.filter { it.isBefore }.filterByType()
-
-    override val tupleWritten: EventSource<TupleEvent.Writing<T, TT>> =
-            tupleEvent.filter { it.isAfter }.filterByType()
-
-    override val tupleRead: EventSource<TupleEvent.Reading<T, TT>> =
-            tupleEvent.filter { it.isAfter }.filterByType()
-
-    override val tupleTaken: EventSource<TupleEvent.Taking<T, TT>> =
-            tupleEvent.filter { it.isAfter }.filterByType()
-
-    override val tupleMissed: EventSource<TupleEvent.Missing<T, TT>> =
-            tupleEvent.filter { it.isAfter }.filterByType()
-
-    override val pendingRequestSuspended: EventSource<PendingRequestEvent.Suspending<T, TT>> =
-            pendingRequestEvent.filterByType()
-
-    override val pendingRequestResumed: EventSource<PendingRequestEvent.Resuming<T, TT>> =
-            pendingRequestEvent.filterByType()
-
-    protected abstract val pendingRequests: MutableCollection<LocalPendingRequest<T, TT, M>>
-
-    protected open val pendingRequestsIterator: MutableIterator<LocalPendingRequest<T, TT, M>>
-        get() = pendingRequests.iterator()
-
-    protected abstract val allTuples: Stream<T>
-
+    @Suppress("MemberVisibilityCanBePrivate")
     protected fun <R> atomically(block: () -> R): R {
         try {
             lock.lock()
@@ -102,6 +45,7 @@ constructor(name: String?, val executor: ExecutorService)
         }
     }
 
+    @Suppress("MemberVisibilityCanBePrivate", "MemberVisibilityCanBePrivate")
     protected fun postpone(block: () -> Unit) {
         try {
             executor.execute(block)
@@ -111,18 +55,21 @@ constructor(name: String?, val executor: ExecutorService)
         }
     }
 
+    @Suppress("MemberVisibilityCanBePrivate")
     protected fun <R> postpone(f: (Promise<R>) -> Unit): Promise<R> {
         val promise = Promise<R>()
         postpone { f(promise) }
         return promise
     }
 
+    @Suppress("MemberVisibilityCanBePrivate")
     protected fun <T, R> postpone(f: (T, Promise<R>) -> Unit, arg: T): Promise<R> {
         val promise = Promise<R>()
         postpone { f(arg, promise) }
         return promise
     }
 
+    @Suppress("MemberVisibilityCanBePrivate")
     protected fun log(format: String, vararg args: Any) {
         if (LOGGER.isInfoEnabled) {
             LOGGER.info(String.format("[$name] $format", *args))
@@ -140,6 +87,7 @@ constructor(name: String?, val executor: ExecutorService)
         return Objects.hash(name, executor)
     }
 
+    @Suppress("MemberVisibilityCanBePrivate")
     protected fun addPendingRequest(request: LocalPendingRequest<T, TT, M>) {
         pendingRequests.add(request)
     }
@@ -150,12 +98,12 @@ constructor(name: String?, val executor: ExecutorService)
 
     override fun read(template: TT): Promise<M> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(name, OperationType.READ, template)
-        operationEventEmitter.syncEmit(invocationEvent)
+        emitters.operationEventEmitter.syncEmit(invocationEvent)
         log("Invoked `read` operation on template: %s", template)
         return postpone(this::handleRead, template)
                 .map {
                     it.also {
-                        operationEventEmitter.syncEmit(invocationEvent.toTupleReturningCompletion(it.tuple.get()))
+                        emitters.operationEventEmitter.syncEmit(invocationEvent.toTupleReturningCompletion(it.tuple.get()))
                         log("Completed `read` operation on template '%s', result: %s", template, it)
                     }
                 }
@@ -174,22 +122,14 @@ constructor(name: String?, val executor: ExecutorService)
         }
     }
 
-    protected open fun lookForTuples(template: TT): Stream<out M> {
-        return lookForTuples(template, Integer.MAX_VALUE)
-    }
-
-    protected abstract fun lookForTuples(template: TT, limit: Int): Stream<out M>
-
-    protected abstract fun lookForTuple(template: TT): M
-
     override fun take(template: TT): Promise<M> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(name, OperationType.TAKE, template)
-        operationEventEmitter.syncEmit(invocationEvent)
+        emitters.operationEventEmitter.syncEmit(invocationEvent)
         log("Invoked `take` operation on template: %s", template)
         return postpone(this::handleTake, template)
                 .map {
                     it.also {
-                        operationEventEmitter.syncEmit(invocationEvent.toTupleReturningCompletion(it.tuple.get()))
+                        emitters.operationEventEmitter.syncEmit(invocationEvent.toTupleReturningCompletion(it.tuple.get()))
                         log("Completed `take` operation on template '%s', result: %s", template, it)
                     }
                 }
@@ -208,62 +148,58 @@ constructor(name: String?, val executor: ExecutorService)
         }
     }
 
-    private fun onSuspending(request: PendingRequest<T, TT>) {
-        pendingRequestEventEmitter.syncEmit(
+    override fun onSuspending(request: PendingRequest<T, TT>) {
+        emitters.pendingRequestEventEmitter.syncEmit(
                 PendingRequestEvent.of(name, PendingRequestEvent.Effect.SUSPENDING, request)
         )
     }
 
-    private fun onResuming(request: PendingRequest<T, TT>) {
-        pendingRequestEventEmitter.syncEmit(
+    override fun onResuming(request: PendingRequest<T, TT>) {
+        emitters.pendingRequestEventEmitter.syncEmit(
                 PendingRequestEvent.of(name, PendingRequestEvent.Effect.RESUMING, request)
         )
     }
 
-    private fun onTaking(tuple: T) {
-        tupleEventEmitter.syncEmit(TupleEvent.beforeTaking(name, tuple))
+    override fun onTaking(tuple: T) {
+        emitters.tupleEventEmitter.syncEmit(TupleEvent.beforeTaking(name, tuple))
         resumePendingAbsentRequests(tuple)
     }
 
-    private fun onTaken(tuple: T) {
-        tupleEventEmitter.syncEmit(TupleEvent.afterTaking(name, tuple))
+    override fun onTaken(tuple: T) {
+        emitters.tupleEventEmitter.syncEmit(TupleEvent.afterTaking(name, tuple))
     }
 
-    private fun onReading(tuple: T) {
-        tupleEventEmitter.syncEmit(TupleEvent.beforeReading(name, tuple))
+    override fun onReading(tuple: T) {
+        emitters.tupleEventEmitter.syncEmit(TupleEvent.beforeReading(name, tuple))
     }
 
-    private fun onRead(tuple: T) {
-        tupleEventEmitter.syncEmit(TupleEvent.afterReading(name, tuple))
+    override fun onRead(tuple: T) {
+        emitters.tupleEventEmitter.syncEmit(TupleEvent.afterReading(name, tuple))
     }
 
-    private fun onWriting(tuple: T) {
-        tupleEventEmitter.syncEmit(TupleEvent.beforeWriting(name, tuple))
+    override fun onWriting(tuple: T) {
+        emitters.tupleEventEmitter.syncEmit(TupleEvent.beforeWriting(name, tuple))
         resumePendingAccessRequests(tuple).ifPresent { insertTuple(it) }
     }
 
-    private fun onWritten(tuple: T) {
-        tupleEventEmitter.syncEmit(TupleEvent.afterWriting(name, tuple))
+    override fun onWritten(tuple: T) {
+        emitters.tupleEventEmitter.syncEmit(TupleEvent.afterWriting(name, tuple))
     }
 
-    private fun onMissing(template: TT) {
-        tupleEventEmitter.syncEmit(TupleEvent.beforeAbsent(name, template))
+    override fun onMissing(template: TT) {
+        emitters.tupleEventEmitter.syncEmit(TupleEvent.beforeAbsent(name, template))
     }
 
-    private fun onMissing(template: TT, counterExample: T) {
-        tupleEventEmitter.syncEmit(TupleEvent.beforeAbsent(name, template, counterExample))
+    override fun onMissing(template: TT, counterExample: T) {
+        emitters.tupleEventEmitter.syncEmit(TupleEvent.beforeAbsent(name, template, counterExample))
     }
 
-    private fun onMissed(template: TT) {
-        tupleEventEmitter.syncEmit(TupleEvent.afterAbsent(name, template))
+    override fun onMissed(template: TT) {
+        emitters.tupleEventEmitter.syncEmit(TupleEvent.afterAbsent(name, template))
     }
 
-    private fun onMissed(template: TT, counterExample: T) {
-        tupleEventEmitter.syncEmit(TupleEvent.afterAbsent(name, template, counterExample))
-    }
-
-    protected open fun retrieveTuples(template: TT): Stream<out M> {
-        return retrieveTuples(template, Integer.MAX_VALUE)
+    override fun onMissed(template: TT, counterExample: T) {
+        emitters.tupleEventEmitter.syncEmit(TupleEvent.afterAbsent(name, template, counterExample))
     }
 
     override fun getAllPendingRequests(): Promise<Collection<PendingRequest<T, TT>>> {
@@ -283,17 +219,13 @@ constructor(name: String?, val executor: ExecutorService)
         result.complete(requests)
     }
 
-    protected abstract fun retrieveTuples(template: TT, limit: Int): Stream<out M>
-
-    protected abstract fun retrieveTuple(template: TT): M
-
     override fun write(tuple: T): Promise<T> {
         val invocationEvent = OperationEvent.tupleAcceptingInvocation<T, TT>(name, OperationType.WRITE, tuple)
-        operationEventEmitter.syncEmit(invocationEvent)
+        emitters.operationEventEmitter.syncEmit(invocationEvent)
         log("Invoked `write` operation for of: %s", tuple)
         return postpone(this::handleWrite, tuple).map {
             it.also {
-                operationEventEmitter.syncEmit(invocationEvent.toTupleReturningCompletion(it))
+                emitters.operationEventEmitter.syncEmit(invocationEvent.toTupleReturningCompletion(it))
                 log("Completed `write` operation on tuple '%s', result: %s", tuple, it)
             }
         }
@@ -305,10 +237,6 @@ constructor(name: String?, val executor: ExecutorService)
         promise.complete(tuple)
         onWritten(tuple)
     }
-
-    protected abstract fun match(template: TT, tuple: T): M
-
-    protected abstract fun insertTuple(tuple: T)
 
     private fun resumePendingAccessRequests(insertedTuple: T): Optional<T> {
         var result = Optional.of(insertedTuple)
@@ -342,11 +270,11 @@ constructor(name: String?, val executor: ExecutorService)
 
     override fun get(): Promise<Collection<T>> {
         val invocationEvent = OperationEvent.nothingAcceptingInvocation<T, TT>(name, OperationType.GET)
-        operationEventEmitter.syncEmit(invocationEvent)
+        emitters.operationEventEmitter.syncEmit(invocationEvent)
         log("Invoked `get` operation")
         return postpone(this::handleGet).map { tuples ->
             tuples.also {
-                operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(tuples))
+                emitters.operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(tuples))
                 log("Completed `get` operation, result: %s", tuples)
             }
         }
@@ -367,8 +295,6 @@ constructor(name: String?, val executor: ExecutorService)
         }
     }
 
-    protected abstract fun countTuples(): Int
-
     private fun handleGetSize(promise: Promise<Int>): Unit = atomically {
         val count = countTuples()
         promise.complete(count)
@@ -376,11 +302,11 @@ constructor(name: String?, val executor: ExecutorService)
 
     override fun readAll(template: TT): Promise<Collection<M>> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(name, OperationType.READ_ALL, template)
-        operationEventEmitter.syncEmit(invocationEvent)
+        emitters.operationEventEmitter.syncEmit(invocationEvent)
         log("Invoked `readAll` operation on template %s", template)
         return postpone(this::handleReadAll, template).map { tuples ->
             tuples.also {
-                operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(
+                emitters.operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(
                         tuples.stream().map { it.tuple.get() }
                 ))
                 log("Completed `readAll` operation on template '%s', result: %s", template, tuples)
@@ -397,11 +323,11 @@ constructor(name: String?, val executor: ExecutorService)
 
     override fun takeAll(template: TT): Promise<Collection<M>> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(name, OperationType.TAKE_ALL, template)
-        operationEventEmitter.syncEmit(invocationEvent)
+        emitters.operationEventEmitter.syncEmit(invocationEvent)
         log("Invoked `takeAll` operation on template %s", template)
         return postpone(this::handleTakeAll, template).map { tuples ->
             tuples.also {
-                operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(
+                emitters.operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(
                         tuples.stream().map { it.tuple }.map { it.get() }
                 ))
                 log("Completed `takeAll` operation on template '%s', result: %s", template, tuples)
@@ -418,11 +344,11 @@ constructor(name: String?, val executor: ExecutorService)
 
     override fun writeAll(tuples: Collection<T>): Promise<Collection<T>> {
         val invocationEvent = OperationEvent.tuplesAcceptingInvocation<T, TT>(name, OperationType.WRITE_ALL, tuples)
-        operationEventEmitter.syncEmit(invocationEvent)
+        emitters.operationEventEmitter.syncEmit(invocationEvent)
         log("Invoked `writeAll` operation on tuples: %s", tuples)
         return postpone(this::handleWriteAll, tuples).map { ts ->
             ts.also {
-                operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(ts))
+                emitters.operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(ts))
                 log("Completed `writeAll` operation on tuples %s, result: %s", tuples, ts)
             }
         }
@@ -441,11 +367,11 @@ constructor(name: String?, val executor: ExecutorService)
 
     override fun tryTake(template: TT): Promise<M> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(name, OperationType.TRY_TAKE, template)
-        operationEventEmitter.syncEmit(invocationEvent)
+        emitters.operationEventEmitter.syncEmit(invocationEvent)
         log("Invoked `tryTake` operation on template: %s", template)
         return postpone(this::handleTryTake, template).map {
             it.also {
-                operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(it.tuple.asStream().toList()))
+                emitters.operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(it.tuple.asStream().toList()))
                 log("Completed `tryTake` operation on template '%s', result: %s", template, it)
             }
         }
@@ -460,11 +386,11 @@ constructor(name: String?, val executor: ExecutorService)
 
     override fun tryRead(template: TT): Promise<M> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(name, OperationType.TRY_READ, template)
-        operationEventEmitter.syncEmit(invocationEvent)
+        emitters.operationEventEmitter.syncEmit(invocationEvent)
         log("Invoked `tryRead` operation on template: %s", template)
         return postpone(this::handleTryRead, template).map {
             it.also {
-                operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(it.tuple.asStream().toList()))
+                emitters.operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(it.tuple.asStream().toList()))
                 log("Completed `tryRead` operation on template '%s', result: %s", template, it)
             }
         }
@@ -485,17 +411,15 @@ constructor(name: String?, val executor: ExecutorService)
 
     override fun absent(template: TT): Promise<M> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(name, OperationType.ABSENT, template)
-        operationEventEmitter.syncEmit(invocationEvent)
+        emitters.operationEventEmitter.syncEmit(invocationEvent)
         log("Invoked `absent` operation on template: %s", template)
         return postpone(this::handleAbsent, template).map {
             it.also {
-                operationEventEmitter.syncEmit(invocationEvent.toTemplateReturningCompletion(it.template))
+                emitters.operationEventEmitter.syncEmit(invocationEvent.toTemplateReturningCompletion(it.template))
                 log("Completed `absent` operation on template '%s', result: %s", template, it)
             }
         }
     }
-
-    protected abstract fun failedMatch(template: TT): M
 
     private fun handleAbsent(template: TT, promise: Promise<M>): Unit = atomically {
         val read = lookForTuple(template)
@@ -529,11 +453,11 @@ constructor(name: String?, val executor: ExecutorService)
 
     override fun tryAbsent(template: TT): Promise<M> {
         val invocationEvent = OperationEvent.templateAcceptingInvocation(name, OperationType.TRY_ABSENT, template)
-        operationEventEmitter.syncEmit(invocationEvent)
+        emitters.operationEventEmitter.syncEmit(invocationEvent)
         log("Invoked `tryAbsent` operation on template: %s", template)
         return postpone(this::handleTryAbsent, template).map {
             it.also {
-                operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(it.tuple.asStream().toList()))
+                emitters.operationEventEmitter.syncEmit(invocationEvent.toTuplesReturningCompletion(it.tuple.asStream().toList()))
                 log("Completed `tryAbsent` operation on template '%s', result: %s", template, it)
             }
         }

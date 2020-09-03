@@ -20,12 +20,12 @@ class TextualSpaceImpl extends AbstractTupleSpace<StringTuple, RegexTemplate, Ob
     }
 
     @Override
-    protected Collection<LocalPendingRequest<StringTuple, RegexTemplate, RegularMatch>> getPendingRequests() {
+    public Collection<LocalPendingRequest<StringTuple, RegexTemplate, RegularMatch>> getPendingRequests() {
         return pendingRequests;
     }
 
     @Override
-    protected Stream<? extends RegularMatch> lookForTuples(RegexTemplate template, int limit) {
+    public Stream<? extends RegularMatch> lookForTuples(RegexTemplate template, int limit) {
         return tuples.stream()
                 .map(template::matchWith)
                 .filter(RegularMatch::isMatching)
@@ -33,7 +33,7 @@ class TextualSpaceImpl extends AbstractTupleSpace<StringTuple, RegexTemplate, Ob
     }
 
     @Override
-    protected RegularMatch lookForTuple(RegexTemplate template) {
+    public RegularMatch lookForTuple(RegexTemplate template) {
         return lookForTuples(template, 1)
                 .findFirst()
                 .map(RegularMatch.class::cast)
@@ -41,7 +41,7 @@ class TextualSpaceImpl extends AbstractTupleSpace<StringTuple, RegexTemplate, Ob
     }
 
     @Override
-    protected Stream<? extends RegularMatch> retrieveTuples(RegexTemplate template, int limit) {
+    public Stream<? extends RegularMatch> retrieveTuples(RegexTemplate template, int limit) {
         final Iterator<StringTuple> i = tuples.iterator();
         Stream.Builder<RegularMatch> result = Stream.builder();
         int j = 0;
@@ -61,34 +61,34 @@ class TextualSpaceImpl extends AbstractTupleSpace<StringTuple, RegexTemplate, Ob
     }
 
     @Override
-    protected RegularMatch retrieveTuple(RegexTemplate template) {
+    public RegularMatch retrieveTuple(RegexTemplate template) {
         return retrieveTuples(template, 1).findFirst()
                 .map(RegularMatch.class::cast)
                 .orElseGet(() -> RegularMatch.failed(template));
     }
 
     @Override
-    protected RegularMatch match(RegexTemplate template, StringTuple tuple) {
+    public RegularMatch match(RegexTemplate template, StringTuple tuple) {
         return template.matchWith(tuple);
     }
 
     @Override
-    protected void insertTuple(StringTuple tuple) {
+    public void insertTuple(StringTuple tuple) {
         tuples.add(tuple);
     }
 
     @Override
-    protected Stream<StringTuple> getAllTuples() {
+    public Stream<StringTuple> getAllTuples() {
         return tuples.stream();
     }
 
     @Override
-    protected int countTuples() {
+    public int countTuples() {
         return tuples.size();
     }
 
     @Override
-    protected RegularMatch failedMatch(RegexTemplate template) {
+    public RegularMatch failedMatch(RegexTemplate template) {
         return RegularMatch.failed(template);
     }
 }
