@@ -87,11 +87,6 @@ constructor(
         return Objects.hash(name, executor)
     }
 
-    @Suppress("MemberVisibilityCanBePrivate")
-    protected fun addPendingRequest(request: LocalPendingRequest<T, TT, M>) {
-        pendingRequests.add(request)
-    }
-
     protected fun <X, Y> Promise<X>.map(f: (X) -> Y): Promise<Y> {
         return thenApplyAsync({ f(it) }, executor)
     }
@@ -424,14 +419,6 @@ constructor(
         counterexample.tuple.ifPresent { onMissing(template, it) }
         promise.complete(counterexample)
         counterexample.tuple.ifPresent { onMissed(template, it) }
-    }
-
-    private fun newPendingAccessRequest(requestType: RequestTypes, template: TT, promise: Promise<M>): LocalPendingRequest<T, TT, M> {
-        return LocalPendingRequest(requestType, template, promise)
-    }
-
-    private fun newPendingAbsentRequest(template: TT, promise: Promise<M>): LocalPendingRequest<T, TT, M> {
-        return LocalPendingRequest(RequestTypes.ABSENT, template, promise)
     }
 }
 
