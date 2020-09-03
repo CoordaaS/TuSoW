@@ -1,9 +1,14 @@
-package it.unibo.coordination.linda.core
+package it.unibo.coordination.linda.core.traits
 
 import it.unibo.coordination.Promise
+import it.unibo.coordination.linda.core.Match
+import it.unibo.coordination.linda.core.Template
+import it.unibo.coordination.linda.core.Tuple
 import java.util.*
 
-interface PredicativeTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> : LindaTupleSpace<T, TT, K, V, M> {
+interface PredicativePrimitives<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>>
+    : TupleTemplateParsing<T, TT> {
+
     fun tryTake(template: TT): Promise<M>
 
     @JvmDefault
@@ -12,7 +17,7 @@ interface PredicativeTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<
 
     @JvmDefault
     fun tryTakeTuple(template: TT): Promise<Optional<T>> {
-        return tryTake(template).thenApplyAsync{ it.tuple }
+        return tryTake(template).thenApplyAsync { it.tuple }
     }
 
     @JvmDefault
@@ -27,7 +32,7 @@ interface PredicativeTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<
 
     @JvmDefault
     fun tryReadTuple(template: TT): Promise<Optional<T>> {
-        return tryRead(template).thenApplyAsync{ it.tuple }
+        return tryRead(template).thenApplyAsync { it.tuple }
     }
 
     @JvmDefault

@@ -1,12 +1,13 @@
-package it.unibo.coordination.linda.core
+package it.unibo.coordination.linda.core.traits
 
-import it.unibo.coordination.Promise
+import it.unibo.coordination.linda.core.Template
+import it.unibo.coordination.linda.core.Tuple
 import it.unibo.coordination.linda.core.events.OperationEvent
 import it.unibo.coordination.linda.core.events.PendingRequestEvent
 import it.unibo.coordination.linda.core.events.TupleEvent
 import it.unibo.coordination.utils.events.EventSource
 
-interface InspectableLindaTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> : LindaTupleSpace<T, TT, K, V, M> {
+interface Inspectability<T : Tuple<T>, TT : Template<T>> {
     val operationInvoked: EventSource<OperationEvent.Invocation<T, TT>>
 
     val operationEvent: EventSource<OperationEvent<T, TT>>
@@ -37,5 +38,4 @@ interface InspectableLindaTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : M
 
     val pendingRequestResumed: EventSource<PendingRequestEvent.Resuming<T, TT>>
 
-    fun getAllPendingRequests(): Promise<Collection<PendingRequest<T, TT>>>
 }

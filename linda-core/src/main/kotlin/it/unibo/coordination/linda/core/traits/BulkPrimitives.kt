@@ -1,9 +1,13 @@
-package it.unibo.coordination.linda.core
+package it.unibo.coordination.linda.core.traits
 
 import it.unibo.coordination.Promise
+import it.unibo.coordination.linda.core.Match
+import it.unibo.coordination.linda.core.Template
+import it.unibo.coordination.linda.core.Tuple
 import org.apache.commons.collections4.multiset.HashMultiSet
 
-interface BulkTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> : LindaTupleSpace<T, TT, K, V, M> {
+interface BulkPrimitives<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>>
+    : TupleTemplateParsing<T, TT> {
 
     fun readAll(template: TT): Promise<Collection<M>>
 

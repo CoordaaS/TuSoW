@@ -1,10 +1,12 @@
-package it.unibo.coordination.linda.core
+package it.unibo.coordination.linda.core.traits
 
 import it.unibo.coordination.Promise
+import it.unibo.coordination.linda.core.Match
+import it.unibo.coordination.linda.core.Template
+import it.unibo.coordination.linda.core.Tuple
 
-interface LindaTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>> {
-
-    val name: String
+interface LindaPrimitives<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT, K, V>>
+    : TupleTemplateParsing<T, TT> {
 
     fun read(template: TT): Promise<M>
 
@@ -45,8 +47,4 @@ interface LindaTupleSpace<T : Tuple<T>, TT : Template<T>, K, V, M : Match<T, TT,
     fun get(): Promise<Collection<T>>
 
     fun getSize(): Promise<Int>
-
-    fun String.toTuple(): T
-
-    fun String.toTemplate(): TT
 }
