@@ -1,7 +1,9 @@
 package it.unibo.coordination.control
 
+import org.junit.Ignore
 import java.util.concurrent.Semaphore
 
+@Ignore
 class TestBackgroundActivity : AbstractTestActivity() {
 
     override fun <E, R> run(activity: Activity<E, *, R>, input: E, resultHandler: (R) -> Unit) {

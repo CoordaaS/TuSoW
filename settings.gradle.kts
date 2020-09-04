@@ -20,5 +20,6 @@ include("control")
 include("agency")
 
 include("respect-core")
+include("respect-logic")
 
 include("tusow-full")

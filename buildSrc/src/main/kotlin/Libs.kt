@@ -41,6 +41,12 @@ object Libs {
     /**
      * https://gitlab.com/pika-lab/tuprolog/2p-in-kotlin
      */
+    const val solve_classic_jvm: String = "it.unibo.tuprolog:solve-classic-jvm:" +
+            Versions.it_unibo_tuprolog
+
+    /**
+     * https://gitlab.com/pika-lab/tuprolog/2p-in-kotlin
+     */
     const val serialize_core_jvm: String = "it.unibo.tuprolog:serialize-core-jvm:" +
             Versions.it_unibo_tuprolog
 
