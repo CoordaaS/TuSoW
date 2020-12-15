@@ -48,11 +48,19 @@ abstract class FSARunner<E, T, R>(override val activity: Activity<E, T, R>) : Ru
 
     }
 
+    @Volatile
     private var state: State? = CREATED
+
+    @Volatile
     private var continuation: Continuation = CONTINUE
 
+    @Volatile
     protected var environment: E? = null
+
+    @Volatile
     protected var data: T? = null
+
+    @Volatile
     protected var result: R? = null
 
     override val isOver: Boolean

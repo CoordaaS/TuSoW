@@ -2,14 +2,21 @@ package it.unibo.coordination.control
 
 import it.unibo.coordination.Engines
 import it.unibo.coordination.testing.assertLastsAtLeast
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.time.Duration
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
-class TestSyncActivity : AbstractTestActivity() {
+@RunWith(Parameterized::class)
+class TestSyncActivity(val index: Int) : AbstractTestActivity() {
 
     companion object {
-        val PAUSE = Duration.ofSeconds(1)
+        val PAUSE: Duration = Duration.ofSeconds(1)
+
+        @Parameterized.Parameters
+        @JvmStatic
+        fun getParams(): Array<Array<Any>> = TestUtils.repetitionParams
     }
 
     override fun testActivity() {

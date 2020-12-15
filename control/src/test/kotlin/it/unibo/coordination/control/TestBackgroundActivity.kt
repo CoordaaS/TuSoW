@@ -1,8 +1,17 @@
 package it.unibo.coordination.control
 
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.util.concurrent.Semaphore
 
-class TestBackgroundActivity : AbstractTestActivity() {
+@RunWith(Parameterized::class)
+class TestBackgroundActivity(val index: Int) : AbstractTestActivity() {
+
+    companion object {
+        @Parameterized.Parameters
+        @JvmStatic
+        fun getParams(): Array<Array<Any>> = TestUtils.repetitionParams
+    }
 
     override fun <E, R> run(activity: Activity<E, *, R>, input: E, resultHandler: (R) -> Unit) {
         activity.runOnBackgroundThread(input).whenComplete { t, _ ->

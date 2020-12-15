@@ -3,16 +3,25 @@ package it.unibo.coordination.control
 import it.unibo.coordination.Engines
 import it.unibo.coordination.testing.assertLastsAtLeast
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.time.Duration
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
-class TestPeriodicActivity : AbstractTestActivity() {
+@RunWith(Parameterized::class)
+class TestPeriodicActivity(val index: Int) : AbstractTestActivity() {
 
     companion object {
         const val PERIOD: Long = 200
+
         const val PAUSE: Long = 500
+
         val TOTAL: Duration = Duration.ofMillis(PERIOD * (STEPS + 2) + PAUSE)
+
+        @Parameterized.Parameters
+        @JvmStatic
+        fun getParams(): Array<Array<Any>> = TestUtils.repetitionParams
     }
 
     private val timedEngine = Engines.defaultTimedEngine
