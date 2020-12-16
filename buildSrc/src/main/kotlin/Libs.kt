@@ -35,21 +35,31 @@ object Libs {
             Versions.org_jetbrains_kotlin
 
     /**
-     * https://gitlab.com/pika-lab/tuprolog/2p-in-kotlin
+     * https://github.com/tuProlog/2p-kt
      */
     const val parser_core_jvm: String = "it.unibo.tuprolog:parser-core-jvm:" +
             Versions.it_unibo_tuprolog
 
     /**
-     * https://gitlab.com/pika-lab/tuprolog/2p-in-kotlin
+     * https://github.com/tuProlog/2p-kt
      */
     const val serialize_core_jvm: String = "it.unibo.tuprolog:serialize-core-jvm:" +
             Versions.it_unibo_tuprolog
 
     /**
-     * https://gitlab.com/pika-lab/tuprolog/2p-in-kotlin
+     * https://github.com/tuProlog/2p-kt
      */
     const val theory_jvm: String = "it.unibo.tuprolog:theory-jvm:" + Versions.it_unibo_tuprolog
+
+    /**
+     * http://www.slf4j.org
+     */
+    const val slf4j_api: String = "org.slf4j:slf4j-api:" + Versions.org_slf4j
+
+    /**
+     * http://www.slf4j.org
+     */
+    const val slf4j_nop: String = "org.slf4j:slf4j-nop:" + Versions.org_slf4j
 
     const val vertx_core: String = "io.vertx:vertx-core:" + Versions.io_vertx
 
@@ -120,11 +130,6 @@ object Libs {
     const val javatuples: String = "org.javatuples:javatuples:" + Versions.javatuples
 
     /**
-     * http://www.slf4j.org
-     */
-    const val slf4j_api: String = "org.slf4j:slf4j-api:" + Versions.slf4j_api
-
-    /**
      * https://github.com/ajalt/clikt
      */
     const val clikt: String = "com.github.ajalt:clikt:" + Versions.clikt
@@ -133,6 +138,4 @@ object Libs {
      * http://junit.org
      */
     const val junit: String = "junit:junit:" + Versions.junit
-
-    const val jool: String = "org.jooq:jool:" + Versions.jool
 }

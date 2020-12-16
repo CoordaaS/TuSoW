@@ -9,7 +9,7 @@ dependencies {
     api(kotlin("stdlib-jdk8"))
     api(Libs.clikt)
 
-    implementation(Libs.logback_classic)
+    implementation(Libs.slf4j_nop)
 
     testImplementation(Libs.junit)
     testImplementation(project(":tusow-service"))
