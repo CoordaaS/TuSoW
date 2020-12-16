@@ -1,13 +1,13 @@
 # Coordination with TuSoW
 
-![The Coordination logo](https://gitlab.com/pika-lab/tuples/coordination/-/blob/develop/icon.svg)
+![The Coordination logo](https://gitlab.com/pika-lab/tuples/coordination/-/raw/develop/icon.svg)
 
 The _Coordination with TuSoW_ Project is made up of several modules generally tackling with the coordination of multi-threaded, 
 multi-processes, distributed, or multi-agent applications through **LINDA** _tuple spaces_.
 
 ### Project Map
 
-![Coordination project map](https://gitlab.com/pika-lab/tuples/coordination/-/blob/develop/project-map.svg)
+![Coordination project map](https://gitlab.com/pika-lab/tuples/coordination/-/raw/develop/project-map.svg)
 
 ### Quick Links
 
