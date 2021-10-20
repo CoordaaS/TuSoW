@@ -1,26 +1,13 @@
-image: pikalab/ci:ubuntu-jdk14-git-gradle-graphviz
+image: gradle:latest
 
 variables:
   GOPTS: "--no-daemon --console=plain"
   CI: "true"
   BEFORE_TASK: ""
   AFTER_TASK: ""
-  GCMD: "./gradlew"
+  GCMD: "gradle"
   BUILD_TASK: "assemble"
   TEST_TASK: "check"
-  BINTRAY_TASK: "publishAllToBintray"
-  GITHUB_TASK: "githubRelease"
-
-before_script:
-  - chmod +x gradlew
-  - source $HOME/.sdkman/bin/sdkman-init.sh
-
-cache:
-  paths:
-    - $HOME/.gradle/
-    - gradle/
-    - .gradle/
-    - build/
 
 Compile:
   stage: build
@@ -29,22 +16,3 @@ Compile:
 Test:
   stage: test
   script: $GCMD $BEFORE_TASK $TEST_TASK $AFTER_TASK $GOPTS
-
-Bintray Deploy:
-  stage: deploy
-  script: $GCMD $BEFORE_TASK $BINTRAY_TASK $AFTER_TASK $GOPTS
-  environment:
-    name: Bintray
-    url: "https://bintray.com/pika-lab/coordination"
-  only:
-    - /^(master)|(release)|(develop)$/
-
-GitHub Release:
-  stage: deploy
-  script: $GCMD $BEFORE_TASK $GITHUB_TASK $AFTER_TASK $GOPTS
-  environment:
-    name: GitHub
-    url: https://github.com/tuple-based-coord/TuSoW/releases
-  allow_failure: true
-  only:
-    - /^(master)|(release)|(develop)$/

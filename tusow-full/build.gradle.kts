@@ -1,3 +1,7 @@
+plugins {
+    id("com.github.johnrengelman.shadow")
+}
+
 val tusowFull = name
 
 dependencies {
