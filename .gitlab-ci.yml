@@ -8,6 +8,7 @@ variables:
   GCMD: "gradle"
   BUILD_TASK: "assemble"
   TEST_TASK: "check"
+  DEPLOY_TASK: "publishToMavenLocal"
 
 Compile:
   stage: build
@@ -16,3 +17,13 @@ Compile:
 Test:
   stage: test
   script: $GCMD $BEFORE_TASK $TEST_TASK $AFTER_TASK $GOPTS
+
+Simulate Deploy:
+  stage: deploy
+  script:
+    - $GCMD $BEFORE_TASK $DEPLOY_TASK $AFTER_TASK $GOPTS
+  artifacts:
+    paths:
+      - "$HOME/.m2/repository/"
+  only:
+    - "^(master)|(develop)$"
