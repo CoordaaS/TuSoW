@@ -5,7 +5,6 @@ import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
 buildscript {
     repositories {
         mavenCentral()
-//        jcenter()
         gradlePluginPortal()
     }
 }

@@ -1,4 +1,4 @@
-rootProject.name = "coordination"
+rootProject.name = "coordaas"
 
 include("utils")
 include("linda-core")
