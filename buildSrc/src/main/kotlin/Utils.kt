@@ -1,27 +1,12 @@
 import org.gradle.api.Project
 
-private val FULL_VERSION_REGEX = "^[0-9]+\\.[0-9]+\\.[0-9]+$".toRegex()
+private val alreadyWarned = mutableSetOf<String>()
 
 fun Project.getPropertyOrWarnForAbsence(key: String): String? {
     val value = property(key)?.toString()
-    if (value.isNullOrBlank()) {
+    if (value.isNullOrBlank() && key !in alreadyWarned) {
         System.err.println("WARNING: $key is not set")
+        alreadyWarned += key
     }
     return value
 }
-
-fun Iterable<Project>.forEachProject(action: Project.() -> Unit) {
-    this.forEach { it.action() }
-}
-
-fun Project.subprojects(vararg names: String, action: Project.() -> Unit) {
-    for (name in names) {
-        project(":$name", action)
-    }
-}
-
-fun Project.subprojects(vararg names: String): Iterable<Project> =
-        names.map { project(":$it") }
-
-val Project.isFullVersion: Boolean
-    get() = version.toString().matches(FULL_VERSION_REGEX)
