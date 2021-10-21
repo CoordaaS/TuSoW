@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm")
     id("org.danilopianini.git-sensitive-semantic-versioning")
+    id("org.jetbrains.dokka")
 }
 
 val javaVersion: String by project
@@ -47,6 +48,7 @@ subprojects {
 
     apply(plugin = "java-library")
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "org.jetbrains.dokka")
 
     java {
         targetCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
@@ -63,4 +65,17 @@ subprojects {
     }
 
     apply(rootProject.file("publish-on-maven.gradle.kts"))
+
+    val dokkaHtml = tasks.getByName<org.jetbrains.dokka.gradle.DokkaTask>("dokkaHtml")
+
+    val javadoc = tasks.getByName<Javadoc>("javadoc")
+
+    tasks.create<Jar>("dokkaHtmlJar") {
+        archiveClassifier.set("javadoc")
+        from(dokkaHtml.path)
+        destinationDirectory.set(javadoc.destinationDir)
+        dependsOn(dokkaHtml)
+    }
+
 }
+

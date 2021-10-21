@@ -15,7 +15,9 @@ project.configure<PublishingExtension> {
         groupId = project.group.toString()
         version = project.version.toString()
 
-        setArtifacts(tasks.withType<Jar>())
+        tasks.withType<Jar> {
+            artifact(this)
+        }
 
         pom {
             name.set("Coordination -- Module `${project.name}`")
