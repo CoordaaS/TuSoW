@@ -3,7 +3,7 @@ val junitVersion: String by project
 val ktFreeCompilerArgs: String by project
 
 dependencies {
-    api(Libs.kotlin_stdlib_jdk8)
-    api(Libs.junit)
-    api(Libs.logback_classic)
+    api(kotlin("stdlib-jdk8"))
+    api("junit:junit:_")
+    api("ch.qos.logback:logback-classic:_")
 }

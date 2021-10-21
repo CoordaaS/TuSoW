@@ -12,7 +12,7 @@ dependencies {
                 api(project(":$it"))
             }
 
-    implementation(Libs.logback_classic)
+    implementation("ch.qos.logback:logback-classic:_")
 }
 
 tasks.getByName<Jar>("shadowJar") {

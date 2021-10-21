@@ -1,6 +1,17 @@
 apply(plugin = "maven-publish")
 apply(plugin = "signing")
 
+private val alreadyWarned = mutableSetOf<String>()
+
+fun Project.getPropertyOrWarnForAbsence(key: String): String? {
+    val value = property(key)?.toString()
+    if (value.isNullOrBlank() && key !in alreadyWarned) {
+        System.err.println("WARNING: $key is not set")
+        alreadyWarned += key
+    }
+    return value
+}
+
 // env ORG_GRADLE_PROJECT_signingKey
 val signingKey = getPropertyOrWarnForAbsence("signingKey")
 // env ORG_GRADLE_PROJECT_signingPassword

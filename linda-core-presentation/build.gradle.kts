@@ -3,6 +3,6 @@ dependencies {
     api(project(":presentation"))
     api(kotlin("stdlib-jdk8"))
 
-    testImplementation(Libs.junit)
+    testImplementation("junit:junit:_")
     testImplementation(project(":test-utils"))
 }

@@ -1,9 +1,9 @@
 dependencies {
-    api(Libs.commons_collections4)
-    api(Libs.slf4j_api)
+    api("org.apache.commons:commons-collections4:_")
+    api("org.slf4j:slf4j-api:_")
     api(project(":utils"))
 
-    api(Libs.kotlin_stdlib_jdk8)
+    api(kotlin("stdlib-jdk8"))
 
-    testImplementation(Libs.junit)
+    testImplementation("junit:junit:_")
 }

@@ -1,11 +1,11 @@
 dependencies {
-    api(Libs.jackson_core)
-    api(Libs.jackson_datatype_jsr310)
-    api(Libs.jackson_dataformat_xml)
-    api(Libs.jackson_dataformat_yaml)
+    api("com.fasterxml.jackson.core:jackson-core:_")
+    api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:_")
+    api("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:_")
+    api("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:_")
     api(kotlin("stdlib-jdk8"))
     api(project(":utils"))
 
-    testImplementation(Libs.junit)
+    testImplementation("junit:junit:_")
     testImplementation(project(":test-utils"))
 }

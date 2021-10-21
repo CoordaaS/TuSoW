@@ -3,9 +3,9 @@ dependencies {
     api(project(":linda-remote-client"))
     api(project(":linda-logic-presentation"))
     api(kotlin("stdlib-jdk8"))
-    api(Libs.vertx_web_client)
+    api("io.vertx:vertx-web-client:_")
 
-    testImplementation(Libs.junit)
+    testImplementation("junit:junit:_")
     testImplementation(project(":tusow-service"))
     testImplementation(project(":linda-test"))
     testImplementation(project(":test-utils"))

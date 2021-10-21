@@ -7,11 +7,11 @@ dependencies {
     api(project(":linda-logic-client"))
     api(project(":linda-text-client"))
     api(kotlin("stdlib-jdk8"))
-    api(Libs.clikt)
+    api("com.github.ajalt:clikt:_")
 
-    implementation(Libs.slf4j_nop)
+    implementation("org.slf4j:slf4j-nop:_")
 
-    testImplementation(Libs.junit)
+    testImplementation("junit:junit:_")
     testImplementation(project(":tusow-service"))
     testImplementation(project(":linda-test"))
     testImplementation(project(":test-utils"))

@@ -1,8 +1,8 @@
 dependencies {
     api(project(":linda-core"))
     api(kotlin("stdlib-jdk8"))
-    api(Libs.named_regexp)
+    api("com.github.tony19:named-regexp:_")
 
-    testImplementation(Libs.junit)
+    testImplementation("junit:junit:_")
     testImplementation(project(":linda-test"))
 }

@@ -3,5 +3,5 @@ dependencies {
     api(project(":linda-core-presentation"))
     api(kotlin("stdlib-jdk8"))
 
-    testImplementation(Libs.junit)
+    testImplementation("junit:junit:_")
 }

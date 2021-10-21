@@ -1,3 +1,17 @@
+import de.fayard.dependencies.bootstrapRefreshVersionsAndDependencies
+
+buildscript {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("de.fayard:dependencies:0.+")
+    }
+}
+
+bootstrapRefreshVersionsAndDependencies()
+
 rootProject.name = "coordaas"
 
 include("utils")

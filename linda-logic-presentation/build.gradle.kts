@@ -1,10 +1,10 @@
 dependencies {
-    api(Libs.serialize_core_jvm)
-    api(Libs.kotlin_stdlib_jdk8)
+    api("it.unibo.tuprolog:serialize-core-jvm:_")
+    api(kotlin("stdlib-jdk8"))
     api(project(":linda-logic"))
     api(project(":linda-core-presentation"))
 
-    testImplementation(Libs.junit)
+    testImplementation("junit:junit:_")
     testImplementation(project(":test-utils"))
     testImplementation(project(":linda-test"))
 }

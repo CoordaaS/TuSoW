@@ -1,9 +1,9 @@
 dependencies {
-    api(Libs.junit)
+    api("junit:junit:_")
     api(project(":linda-core"))
     api(project(":utils"))
     api(project(":test-utils"))
-    api(Libs.javatuples)
+    api("org.javatuples:javatuples:_")
 
     implementation(kotlin("stdlib-jdk8"))
 }

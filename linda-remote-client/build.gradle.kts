@@ -1,8 +1,8 @@
 dependencies {
     api(project(":linda-core"))
     api(project(":presentation"))
-    api(Libs.vertx_web_client)
+    api("io.vertx:vertx-web-client:_")
     api(kotlin("stdlib-jdk8"))
 
-    testImplementation(Libs.junit)
+    testImplementation("junit:junit:_")
 }
