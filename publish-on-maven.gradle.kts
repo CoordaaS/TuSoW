@@ -1,25 +1,14 @@
 apply(plugin = "maven-publish")
 apply(plugin = "signing")
 
-private val alreadyWarned = mutableSetOf<String>()
-
-fun Project.getPropertyOrWarnForAbsence(key: String): String? {
-    val value = property(key)?.toString()
-    if (value.isNullOrBlank() && key !in alreadyWarned) {
-        System.err.println("WARNING: $key is not set")
-        alreadyWarned += key
-    }
-    return value
-}
-
 // env ORG_GRADLE_PROJECT_signingKey
-val signingKey = getPropertyOrWarnForAbsence("signingKey")
+val signingKey: String? by project
 // env ORG_GRADLE_PROJECT_signingPassword
-val signingPassword = getPropertyOrWarnForAbsence("signingPassword")
+val signingPassword: String? by project
 // env ORG_GRADLE_PROJECT_ossrhUsername
-val ossrhUsername = getPropertyOrWarnForAbsence("ossrhUsername")
+val ossrhUsername: String? by project
 // env ORG_GRADLE_PROJECT_ossrhPassword
-val ossrhPassword = getPropertyOrWarnForAbsence("ossrhPassword")
+val ossrhPassword: String? by project
 
 project.configure<PublishingExtension> {
     publications.create<MavenPublication>("maven") {
@@ -31,7 +20,7 @@ project.configure<PublishingExtension> {
         pom {
             name.set("Coordination -- Module `${project.name}`")
             description.set("Tuple-based Coordination environment")
-            url.set("https://gitlab.com/pika-lab/tuples/coordination")
+            url.set("https://github.com/CoordaaS/TuSoW")
             licenses {
                 license {
                     name.set("Apache 2.0")
@@ -42,7 +31,7 @@ project.configure<PublishingExtension> {
             developers {
                 developer {
                     name.set("Giovanni Ciatto")
-                    email.set("giovanni.ciatto@gmail.com")
+                    email.set("giovanni.ciatto@unibo.it")
                     url.set("https://about.me/gciatto")
                     organization.set("University of Bologna")
                     organizationUrl.set("https://www.unibo.it/it")
@@ -50,8 +39,8 @@ project.configure<PublishingExtension> {
             }
 
             scm {
-                connection.set("scm:git:git:///gitlab.com/pika-lab/tuples/coordination.git")
-                url.set("https://gitlab.com/pika-lab/tuples/coordination")
+                connection.set("scm:git:git:///github.com/CoordaaS/TuSoW.git")
+                url.set("https://github.com/CoordaaS/TuSoW")
             }
         }
     }
