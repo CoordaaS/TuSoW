@@ -1,3 +1,4 @@
+import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -53,7 +54,6 @@ subprojects {
     java {
         targetCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
         sourceCompatibility = JavaVersion.valueOf("VERSION_1_$javaVersion")
-//        withJavadocJar()
         withSourcesJar()
     }
 
@@ -64,18 +64,15 @@ subprojects {
         }
     }
 
-    apply(rootProject.file("publish-on-maven.gradle.kts"))
+    apply(rootProject.file("maven-publication.gradle.kts"))
 
-    val dokkaHtml = tasks.getByName<org.jetbrains.dokka.gradle.DokkaTask>("dokkaHtml")
-
-    val javadoc = tasks.getByName<Javadoc>("javadoc")
+    val dokkaHtml: DokkaTask by project.tasks
+    val javadoc: Javadoc by project.tasks
 
     tasks.create<Jar>("dokkaHtmlJar") {
         archiveClassifier.set("javadoc")
-        from(dokkaHtml.path)
+        from(dokkaHtml.outputDirectory)
         destinationDirectory.set(javadoc.destinationDir)
         dependsOn(dokkaHtml)
     }
-
 }
-
