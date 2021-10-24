@@ -35,7 +35,7 @@ gitSemVer {
     assignGitSemanticVersion()
 }
 
-println("${rootProject.name}, version: $version")
+logger.lifecycle("{}, version: {}", rootProject.name, version)
 
 allprojects {
     repositories {
@@ -74,5 +74,11 @@ subprojects {
         from(dokkaHtml.outputDirectory)
         destinationDirectory.set(javadoc.destinationDir)
         dependsOn(dokkaHtml)
+    }
+}
+
+tasks.create("version") {
+    doLast {
+        println(rootProject.version)
     }
 }

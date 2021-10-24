@@ -5,8 +5,8 @@ on:
       - check
     types:
       - completed
-    tags:
-      - "*.*.*"
+    branches:
+      - master
 env:
   project-name: Cordaas
   workflow: deploy
@@ -26,7 +26,7 @@ jobs:
 
       - name: Get Version
         id: get-version
-        run: echo ::set-output name=version::$(echo $GITHUB_REF | cut -d / -f 3)
+        run: echo ::set-output name=version::$(gradle --console=plain -q version)
       
       - name: Compile
         run: gradle ${{ env.gradle-options }} classes --parallel
