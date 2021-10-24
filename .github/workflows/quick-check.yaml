@@ -1,0 +1,55 @@
+name: quick-check
+on:
+  push:
+    branches:
+      - '*'
+env:
+  jdk-version: openjdk@~1.15.0
+  project-name: Cordaas
+  workflow: quick-check
+  gradle-options: "--no-daemon --console=plain --stacktrace"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    needs:
+      - setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # all history
+
+      - name: Get All Tags
+        run: git fetch --tags -f
+
+      - name: Setup Gradle
+        run: gradle ${{ env.gradle-options }}
+
+      #      - name: Check Code Style
+      #        run: gradle ${{ env.gradle-options }} ktlintCheck --parallel
+
+      #      - name: Archive KtLint Reports
+      #        uses: actions/upload-artifact@v2
+      #        if: failure()
+      #        with:
+      #          name: ktlint-reports
+      #          path: '**/build/reports/ktlint'
+
+      - name: Compile
+        run: gradle ${{ env.gradle-options }} classes testClasses --parallel
+
+  test:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # all history
+
+      - name: Get All Tags
+        run: git fetch --tags -f
+
+      - name: Test
+        run: gradle ${{ env.gradle-options }} test

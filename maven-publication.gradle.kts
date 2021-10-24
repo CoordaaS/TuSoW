@@ -5,17 +5,35 @@ apply(plugin = "signing")
 val signingKey: String? by project
 // env ORG_GRADLE_PROJECT_signingPassword
 val signingPassword: String? by project
-// env ORG_GRADLE_PROJECT_ossrhUsername
-val ossrhUsername: String? by project
-// env ORG_GRADLE_PROJECT_ossrhPassword
-val ossrhPassword: String? by project
+// env ORG_GRADLE_PROJECT_mavenRepo
+val mavenRepo: String? by project
+// env ORG_GRADLE_PROJECT_mavenUsername
+val mavenUsername: String? by project
+// env ORG_GRADLE_PROJECT_mavenPassword
+val mavenPassword: String? by project
 
 project.configure<PublishingExtension> {
+    repositories {
+        maven {
+            if (mavenRepo != null) {
+                url = uri(mavenRepo)
+            }
+            if (mavenUsername != null && mavenPassword != null) {
+                credentials {
+                    username = mavenUsername
+                    password = mavenPassword
+                }
+            }
+        }
+    }
+
     publications.create<MavenPublication>("maven") {
         groupId = project.group.toString()
         version = project.version.toString()
 
-        setArtifacts(tasks.withType<Jar>())
+        tasks.withType<Jar> {
+            artifact(this)
+        }
 
         pom {
             name.set("Coordination -- Module `${project.name}`")
