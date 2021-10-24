@@ -23,13 +23,13 @@ jobs:
 
       - name: Get All Tags
         run: git fetch --tags -f
+      
+      - name: Generate Fat Jars
+        run: gradle ${{ env.gradle-options }} shadowJar --parallel
 
       - name: Get Version
         id: get-version
         run: echo ::set-output name=version::$(gradle --console=plain -q version)
-      
-      - name: Compile
-        run: gradle ${{ env.gradle-options }} classes --parallel
 
       - name: Release Assets
         id: upload-release-assets
