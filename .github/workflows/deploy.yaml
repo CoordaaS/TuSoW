@@ -1,0 +1,69 @@
+name: deploy
+on:
+  workflow_run:
+    workflows:
+      - check
+    types:
+      - completed
+    tags:
+      - "*.*.*"
+env:
+  project-name: Cordaas
+  workflow: deploy
+  gradle-options: "--no-daemon --console=plain --stacktrace"
+jobs:
+  github-release:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # all history
+
+      - name: Get All Tags
+        run: git fetch --tags -f
+
+      - name: Get Version
+        id: get-version
+        run: echo ::set-output name=version::$(echo $GITHUB_REF | cut -d / -f 3)
+      
+      - name: Compile
+        run: gradle ${{ env.gradle-options }} classes --parallel
+
+      - name: Release Assets
+        id: upload-release-assets
+        run: |
+          set -x
+          ASSETS=()
+          for A in **/build/libs/*-redist.jar; do
+            ASSETS+=("-a" "$A")
+            echo "Releasing $A"
+          done
+          RELEASE_TAG='${{ steps.get-version.outputs.version }}'
+          hub release create "${ASSETS[@]}" -m "$RELEASE_TAG" "$RELEASE_TAG"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  publish-on-central:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    env:
+      ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
+      ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
+      # ORG_GRADLE_PROJECT_mavenRepo: ${{ secrets.MAVEN_REPO }}
+      ORG_GRADLE_PROJECT_mavenUsername: ${{ secrets.MAVEN_USER }}
+      ORG_GRADLE_PROJECT_mavenPassword: ${{ secrets.MAVEN_PASSWORD }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # all history
+
+      - name: Get All Tags
+        run: git fetch --tags -f
+
+      - name: Generate Documentation
+        run: gradle ${{ env.gradle-options }} dokkaHtml
+      
+      - name: Publish on Maven Repo
+        run: gradle ${{ env.gradle-options }} publishMavenPublicationToMavenRepository

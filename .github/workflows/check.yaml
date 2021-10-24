@@ -1,17 +1,15 @@
-name: quick-check
+name: check
 on:
   push:
     branches:
       - '*'
 env:
   project-name: Cordaas
-  workflow: quick-check
+  workflow: check
   gradle-options: "--no-daemon --console=plain --stacktrace"
 jobs:
   test:
     runs-on: ubuntu-latest
-    needs:
-      - setup
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
