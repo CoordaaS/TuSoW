@@ -7,7 +7,7 @@ multi-processes, distributed, or multi-agent applications through **LINDA** _tup
 
 ### Project Map
 
-![Coordination project map](https://gitlab.com/pika-lab/tuples/coordination/-/raw/develop/project-map.svg)
+![Coordination project map](https://gitlab.com/pika-lab/courses/ds/projects/ds-project-cavallari-ay2122/-/raw/feature/grpc/project-map.svg)
 
 ### Quick Links
 
