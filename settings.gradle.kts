@@ -29,5 +29,5 @@ include("linda-logic-client")
 include("linda-text-client")
 include("tusow-service")
 include("tusow-cli")
-
+include("tusow-grpc")
 include("tusow-full")
