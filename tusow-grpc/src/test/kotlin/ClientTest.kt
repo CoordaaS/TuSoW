@@ -5,6 +5,7 @@ import io.grpc.ManagedChannelBuilder
 import io.grpc.Server
 import io.grpc.ServerBuilder
 import io.grpc.stub.StreamObserver
+import it.unibo.coordination.tusow.grpc.TusowGRPCService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
@@ -29,7 +30,7 @@ class ClientTest {
         TupleSpace.newBuilder().setName(name).setType(type).build()
 
     private fun startServer() {
-        server = createServer(PORT, ServiceTest())
+        server = createServer(PORT, TusowGRPCService())
         server.start()
     }
 

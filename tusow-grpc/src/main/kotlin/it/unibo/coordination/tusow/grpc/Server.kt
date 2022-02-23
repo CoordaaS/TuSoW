@@ -1,7 +1,9 @@
+package it.unibo.coordination.tusow.grpc
+
 import io.grpc.Server
 import io.grpc.ServerBuilder
 
-class Server(val port: Int, val server: Server = ServerBuilder.forPort(port).addService(ServiceTest()).build()) {
+class Server(val port: Int, val server: Server = ServerBuilder.forPort(port).addService(TusowGRPCService()).build()) {
 
     fun start(){
         server.start()
