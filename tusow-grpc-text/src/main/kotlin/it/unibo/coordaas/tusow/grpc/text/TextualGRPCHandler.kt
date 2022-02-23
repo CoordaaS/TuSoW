@@ -1,18 +1,18 @@
 package it.unibo.coordaas.tusow.grpc.text
 
+import TusowGRPC.*
+import TusowServiceGrpc
 import io.grpc.stub.StreamObserver
 import it.unibo.coordination.Promise
-import it.unibo.coordination.linda.logic.LogicMatch
 import it.unibo.coordination.linda.text.RegexTemplate
 import it.unibo.coordination.linda.text.RegularMatch
 import it.unibo.coordination.linda.text.StringTuple
 import it.unibo.coordination.linda.text.TextualSpace
-import java.util.ArrayList
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import TusowGRPC.*
 
 class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
 
@@ -39,7 +39,7 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         }
     }
 
-    private fun handleReadOrTakeAllPromise(completableFutures: ArrayList<Promise<RegularMatch>>, responseObserver: StreamObserver<TuplesList>){
+    private fun handleReadOrTakeAllPromise(completableFutures: LinkedList<Promise<RegularMatch>>, responseObserver: StreamObserver<TuplesList>){
         val futuresArray: Array<Promise<RegularMatch>> = completableFutures.toTypedArray()
         val finalFuture = CompletableFuture.allOf(*futuresArray)
         val tuplesList = TuplesList.newBuilder()
@@ -54,8 +54,8 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         }
     }
 
-    private fun getWritePromisesList(request: WriteAllRequest, space: TextualSpace) : ArrayList<Promise<StringTuple>>{
-        val completableFutures = ArrayList<Promise<StringTuple>>()
+    private fun getWritePromisesList(request: WriteAllRequest, space: TextualSpace) : LinkedList<Promise<StringTuple>>{
+        val completableFutures = LinkedList<Promise<StringTuple>>()
         request.tuplesList.tuplesList.forEach { tuple ->
             val promise = space.write(tuple.value)
             completableFutures.add(promise)
@@ -63,7 +63,7 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         return completableFutures
     }
 
-    private fun handleReadOrTakeAllAsStreamPromise(completableFutures: ArrayList<Promise<RegularMatch>>, responseObserver: StreamObserver<Tuple>){
+    private fun handleReadOrTakeAllAsStreamPromise(completableFutures: LinkedList<Promise<RegularMatch>>, responseObserver: StreamObserver<Tuple>){
         val futuresArray: Array<Promise<RegularMatch>> = completableFutures.toTypedArray()
         val finalFuture = CompletableFuture.allOf(*futuresArray)
         finalFuture.thenApply {
@@ -175,7 +175,7 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         if (space == null) {
             responseObserver.onCompleted()
         } else {
-            val completableFutures = ArrayList<Promise<RegularMatch>>()
+            val completableFutures = LinkedList<Promise<RegularMatch>>()
             request.textualTemplateList.regexesList.forEach { regex ->
                 val promise = space.read(regex.regex)
                 completableFutures.add(promise)
@@ -192,7 +192,7 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         if (space == null) {
             responseObserver.onCompleted()
         } else {
-            val completableFutures = ArrayList<Promise<RegularMatch>>()
+            val completableFutures = LinkedList<Promise<RegularMatch>>()
             request.textualTemplateList.regexesList.forEach { regex ->
                 val promise = space.take(regex.regex)
                 completableFutures.add(promise)
@@ -234,10 +234,9 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
     ) {
         val space = textualSpaces[request.tupleSpace.name]
         if (space == null) {
-            println("shouldnt happen")
             responseObserver.onCompleted()
         } else {
-            val completableFutures = ArrayList<Promise<RegularMatch>>()
+            val completableFutures = LinkedList<Promise<RegularMatch>>()
             request.textualTemplateList.regexesList.forEach { regex ->
                 val promise = space.read(regex.regex)
                 completableFutures.add(promise)
@@ -254,7 +253,7 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         if (space == null) {
             responseObserver.onCompleted()
         } else {
-            val completableFutures = ArrayList<Promise<RegularMatch>>()
+            val completableFutures = LinkedList<Promise<RegularMatch>>()
             request.textualTemplateList.regexesList.forEach { regex ->
                 val promise = space.take(regex.regex)
                 completableFutures.add(promise)
