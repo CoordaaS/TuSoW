@@ -43,11 +43,14 @@ dependencies {
     api("io.grpc:grpc-protobuf:${grpcVersion}")
     api("com.google.protobuf:protobuf-java-util:${protobufVersion}")
     api("com.google.protobuf:protobuf-kotlin:${protobufVersion}")
-    api("io.grpc:grpc-kotlin-stub:${grpcKotlinVersion}")
+    implementation("io.grpc:grpc-kotlin-stub:${grpcKotlinVersion}")
+    implementation("io.grpc:grpc-stub:${grpcVersion}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     compileOnly("org.apache.tomcat:annotations-api:6.0.53")
 
     // examples/advanced need this for JsonFormat
     implementation("com.google.protobuf:protobuf-java-util:${protobufVersion}")
+    implementation("ch.qos.logback:logback-classic:_")
 
     runtimeOnly("io.grpc:grpc-netty-shaded:${grpcVersion}")
 
@@ -65,6 +68,12 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
         freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
     }
 }
+
+tasks.withType<Test> {
+    testLogging.showStandardStreams = true
+}
+
+task("prepareKotlinBuildScriptModel") {}
 
 protobuf {
     protoc {
