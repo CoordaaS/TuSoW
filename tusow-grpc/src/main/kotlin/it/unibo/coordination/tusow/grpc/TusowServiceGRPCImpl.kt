@@ -3,12 +3,13 @@ package it.unibo.coordination.tusow.grpc
 import TusowGRPC
 import TusowServiceGrpc
 import io.grpc.stub.StreamObserver
+import it.unibo.coordaas.tusow.grpc.logic.LogicGRPCHandler
 import it.unibo.coordaas.tusow.grpc.text.TextualGRPCHandler
 import it.unibo.coordination.linda.logic.LogicSpace
 
 class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
-    private val logicSpaces: MutableMap<String, LogicSpace> = HashMap()
     private val textualGRPCHandler = TextualGRPCHandler()
+    private val logicGRPCHandler = LogicGRPCHandler()
 
     override fun validateTupleSpace(
         request: TusowGRPC.TupleSpace,
@@ -18,7 +19,9 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
             TusowGRPC.TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.validateTupleSpace(request, responseObserver)
             }
-            else -> {}
+            else -> {
+                logicGRPCHandler.validateTupleSpace(request, responseObserver)
+            }
         }
     }
 
@@ -30,7 +33,9 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
             TusowGRPC.TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.createTupleSpace(request, responseObserver)
             }
-            else -> {}
+            else -> {
+                logicGRPCHandler.createTupleSpace(request, responseObserver)
+            }
         }
     }
 
@@ -40,7 +45,9 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
             TusowGRPC.TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.write(request, responseObserver)
             }
-            else -> {}
+            else -> {
+                logicGRPCHandler.write(request, responseObserver)
+            }
         }
     }
 
@@ -50,7 +57,9 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
             TusowGRPC.TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.read(request, responseObserver)
             }
-            else -> {}
+            else -> {
+                logicGRPCHandler.read(request, responseObserver)
+            }
         }
     }
 
@@ -60,7 +69,9 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
             TusowGRPC.TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.take(request, responseObserver)
             }
-            else -> {}
+            else -> {
+                logicGRPCHandler.take(request, responseObserver)
+            }
         }
     }
 
@@ -73,7 +84,9 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
             TusowGRPC.TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.writeAll(request, responseObserver)
             }
-            else -> {}
+            else -> {
+                logicGRPCHandler.writeAll(request, responseObserver)
+            }
         }
     }
 
@@ -86,7 +99,9 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
             TusowGRPC.TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.readAll(request, responseObserver)
             }
-            else -> {}
+            else -> {
+                logicGRPCHandler.readAll(request, responseObserver)
+            }
         }
     }
 
@@ -99,7 +114,9 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
             TusowGRPC.TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.takeAll(request, responseObserver)
             }
-            else -> {}
+            else -> {
+                logicGRPCHandler.takeAll(request, responseObserver)
+            }
         }
     }
 
@@ -112,7 +129,9 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
             TusowGRPC.TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.writeAllAsStream(request, responseObserver)
             }
-            else -> {}
+            else -> {
+                logicGRPCHandler.writeAllAsStream(request, responseObserver)
+            }
         }
     }
 
@@ -125,7 +144,9 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
             TusowGRPC.TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.readAllAsStream(request, responseObserver)
             }
-            else -> {}
+            else -> {
+                logicGRPCHandler.readAllAsStream(request, responseObserver)
+            }
         }
     }
 
@@ -138,7 +159,9 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
             TusowGRPC.TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.takeAllAsStream(request, responseObserver)
             }
-            else -> {}
+            else -> {
+                logicGRPCHandler.takeAllAsStream(request, responseObserver)
+            }
         }
     }
 }
