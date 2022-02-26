@@ -1,18 +1,25 @@
 package it.unibo.coordination.tusow.grpc
 
-import io.grpc.*
 import io.grpc.Server
-import java.io.File
+import io.grpc.ServerBuilder
+import java.util.concurrent.TimeUnit
 
-class Server(val port: Int, val server: Server = ServerBuilder.forPort(port).addService(TusowServiceGRPCImpl()).build()) {
+class Server(private val port: Int, val server: Server = ServerBuilder.forPort(port).addService(TusowServiceGRPCImpl()).build()) {
 
     fun start(){
         server.start()
-        val creds: ChannelCredentials = TlsChannelCredentials.newBuilder()
-            .trustManager(File("roots.pem"))
-            .build()
-        val channel: ManagedChannel = Grpc.newChannelBuilder("myservice.example.com:443", creds)
-            .build()
+    }
+
+    fun shutdown(){
+        server.shutdown()
+    }
+
+    fun awaitTermination(){
+        server.awaitTermination()
+    }
+
+    fun awaitTermination(timeout: Long, unit: TimeUnit){
+        server.awaitTermination(timeout, unit)
     }
 
     companion object{
