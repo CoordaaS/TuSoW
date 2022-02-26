@@ -22,7 +22,7 @@ dependencies {
     api(project(":linda-text"))
     api(project(":linda-text-presentation"))
     api(project(":tusow-service"))
-    api(project(":tusow-grpc-presentation"))
+    api(project(":linda-grpc-presentation"))
     implementation("ch.qos.logback:logback-classic:_")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     testImplementation("junit:junit:4.12")

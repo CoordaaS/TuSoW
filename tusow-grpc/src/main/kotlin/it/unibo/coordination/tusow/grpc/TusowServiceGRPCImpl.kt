@@ -6,7 +6,7 @@ import io.grpc.stub.StreamObserver
 import it.unibo.coordaas.tusow.grpc.text.TextualGRPCHandler
 import it.unibo.coordination.linda.logic.LogicSpace
 
-class TusowGRPCService : TusowServiceGrpc.TusowServiceImplBase() {
+class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
     private val logicSpaces: MutableMap<String, LogicSpace> = HashMap()
     private val textualGRPCHandler = TextualGRPCHandler()
 

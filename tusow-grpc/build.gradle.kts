@@ -38,9 +38,9 @@ dependencies {
     api(project(":linda-text"))
     api(project(":linda-text-presentation"))
     api(project(":tusow-service"))
-    api(project(":tusow-grpc-presentation"))
-    api(project(":tusow-grpc-text"))
-    api(project(":tusow-grpc-logic"))
+    api(project(":linda-grpc-presentation"))
+    api(project(":linda-text-grpc-client"))
+    api(project(":linda-logic-grpc-client"))
     api("io.vertx:vertx-core:4.2.2")
     api("io.vertx:vertx-web:4.2.2")
     api("io.grpc:grpc-protobuf:${grpcVersion}")
@@ -50,6 +50,7 @@ dependencies {
     implementation("io.grpc:grpc-stub:${grpcVersion}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     compileOnly("org.apache.tomcat:annotations-api:6.0.53")
+    implementation("io.grpc:grpc-netty-shaded:1.44.1")
 
     // examples/advanced need this for JsonFormat
     implementation("com.google.protobuf:protobuf-java-util:${protobufVersion}")
