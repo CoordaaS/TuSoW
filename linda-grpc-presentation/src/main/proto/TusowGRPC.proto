@@ -73,45 +73,17 @@ message ReadOrTakeAllRequest{
     TupleSpace tupleSpace = 3;
 }
 
-/*
-message InputRequest{
-  TupleSpace tupleSpace = 1;
-  message Logic{
-    Template.Logic template = 1;
-    message Read{}
-    message Take{}
-  }
-  message Textual{
-    Template.Textual template = 1;
-    message Read{}
-    message Take{}
-  }
-}
-*/
-
 service TusowService{
   rpc validateTupleSpace(TupleSpace) returns (IOResponse);
   rpc createTupleSpace(TupleSpace) returns (IOResponse);
-  //Textual
   rpc write(WriteRequest) returns (IOResponse);
   rpc read(ReadOrTakeRequest) returns (Tuple);
   rpc take(ReadOrTakeRequest) returns (Tuple);
-  //rpc absent(Template) returns (IOResponse);
   rpc writeAll(WriteAllRequest) returns (IOResponseList);
   rpc readAll(ReadOrTakeAllRequest) returns (TuplesList);
   rpc takeAll(ReadOrTakeAllRequest) returns (TuplesList);
   rpc writeAllAsStream(WriteAllRequest) returns (stream IOResponse);
   rpc readAllAsStream(ReadOrTakeAllRequest) returns (stream Tuple);
   rpc takeAllAsStream(ReadOrTakeAllRequest) returns (stream Tuple);
-  //Logic
-  /*
-  rpc write(Tuple) returns (IOResponse);
-  rpc read(Template.Logic) returns (Tuple);
-  rpc take(Template.Logic) returns (Tuple);
-  //rpc absent(Template.Logic) returns (IOResponse);
-  rpc writeAll(TemplatesList.LogicTemplatesList) returns (IOResponseList);
-  rpc readAll(TemplatesList.LogicTemplatesList) returns (TuplesList);
-  rpc takeAll(TemplatesList.LogicTemplatesList) returns (TuplesList);
-   */
 }
 

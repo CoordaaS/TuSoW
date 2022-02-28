@@ -1,0 +1,137 @@
+syntax = "proto3";
+
+message TupleSpace {
+  string name = 1;
+  TupleSpaceType type = 2;
+}
+
+enum TupleSpaceType {
+  LOGIC = 0;
+  TEXTUAL = 1;
+}
+
+message IOResponse {
+  bool response = 1;
+  string message = 2;
+}
+
+message IOResponseList{
+  repeated IOResponse responses = 1;
+}
+
+message Tuple{
+  string key = 1;
+  string value = 2;
+}
+
+message TuplesList{
+  repeated Tuple tuples = 1;
+}
+
+message Template{
+  message Logic{
+    string query = 1;
+  }
+  message Textual{
+    string regex = 1;
+  }
+}
+
+message TemplatesList{
+  message LogicTemplatesList{
+    repeated Template.Logic queries = 1 ;
+  }
+  message TextualTemplatesList{
+    repeated Template.Textual regexes = 1;
+  }
+}
+
+message WriteRequest{
+  TupleSpace tupleSpace = 1;
+  Tuple tuple = 2;
+}
+
+message ReadRequest{
+  TupleSpace tupleSpace = 1;
+
+  oneof template {
+    Logic logicTemplate = 2;
+    Textual textualTemplate = 3;
+  }
+  message Logic{
+    Template.Logic template = 1;
+  }
+  message Textual{
+    Template.Textual template = 1;
+  }
+}
+
+message TakeRequest{
+  TupleSpace tupleSpace = 1;
+  oneof template {
+    Logic logicTemplate = 2;
+    Textual textualTemplate = 3;
+  }
+  message Logic{
+    Template.Logic template = 1;
+  }
+  message Textual{
+    Template.Textual template = 1;
+  }
+}
+
+message WriteAllRequest{
+  TuplesList tuplesList = 1;
+  TupleSpace tupleSpace = 2;
+}
+
+message ReadAllRequest{
+    oneof templates {
+      TemplatesList.TextualTemplatesList textualTemplateList = 1;
+      TemplatesList.LogicTemplatesList logicTemplateList = 2;
+    }
+    TupleSpace tupleSpace = 3;
+}
+
+/*
+message InputRequest{
+  TupleSpace tupleSpace = 1;
+  message Logic{
+    Template.Logic template = 1;
+    message Read{}
+    message Take{}
+  }
+  message Textual{
+    Template.Textual template = 1;
+    message Read{}
+    message Take{}
+  }
+}
+*/
+
+service TusowService{
+  rpc validateTupleSpace(TupleSpace) returns (IOResponse);
+  rpc createTupleSpace(TupleSpace) returns (IOResponse);
+  //Textual
+  rpc write(WriteRequest) returns (IOResponse);
+  rpc read(ReadRequest) returns (Tuple);
+  rpc take(TakeRequest) returns (Tuple);
+  //rpc absent(Template) returns (IOResponse);
+  rpc writeAll(WriteAllRequest) returns (IOResponseList);
+  rpc readAll(ReadAllRequest) returns (TuplesList);
+  rpc takeAll(ReadAllRequest) returns (TuplesList);
+  rpc writeAllAsStream(WriteAllRequest) returns (IOResponse);
+  rpc readAllAsStream(ReadAllRequest) returns (Tuple);
+  rpc takeAllAsStream(ReadAllRequest) returns (Tuple);
+  //Logic
+  /*
+  rpc write(Tuple) returns (IOResponse);
+  rpc read(Template.Logic) returns (Tuple);
+  rpc take(Template.Logic) returns (Tuple);
+  //rpc absent(Template.Logic) returns (IOResponse);
+  rpc writeAll(TemplatesList.LogicTemplatesList) returns (IOResponseList);
+  rpc readAll(TemplatesList.LogicTemplatesList) returns (TuplesList);
+  rpc takeAll(TemplatesList.LogicTemplatesList) returns (TuplesList);
+   */
+}
+
