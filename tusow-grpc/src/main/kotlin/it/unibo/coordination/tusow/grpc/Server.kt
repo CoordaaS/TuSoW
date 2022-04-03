@@ -25,8 +25,15 @@ class Server(private val port: Int, val server: Server = ServerBuilder.forPort(p
     companion object{
         @JvmStatic
         fun main(args: Array<String>){
-            val server = Server(8000)
+            val port = if(args.isNotEmpty()){
+                Integer.parseInt(args[1])
+            }else{
+                8000
+            }
+            println("Listening on port $port")
+            val server = Server(port)
             server.start()
+            server.awaitTermination()
         }
     }
 }

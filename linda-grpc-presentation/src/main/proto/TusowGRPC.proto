@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-message TupleSpace {
-  string name = 1;
+message TupleSpaceID {
+  string id = 1;
   TupleSpaceType type = 2;
 }
 
@@ -47,12 +47,12 @@ message TemplatesList{
 }
 
 message WriteRequest{
-  TupleSpace tupleSpace = 1;
+  TupleSpaceID tupleSpaceID = 1;
   Tuple tuple = 2;
 }
 
 message ReadOrTakeRequest{
-  TupleSpace tupleSpace = 1;
+  TupleSpaceID tupleSpaceID = 1;
 
   oneof template {
     Template.Logic logicTemplate = 2;
@@ -62,7 +62,7 @@ message ReadOrTakeRequest{
 
 message WriteAllRequest{
   TuplesList tuplesList = 1;
-  TupleSpace tupleSpace = 2;
+  TupleSpaceID tupleSpaceID = 2;
 }
 
 message ReadOrTakeAllRequest{
@@ -70,12 +70,12 @@ message ReadOrTakeAllRequest{
       TemplatesList.TextualTemplatesList textualTemplateList = 1;
       TemplatesList.LogicTemplatesList logicTemplateList = 2;
     }
-    TupleSpace tupleSpace = 3;
+    TupleSpaceID tupleSpaceID = 3;
 }
 
 service TusowService{
-  rpc validateTupleSpace(TupleSpace) returns (IOResponse);
-  rpc createTupleSpace(TupleSpace) returns (IOResponse);
+  rpc validateTupleSpace(TupleSpaceID) returns (IOResponse);
+  rpc createTupleSpace(TupleSpaceID) returns (IOResponse);
   rpc write(WriteRequest) returns (IOResponse);
   rpc read(ReadOrTakeRequest) returns (Tuple);
   rpc take(ReadOrTakeRequest) returns (Tuple);

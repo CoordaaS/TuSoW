@@ -18,7 +18,7 @@ class TextClientTest {
 
     private lateinit var server: Server
     private lateinit var stub: TusowServiceStub
-    private lateinit var testTextualTupleSpace: TupleSpace
+    private lateinit var testTextualTupleSpace: TupleSpaceID
 
     private fun createChannel(ip: String, port: Int) = ManagedChannelBuilder.forAddress(ip, port).usePlaintext().build()
 
@@ -27,8 +27,8 @@ class TextClientTest {
     private fun createServer(port: Int, serviceClass: BindableService) =
         ServerBuilder.forPort(port).addService(serviceClass).build()
 
-    private fun createTupleSpace(name: String, type: TupleSpaceType) =
-        TupleSpace.newBuilder().setName(name).setType(type).build()
+    private fun createTupleSpace(id: String, type: TupleSpaceType) =
+        TupleSpaceID.newBuilder().setId(id).setType(type).build()
 
     private fun startServer() {
         server = createServer(PORT, TextualGRPCHandler())
@@ -41,33 +41,33 @@ class TextClientTest {
 
     private fun createTuple(key: String, value: String) = Tuple.newBuilder().setKey(key).setValue(value).build()
 
-    private fun createWriteRequest(tuple: Tuple, tupleSpace: TupleSpace) =
-        WriteRequest.newBuilder().setTuple(tuple).setTupleSpace(tupleSpace).build()
+    private fun createWriteRequest(tuple: Tuple, tupleSpaceID: TupleSpaceID) =
+        WriteRequest.newBuilder().setTuple(tuple).setTupleSpaceID(tupleSpaceID).build()
 
     private fun createTextualTemplate(regex: String) = Template.Textual.newBuilder().setRegex(regex).build()
 
-    private fun createTextualReadOrTakeRequest(template: Template.Textual, tupleSpace: TupleSpace) =
-        ReadOrTakeRequest.newBuilder().setTupleSpace(tupleSpace).setTextualTemplate(template).build()
+    private fun createTextualReadOrTakeRequest(template: Template.Textual, tupleSpaceID: TupleSpaceID) =
+        ReadOrTakeRequest.newBuilder().setTupleSpaceID(tupleSpaceID).setTextualTemplate(template).build()
 
     private fun createTuplesList(vararg tuples: Tuple) = TuplesList.newBuilder().addAllTuples(tuples.toList()).build()
 
-    private fun createWriteAllRequest(tuplesList: TuplesList, tupleSpace: TupleSpace) =
-        WriteAllRequest.newBuilder().setTuplesList(tuplesList).setTupleSpace(tupleSpace).build()
+    private fun createWriteAllRequest(tuplesList: TuplesList, tupleSpaceID: TupleSpaceID) =
+        WriteAllRequest.newBuilder().setTuplesList(tuplesList).setTupleSpaceID(tupleSpaceID).build()
 
     private fun createTextualTemplatesList(vararg regexes: String) = TemplatesList.TextualTemplatesList.newBuilder()
         .addAllRegexes(regexes.toList().map { createTextualTemplate(it) }).build()
 
-    private fun createReadOrTakeAllRequest(regexesList: TemplatesList.TextualTemplatesList, tupleSpace: TupleSpace) =
-        ReadOrTakeAllRequest.newBuilder().setTextualTemplateList(regexesList).setTupleSpace(tupleSpace).build()
+    private fun createReadOrTakeAllRequest(regexesList: TemplatesList.TextualTemplatesList, tupleSpaceID: TupleSpaceID) =
+        ReadOrTakeAllRequest.newBuilder().setTextualTemplateList(regexesList).setTupleSpaceID(tupleSpaceID).build()
 
     private fun insertTupleSpace(
-        tupleSpace: TupleSpace,
+        tupleSpaceID: TupleSpaceID,
         stub: TusowServiceStub,
         onNext: ((value: IOResponse) -> Unit)?,
         onError: ((t: Throwable?) -> Unit)?,
         onCompleted: (() -> Unit)?
     ) {
-        stub.createTupleSpace(tupleSpace, object : StreamObserver<IOResponse> {
+        stub.createTupleSpace(tupleSpaceID, object : StreamObserver<IOResponse> {
             override fun onNext(value: IOResponse) {
                 onNext?.invoke(value)
             }
@@ -83,13 +83,13 @@ class TextClientTest {
     }
 
     private fun validateTupleSpace(
-        tupleSpace: TupleSpace,
+        tupleSpaceID: TupleSpaceID,
         stub: TusowServiceStub,
         onNext: ((value: IOResponse) -> Unit)?,
         onError: ((t: Throwable?) -> Unit)?,
         onCompleted: (() -> Unit)?
     ) {
-        stub.validateTupleSpace(tupleSpace, object : StreamObserver<IOResponse> {
+        stub.validateTupleSpace(tupleSpaceID, object : StreamObserver<IOResponse> {
             override fun onNext(value: IOResponse) {
                 onNext?.invoke(value)
             }

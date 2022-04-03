@@ -77,29 +77,29 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
     }
 
     override fun validateTupleSpace(
-        request: TupleSpace,
+        request: TupleSpaceID,
         responseObserver: StreamObserver<IOResponse>
     ) {
         responseObserver.onNext(
-            IOResponse.newBuilder().setResponse(textualSpaces.containsKey(request.name))
-                .setMessage(textualSpaces[request.name]?.name ?: "NULL").build()
+            IOResponse.newBuilder().setResponse(textualSpaces.containsKey(request.id))
+                .setMessage(textualSpaces[request.id]?.name ?: "NULL").build()
         )
         responseObserver.onCompleted()
     }
 
     override fun createTupleSpace(
-        request: TupleSpace,
+        request: TupleSpaceID,
         responseObserver: StreamObserver<IOResponse>
     ) {
-        textualSpaces[request.name] = TextualSpace.local(request.name, executor)
+        textualSpaces[request.id] = TextualSpace.local(request.id, executor)
         responseObserver.onNext(
-            IOResponse.newBuilder().setResponse(true).setMessage(request.name).build()
+            IOResponse.newBuilder().setResponse(true).setMessage(request.id).build()
         )
         responseObserver.onCompleted()
     }
 
     override fun write(request: WriteRequest, responseObserver: StreamObserver<IOResponse>) {
-        val space = textualSpaces[request.tupleSpace.name]
+        val space = textualSpaces[request.tupleSpaceID.id]
         if (space == null) {
             responseObserver.onNext(
                 IOResponse.newBuilder().setResponse(false)
@@ -118,7 +118,7 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
     }
 
     override fun read(request: ReadOrTakeRequest, responseObserver: StreamObserver<Tuple>) {
-        val space = textualSpaces[request.tupleSpace.name]
+        val space = textualSpaces[request.tupleSpaceID.id]
         if (space == null) {
             responseObserver.onCompleted()
         } else {
@@ -128,7 +128,7 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
     }
 
     override fun take(request: ReadOrTakeRequest, responseObserver: StreamObserver<Tuple>) {
-        val space = textualSpaces[request.tupleSpace.name]
+        val space = textualSpaces[request.tupleSpaceID.id]
         if (space == null) {
             responseObserver.onNext(Tuple.newBuilder().setValue("{tuple: null}").build())
             responseObserver.onCompleted()
@@ -142,7 +142,7 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         request: WriteAllRequest,
         responseObserver: StreamObserver<IOResponseList>
     ) {
-        val space = textualSpaces[request.tupleSpace.name]
+        val space = textualSpaces[request.tupleSpaceID.id]
         if (space == null) {
             val response = IOResponse.newBuilder().setResponse(false)
                 .setMessage("{error: \"Invalid tuple space name\"}").build()
@@ -171,7 +171,7 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         request: ReadOrTakeAllRequest,
         responseObserver: StreamObserver<TuplesList>
     ) {
-        val space = textualSpaces[request.tupleSpace.name]
+        val space = textualSpaces[request.tupleSpaceID.id]
         if (space == null) {
             responseObserver.onCompleted()
         } else {
@@ -188,7 +188,7 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         request: ReadOrTakeAllRequest,
         responseObserver: StreamObserver<TuplesList>
     ) {
-        val space = textualSpaces[request.tupleSpace.name]
+        val space = textualSpaces[request.tupleSpaceID.id]
         if (space == null) {
             responseObserver.onCompleted()
         } else {
@@ -205,7 +205,7 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         request: WriteAllRequest,
         responseObserver: StreamObserver<IOResponse>
     ) {
-        val space = textualSpaces[request.tupleSpace.name]
+        val space = textualSpaces[request.tupleSpaceID.id]
         if (space == null) {
             val response = IOResponse.newBuilder().setResponse(false)
                 .setMessage("{error: \"Invalid tuple space name\"}").build()
@@ -232,7 +232,7 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         request: ReadOrTakeAllRequest,
         responseObserver: StreamObserver<Tuple>
     ) {
-        val space = textualSpaces[request.tupleSpace.name]
+        val space = textualSpaces[request.tupleSpaceID.id]
         if (space == null) {
             responseObserver.onCompleted()
         } else {
@@ -249,7 +249,7 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         request: ReadOrTakeAllRequest,
         responseObserver: StreamObserver<Tuple>
     ) {
-        val space = textualSpaces[request.tupleSpace.name]
+        val space = textualSpaces[request.tupleSpaceID.id]
         if (space == null) {
             responseObserver.onCompleted()
         } else {
