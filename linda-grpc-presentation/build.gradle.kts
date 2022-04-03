@@ -45,7 +45,6 @@ dependencies {
     api("com.google.protobuf:protobuf-kotlin:${protobufVersion}")
     implementation("io.grpc:grpc-kotlin-stub:${grpcKotlinVersion}")
     implementation("io.grpc:grpc-stub:${grpcVersion}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     compileOnly("org.apache.tomcat:annotations-api:6.0.53")
 
     // examples/advanced need this for JsonFormat

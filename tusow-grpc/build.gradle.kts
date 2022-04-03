@@ -41,30 +41,35 @@ dependencies {
     api(project(":linda-grpc-presentation"))
     api(project(":linda-text-grpc-client"))
     api(project(":linda-logic-grpc-client"))
-    api("io.vertx:vertx-core:4.2.2")
-    api("io.vertx:vertx-web:4.2.2")
-    api("io.grpc:grpc-protobuf:${grpcVersion}")
-    api("com.google.protobuf:protobuf-java-util:${protobufVersion}")
-    api("com.google.protobuf:protobuf-kotlin:${protobufVersion}")
-    implementation("io.grpc:grpc-kotlin-stub:${grpcKotlinVersion}")
-    implementation("io.grpc:grpc-stub:${grpcVersion}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     compileOnly("org.apache.tomcat:annotations-api:6.0.53")
-    implementation("io.grpc:grpc-netty-shaded:1.44.1")
 
     // examples/advanced need this for JsonFormat
-    implementation("com.google.protobuf:protobuf-java-util:${protobufVersion}")
     implementation("ch.qos.logback:logback-classic:_")
 
-    runtimeOnly("io.grpc:grpc-netty-shaded:${grpcVersion}")
-
-    testImplementation("io.grpc:grpc-testing:${grpcVersion}")
     testImplementation("junit:junit:4.12")
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
+}
+
+val mainClassName = "it.unibo.coordination.tusow.grpc.Server"
+
+task<JavaExec>("run") {
+    group = "run"
+    dependsOn("classes", "compileKotlin")
+    sourceSets {
+        main {
+            classpath = runtimeClasspath
+        }
+    }
+    main = mainClassName
+    if (project.hasProperty("port")) {
+        args = listOf("-p", project.property("port").toString())
+    }
+    standardInput = System.`in`
+    standardOutput = System.`out`
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
@@ -78,28 +83,3 @@ tasks.withType<Test> {
 }
 
 task("prepareKotlinBuildScriptModel") {}
-
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:${protobufVersion}"
-    }
-    plugins {
-        id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
-        }
-        id("grpckt") {
-            artifact = "io.grpc:protoc-gen-grpc-kotlin:${grpcKotlinVersion}:jdk7@jar"
-        }
-    }
-    generateProtoTasks {
-        all().forEach {
-            it.plugins {
-                id("grpc")
-                id("grpckt")
-            }
-            it.builtins {
-                id("kotlin")
-            }
-        }
-    }
-}
