@@ -1,6 +1,6 @@
 package it.unibo.coordination.tusow.grpc
 
-import TusowGRPC
+import TusowGRPC.*
 import TusowServiceGrpc
 import io.grpc.stub.StreamObserver
 import it.unibo.coordaas.tusow.grpc.logic.LogicGRPCHandler
@@ -12,11 +12,11 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
     private val logicGRPCHandler = LogicGRPCHandler()
 
     override fun validateTupleSpace(
-        request: TusowGRPC.TupleSpace,
-        responseObserver: StreamObserver<TusowGRPC.IOResponse>
+        request: TupleSpaceID,
+        responseObserver: StreamObserver<IOResponse>
     ) {
         when (request.type) {
-            TusowGRPC.TupleSpaceType.TEXTUAL -> {
+            TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.validateTupleSpace(request, responseObserver)
             }
             else -> {
@@ -26,11 +26,11 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
     }
 
     override fun createTupleSpace(
-        request: TusowGRPC.TupleSpace,
-        responseObserver: StreamObserver<TusowGRPC.IOResponse>
+        request: TupleSpaceID,
+        responseObserver: StreamObserver<IOResponse>
     ) {
         when (request.type) {
-            TusowGRPC.TupleSpaceType.TEXTUAL -> {
+            TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.createTupleSpace(request, responseObserver)
             }
             else -> {
@@ -39,10 +39,10 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
         }
     }
 
-    override fun write(request: TusowGRPC.WriteRequest, responseObserver: StreamObserver<TusowGRPC.IOResponse>) {
-        val tupleSpace = request.tupleSpace
+    override fun write(request: WriteRequest, responseObserver: StreamObserver<IOResponse>) {
+        val tupleSpace = request.tupleSpaceID
         when (tupleSpace.type) {
-            TusowGRPC.TupleSpaceType.TEXTUAL -> {
+            TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.write(request, responseObserver)
             }
             else -> {
@@ -51,10 +51,10 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
         }
     }
 
-    override fun read(request: TusowGRPC.ReadOrTakeRequest, responseObserver: StreamObserver<TusowGRPC.Tuple>) {
-        val tupleSpace = request.tupleSpace
+    override fun read(request: ReadOrTakeRequest, responseObserver: StreamObserver<Tuple>) {
+        val tupleSpace = request.tupleSpaceID
         when (tupleSpace.type) {
-            TusowGRPC.TupleSpaceType.TEXTUAL -> {
+            TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.read(request, responseObserver)
             }
             else -> {
@@ -63,10 +63,10 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
         }
     }
 
-    override fun take(request: TusowGRPC.ReadOrTakeRequest, responseObserver: StreamObserver<TusowGRPC.Tuple>) {
-        val tupleSpace = request.tupleSpace
+    override fun take(request: ReadOrTakeRequest, responseObserver: StreamObserver<Tuple>) {
+        val tupleSpace = request.tupleSpaceID
         when (tupleSpace.type) {
-            TusowGRPC.TupleSpaceType.TEXTUAL -> {
+            TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.take(request, responseObserver)
             }
             else -> {
@@ -76,12 +76,12 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
     }
 
     override fun writeAll(
-        request: TusowGRPC.WriteAllRequest,
-        responseObserver: StreamObserver<TusowGRPC.IOResponseList>
+        request: WriteAllRequest,
+        responseObserver: StreamObserver<IOResponseList>
     ) {
-        val tupleSpace = request.tupleSpace
+        val tupleSpace = request.tupleSpaceID
         when (tupleSpace.type) {
-            TusowGRPC.TupleSpaceType.TEXTUAL -> {
+            TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.writeAll(request, responseObserver)
             }
             else -> {
@@ -91,12 +91,12 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
     }
 
     override fun readAll(
-        request: TusowGRPC.ReadOrTakeAllRequest,
-        responseObserver: StreamObserver<TusowGRPC.TuplesList>
+        request: ReadOrTakeAllRequest,
+        responseObserver: StreamObserver<TuplesList>
     ) {
-        val tupleSpace = request.tupleSpace
+        val tupleSpace = request.tupleSpaceID
         when (tupleSpace.type) {
-            TusowGRPC.TupleSpaceType.TEXTUAL -> {
+            TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.readAll(request, responseObserver)
             }
             else -> {
@@ -106,12 +106,12 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
     }
 
     override fun takeAll(
-        request: TusowGRPC.ReadOrTakeAllRequest,
-        responseObserver: StreamObserver<TusowGRPC.TuplesList>
+        request: ReadOrTakeAllRequest,
+        responseObserver: StreamObserver<TuplesList>
     ) {
-        val tupleSpace = request.tupleSpace
+        val tupleSpace = request.tupleSpaceID
         when (tupleSpace.type) {
-            TusowGRPC.TupleSpaceType.TEXTUAL -> {
+            TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.takeAll(request, responseObserver)
             }
             else -> {
@@ -121,12 +121,12 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
     }
 
     override fun writeAllAsStream(
-        request: TusowGRPC.WriteAllRequest,
-        responseObserver: StreamObserver<TusowGRPC.IOResponse>
+        request: WriteAllRequest,
+        responseObserver: StreamObserver<IOResponse>
     ) {
-        val tupleSpace = request.tupleSpace
+        val tupleSpace = request.tupleSpaceID
         when (tupleSpace.type) {
-            TusowGRPC.TupleSpaceType.TEXTUAL -> {
+            TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.writeAllAsStream(request, responseObserver)
             }
             else -> {
@@ -136,12 +136,12 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
     }
 
     override fun readAllAsStream(
-        request: TusowGRPC.ReadOrTakeAllRequest,
-        responseObserver: StreamObserver<TusowGRPC.Tuple>
+        request: ReadOrTakeAllRequest,
+        responseObserver: StreamObserver<Tuple>
     ) {
-        val tupleSpace = request.tupleSpace
+        val tupleSpace = request.tupleSpaceID
         when (tupleSpace.type) {
-            TusowGRPC.TupleSpaceType.TEXTUAL -> {
+            TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.readAllAsStream(request, responseObserver)
             }
             else -> {
@@ -151,12 +151,12 @@ class TusowServiceGRPCImpl : TusowServiceGrpc.TusowServiceImplBase() {
     }
 
     override fun takeAllAsStream(
-        request: TusowGRPC.ReadOrTakeAllRequest,
-        responseObserver: StreamObserver<TusowGRPC.Tuple>
+        request: ReadOrTakeAllRequest,
+        responseObserver: StreamObserver<Tuple>
     ) {
-        val tupleSpace = request.tupleSpace
+        val tupleSpace = request.tupleSpaceID
         when (tupleSpace.type) {
-            TusowGRPC.TupleSpaceType.TEXTUAL -> {
+            TupleSpaceType.TEXTUAL -> {
                 textualGRPCHandler.takeAllAsStream(request, responseObserver)
             }
             else -> {

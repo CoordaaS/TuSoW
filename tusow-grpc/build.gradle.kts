@@ -42,7 +42,8 @@ dependencies {
     api(project(":linda-text-grpc-client"))
     api(project(":linda-logic-grpc-client"))
     compileOnly("org.apache.tomcat:annotations-api:6.0.53")
-
+    implementation("io.grpc:grpc-kotlin-stub:${grpcKotlinVersion}")
+    implementation("io.grpc:grpc-stub:${grpcVersion}")
     // examples/advanced need this for JsonFormat
     implementation("ch.qos.logback:logback-classic:_")
 
