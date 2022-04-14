@@ -4,6 +4,7 @@ import TusowGRPC.*
 import TusowServiceGrpc
 import io.grpc.stub.StreamObserver
 import it.unibo.coordination.Promise
+import it.unibo.coordination.linda.core.TupleSpace
 import it.unibo.coordination.linda.text.RegexTemplate
 import it.unibo.coordination.linda.text.RegularMatch
 import it.unibo.coordination.linda.text.StringTuple
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeUnit
 
 class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
 
-    private val textualSpaces: MutableMap<String, TextualSpace> = HashMap()
+    private val textualSpaces: MutableMap<String, TextualSpaceAlias> = HashMap()
     private var executor: ExecutorService = Executors.newSingleThreadExecutor()
 
     private fun setPromiseTimeout(promise: Promise<RegularMatch>, request: ReadOrTakeRequest){
@@ -54,7 +55,7 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         }
     }
 
-    private fun getWritePromisesList(request: WriteAllRequest, space: TextualSpace) : LinkedList<Promise<StringTuple>>{
+    private fun getWritePromisesList(request: WriteAllRequest, space: TextualSpaceAlias) : LinkedList<Promise<StringTuple>>{
         val completableFutures = LinkedList<Promise<StringTuple>>()
         request.tuplesList.tuplesList.forEach { tuple ->
             val promise = space.write(tuple.value)
@@ -262,3 +263,5 @@ class TextualGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         }
     }
 }
+
+typealias TextualSpaceAlias = TupleSpace<StringTuple, RegexTemplate, Any, String, RegularMatch>

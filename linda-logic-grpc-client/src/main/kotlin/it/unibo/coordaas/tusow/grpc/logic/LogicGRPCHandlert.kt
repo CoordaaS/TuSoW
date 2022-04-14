@@ -4,10 +4,12 @@ import TusowGRPC.*
 import TusowServiceGrpc
 import io.grpc.stub.StreamObserver
 import it.unibo.coordination.Promise
+import it.unibo.coordination.linda.core.TupleSpace
 import it.unibo.coordination.linda.logic.LogicMatch
 import it.unibo.coordination.linda.logic.LogicSpace
 import it.unibo.coordination.linda.logic.LogicTemplate
 import it.unibo.coordination.linda.logic.LogicTuple
+import it.unibo.tuprolog.core.Term
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
@@ -16,7 +18,7 @@ import java.util.concurrent.TimeUnit
 
 class LogicGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
 
-    private val logicSpaces: MutableMap<String, LogicSpace> = HashMap()
+    private val logicSpaces: MutableMap<String, LogicSpaceAlias> = HashMap()
     private var executor: ExecutorService = Executors.newSingleThreadExecutor()
 
     private fun setPromiseTimeout(promise: Promise<LogicMatch>, request: ReadOrTakeRequest){
@@ -56,7 +58,7 @@ class LogicGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         }
     }
 
-    private fun getWritePromisesList(request: WriteAllRequest, space: LogicSpace) : LinkedList<Promise<LogicTuple>>{
+    private fun getWritePromisesList(request: WriteAllRequest, space: LogicSpaceAlias) : LinkedList<Promise<LogicTuple>>{
         val completableFutures = LinkedList<Promise<LogicTuple>>()
         request.tuplesList.tuplesList.forEach { tuple ->
             val promise = space.write(tuple.value)
@@ -266,3 +268,5 @@ class LogicGRPCHandler : TusowServiceGrpc.TusowServiceImplBase(){
         }
     }
 }
+
+typealias LogicSpaceAlias = TupleSpace<LogicTuple, LogicTemplate, String, Term, LogicMatch>
