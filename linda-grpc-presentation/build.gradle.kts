@@ -38,15 +38,13 @@ dependencies {
     api(project(":linda-text"))
     api(project(":linda-text-presentation"))
     api(project(":tusow-service"))
-    api("io.vertx:vertx-core:4.2.2")
-    api("io.vertx:vertx-web:4.2.2")
     api("io.grpc:grpc-protobuf:${grpcVersion}")
     api("com.google.protobuf:protobuf-java-util:${protobufVersion}")
     api("com.google.protobuf:protobuf-kotlin:${protobufVersion}")
     implementation("io.grpc:grpc-kotlin-stub:${grpcKotlinVersion}")
     implementation("io.grpc:grpc-stub:${grpcVersion}")
     compileOnly("org.apache.tomcat:annotations-api:6.0.53")
-
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.2")
     // examples/advanced need this for JsonFormat
     implementation("com.google.protobuf:protobuf-java-util:${protobufVersion}")
     implementation("ch.qos.logback:logback-classic:_")

@@ -15,6 +15,14 @@ repositories {
     mavenLocal()
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+val grpcVersion = "1.43.2" // CURRENT_GRPC_VERSION
+val grpcKotlinVersion = "1.2.1"
+
 dependencies {
     api(project(":linda-core"))
     api(project(":linda-logic"))
@@ -26,4 +34,6 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:_")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     testImplementation("junit:junit:4.12")
+    implementation("io.grpc:grpc-kotlin-stub:${grpcKotlinVersion}")
+    implementation("io.grpc:grpc-stub:${grpcVersion}")
 }
